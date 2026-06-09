@@ -6,15 +6,10 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-
-    MongooseModule.forRoot(process.env.MONGO_URI!),
-
-    AuthModule,
-
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(process.env.MONGO_URI || ''),
     UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
