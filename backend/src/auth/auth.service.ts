@@ -17,7 +17,7 @@ export class AuthService {
   async register(userData: any) {
     const userExists = await this.usersService.findOneByEmail(userData.email);
     if (userExists) {
-      throw new BadRequestException('ეს იმეილი უკვე რეგისტრირებულია!');
+      throw new BadRequestException('This email is already registered!');
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -34,7 +34,7 @@ export class AuthService {
   async login(loginData: any) {
     const user = await this.usersService.findOneByEmail(loginData.email);
     if (!user) {
-      throw new UnauthorizedException('იმეილი ან პაროლი არასწორია!');
+      throw new UnauthorizedException('Invalid email or password!');
     }
 
     const isPasswordMatch = await bcrypt.compare(
@@ -42,7 +42,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordMatch) {
-      throw new UnauthorizedException('იმეილი ან პაროლი არასწორია!');
+      throw new UnauthorizedException('Invalid email or password!');
     }
 
     const payload = { sub: user._id, email: user.email, name: user.name };
