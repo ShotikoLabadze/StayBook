@@ -11,25 +11,28 @@ import {
   Map,
   Plus,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export default function Sidebar() {
   const { logout } = useAuth();
+  const pathname = usePathname();
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "planner", label: "Planner", icon: Calendar },
-    { id: "trips", label: "Trips", icon: Map },
-    { id: "explore", label: "Explore", icon: Compass },
-    { id: "saved", label: "Saved", icon: Bookmark },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+    },
+    { id: "planner", label: "Planner", icon: Calendar, href: "/planner" },
+    { id: "trips", label: "Trips", icon: Map, href: "/trips" },
+    { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
+    { id: "saved", label: "Saved", icon: Bookmark, href: "/saved" },
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-100 flex flex-col justify-between p-6 shrink-0 sticky top-0 h-screen">
+    <aside className="w-64 bg-white border-r border-slate-100 flex flex-col justify-between p-6 shrink-0 sticky top-0 h-screen z-50">
       <div className="space-y-8">
         <div className="flex items-center gap-2.5 font-headline font-bold text-lg text-primary tracking-tight">
           <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary shadow-md shadow-secondary/10">
@@ -46,12 +49,14 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         <nav className="space-y-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+
+            const isActive = pathname === item.href;
+
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                href={item.href}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
                   isActive
                     ? "bg-slate-100 text-primary font-semibold"
                     : "text-slate-500 hover:bg-slate-50 hover:text-primary"
@@ -61,7 +66,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                   className={`w-4 h-4 ${isActive ? "text-primary" : "text-slate-400"}`}
                 />
                 {item.label}
-              </button>
+              </Link>
             );
           })}
         </nav>

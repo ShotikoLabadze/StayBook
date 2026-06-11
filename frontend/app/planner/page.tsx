@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import { useState } from "react";
 
 import PlannerHeader from "./components/PlannerHeader";
+import Timeline from "./components/Timeline";
 import TripHeroBanner from "./components/TripHeroBanner";
 
 export default function PlannerPage() {
@@ -19,7 +20,7 @@ export default function PlannerPage() {
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
         <PlannerHeader tripTitle={currentTrip.title} />
@@ -30,6 +31,12 @@ export default function PlannerPage() {
             dates={currentTrip.dates}
             image={currentTrip.image}
           />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-8">
+              <Timeline />
+            </div>
+          </div>
 
           <Footer variant="dashboard" />
         </div>
