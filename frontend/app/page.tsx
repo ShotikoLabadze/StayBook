@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar, MapPin, Search, Star } from "lucide-react";
@@ -233,29 +234,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-100 bg-white px-6 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
-        <div className="text-center sm:text-left space-y-0.5">
-          <p className="font-bold text-primary text-sm tracking-tight font-headline">
-            StayBook
-          </p>
-          <p>Luxury Travel Reimagined.</p>
-        </div>
-        <div className="flex gap-6">
-          <a href="#" className="hover:text-primary transition-colors">
-            Destinations
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
-            Pricing
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
-            Privacy Policy
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
-            Terms of Service
-          </a>
-        </div>
-        <p>© 2026 StayBook Luxury Travel. All rights reserved.</p>
-      </footer>
+      <Footer variant="landing" />
     </div>
   );
 }

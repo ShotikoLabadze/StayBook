@@ -11,6 +11,7 @@ import RecentActivity from "./components/RecentActivity";
 import TripCard from "./components/TripCard";
 import WelcomeBanner from "./components/WelcomeBanner";
 
+import Footer from "@/components/Footer";
 import { AnalyticItem } from "./components/AnalyticsWidget";
 
 const analyticsData: AnalyticItem[] = [
@@ -104,28 +105,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <footer className="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-slate-400">
-            <div className="space-y-0.5 text-center sm:text-left">
-              <p className="font-bold text-primary font-headline text-xs tracking-tight">
-                StayBook
-              </p>
-              <p>© 2026 StayBook Luxury Travel. All rights reserved.</p>
-            </div>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-primary transition-colors">
-                Destinations
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                Pricing
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                Terms of Service
-              </a>
-            </div>
-          </footer>
+          <Footer variant="dashboard" />
         </div>
       </main>
     </div>
