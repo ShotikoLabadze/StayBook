@@ -2,15 +2,14 @@
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
 
 import PlannerHeader from "./components/PlannerHeader";
 import Timeline from "./components/Timeline";
 import TripHeroBanner from "./components/TripHeroBanner";
 
-export default function PlannerPage() {
-  const [activeTab, setActiveTab] = useState("planner");
+import TripManagement from "./components/TripManagement";
 
+export default function PlannerPage() {
   const currentTrip = {
     title: "Amalfi Coast Adventure",
     dates: "Sep 12 — Sep 22, 2026",
@@ -35,6 +34,10 @@ export default function PlannerPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8">
               <Timeline />
+            </div>
+
+            <div className="lg:col-span-4 space-y-6">
+              <TripManagement />
             </div>
           </div>
 
