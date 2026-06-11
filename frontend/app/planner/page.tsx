@@ -7,6 +7,7 @@ import PlannerHeader from "./components/PlannerHeader";
 import Timeline from "./components/Timeline";
 import TripHeroBanner from "./components/TripHeroBanner";
 
+import MapPreview from "./components/MapPreview";
 import TripManagement from "./components/TripManagement";
 
 export default function PlannerPage() {
@@ -38,6 +39,7 @@ export default function PlannerPage() {
 
             <div className="lg:col-span-4 space-y-6">
               <TripManagement />
+              <MapPreview />
             </div>
           </div>
 
