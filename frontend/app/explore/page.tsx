@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 
+import FilterSidebar from "./components/FilterSidebar";
 import SearchHeader from "./components/SearchHeader";
 
 export default function ExplorePage() {
@@ -26,7 +27,9 @@ export default function ExplorePage() {
 
           <div className="flex flex-col lg:flex-row gap-10 items-start flex-1">
             <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-8 w-full">
-              <div className="xl:col-span-5"></div>
+              <div className="xl:col-span-5">
+                <FilterSidebar />
+              </div>
             </div>
           </div>
 
