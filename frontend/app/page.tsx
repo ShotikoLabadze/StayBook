@@ -2,54 +2,45 @@
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { Destination, destinationService } from "@/services/destinationService";
+import {
+  Destination,
+  Testimonial,
+  destinationService,
+} from "@/services/destinationService";
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar, MapPin, Search, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const testimonials = [
-  {
-    quote:
-      "StayBook redefined how I think about travel. The level of detail in scheduling and budgeting is unmatched.",
-    author: "Marcus Sterling",
-    role: "Global Wealth Advisor",
-  },
-  {
-    quote:
-      "The AI concierge is hauntingly accurate. It suggested hidden gems in Lyon that made my entire family trip.",
-    author: "Elena Rostova",
-    role: "Interior Designer",
-  },
-  {
-    quote:
-      "Finally, a travel app that understands the value of time. The seamless organization keeps me perfectly at peace.",
-    author: "David Chen",
-    role: "Tech Entrepreneur",
-  },
-];
-
 export default function LandingPage() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isTestimonialsLoading, setIsTestimonialsLoading] =
+    useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDestinations = async () => {
+    const fetchLandingData = async () => {
       try {
         setIsLoading(true);
-        const data = await destinationService.getAll();
+        setIsTestimonialsLoading(true);
 
-        setDestinations(data.slice(0, 3));
+        const destData = await destinationService.getAll();
+        setDestinations(destData.slice(0, 3));
+
+        const reviewData = await destinationService.getTestimonials();
+        setTestimonials(reviewData);
       } catch (err) {
-        console.error("Failed to load destinations:", err);
-        setError("Could not load destinations. Please try again later.");
+        console.error("Failed to load landing data:", err);
+        setError("Could not load fresh data. Please try again later.");
       } finally {
         setIsLoading(false);
+        setIsTestimonialsLoading(false);
       }
     };
 
-    fetchDestinations();
+    fetchLandingData();
   }, []);
 
   return (
@@ -201,27 +192,47 @@ export default function LandingPage() {
         </div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6"
-            >
-              <div className="space-y-4">
-                <div className="flex gap-0.5 text-secondary">
-                  {[...Array(5)].map((_, idx) => (
-                    <Star key={idx} className="w-4 h-4 fill-current" />
-                  ))}
+          {isTestimonialsLoading
+            ? [...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm animate-pulse space-y-4"
+                >
+                  <div className="h-4 bg-slate-200 rounded w-1/3" />
+                  <div className="h-3 bg-slate-200 rounded w-full" />
+                  <div className="h-3 bg-slate-200 rounded w-5/6" />
+                  <div className="pt-4 border-t border-slate-50 space-y-2">
+                    <div className="h-4 bg-slate-200 rounded w-1/2" />
+                    <div className="h-3 bg-slate-200 rounded w-1/3" />
+                  </div>
                 </div>
-                <p className="text-sm leading-relaxed text-slate-600 font-medium italic">
-                  "{t.quote}"
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-50">
-                <p className="text-sm font-semibold text-primary">{t.author}</p>
-                <p className="text-xs text-slate-400 font-medium">{t.role}</p>
-              </div>
-            </div>
-          ))}
+              ))
+            : testimonials.map((t, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6"
+                >
+                  <div className="space-y-4">
+                    <div className="flex gap-0.5 text-secondary">
+                      {[...Array(t.rating || 5)].map((_, idx) => (
+                        <Star key={idx} className="w-4 h-4 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-sm leading-relaxed text-slate-600 font-medium italic">
+                      "{t.quote}"
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-slate-50">
+                    <p className="text-sm font-semibold text-primary">
+                      {t.author}
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium">
+                      {t.role}{" "}
+                      {t.destinationTitle && `• Trip to ${t.destinationTitle}`}
+                    </p>
+                  </div>
+                </div>
+              ))}
         </div>
       </section>
 

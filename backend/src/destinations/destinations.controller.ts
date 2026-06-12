@@ -5,6 +5,11 @@ import { DestinationsService } from './destinations.service';
 export class DestinationsController {
   constructor(private readonly destinationsService: DestinationsService) {}
 
+  @Get('testimonials')
+  async getTestimonials() {
+    return this.destinationsService.getTopReviews();
+  }
+
   @Get()
   async getDestinations() {
     return this.destinationsService.findAll();
@@ -13,10 +18,5 @@ export class DestinationsController {
   @Post()
   async createDestinations(@Body() body: any) {
     return this.destinationsService.create(body);
-  }
-
-  @Get()
-  async getTestimonials() {
-    return this.destinationsService.getTopReviews();
   }
 }
