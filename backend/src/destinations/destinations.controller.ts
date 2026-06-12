@@ -14,4 +14,9 @@ export class DestinationsController {
   async createDestinations(@Body() body: any) {
     return this.destinationsService.create(body);
   }
+
+  @Get()
+  async getTestimonials() {
+    return this.destinationsService.getTopReviews();
+  }
 }

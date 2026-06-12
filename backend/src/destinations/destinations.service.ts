@@ -25,4 +25,22 @@ export class DestinationsService {
     const newDestination = new this.destinationModel(data);
     return newDestination.save();
   }
+
+  async getTopReviews() {
+    const destinations = await this.destinationModel
+      .find({ 'reviews.0': { $exists: true } })
+      .exec();
+
+    const allReviews = destinations.flatMap((dest) =>
+      dest.reviews.map((review) => ({
+        quote: review.quote,
+        author: review.author,
+        role: review.role,
+        rating: review.rating,
+        destinationTitle: dest.title,
+      })),
+    );
+
+    return allReviews.slice(0, 3);
+  }
 }
