@@ -12,9 +12,22 @@ export interface Destination {
   updatedAt?: string;
 }
 
+export interface Testimonial {
+  quote: string;
+  author: string;
+  role: string;
+  rating: number;
+  destinationTitle?: string;
+}
+
 export const destinationService = {
   getAll: async (): Promise<Destination[]> => {
     const response = await api.get<Destination[]>("/destinations");
+    return response.data;
+  },
+
+  getTestimonials: async (): Promise<Testimonial[]> => {
+    const response = await api.get<Testimonial[]>("/destinations/testimonials");
     return response.data;
   },
 };
