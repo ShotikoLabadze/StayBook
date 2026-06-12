@@ -2,36 +2,11 @@
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { Destination, destinationService } from "@/services/destinationService";
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar, MapPin, Search, Star } from "lucide-react";
 import Link from "next/link";
-
-const destinations = [
-  {
-    id: 1,
-    title: "Santorini Essence",
-    location: "Greece",
-    price: "$1,200/night",
-    image:
-      "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    title: "Azure Maldives",
-    location: "Maldives",
-    price: "$2,500/night",
-    image:
-      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    title: "Kyoto Serenity",
-    location: "Japan",
-    price: "$950/night",
-    image:
-      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop",
-  },
-];
+import { useEffect, useState } from "react";
 
 const testimonials = [
   {
@@ -55,6 +30,28 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        setIsLoading(true);
+        const data = await destinationService.getAll();
+
+        setDestinations(data.slice(0, 3));
+      } catch (err) {
+        console.error("Failed to load destinations:", err);
+        setError("Could not load destinations. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDestinations();
+  }, []);
+
   return (
     <div className="min-h-screen bg-neutral-bg font-body selection:bg-secondary/20 antialiased">
       <Navbar />
@@ -150,29 +147,46 @@ export default function LandingPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="text-red-500 text-sm font-medium">{error}</div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {destinations.map((dest) => (
-            <div key={dest.id} className="group cursor-pointer space-y-4">
-              <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-sm group-hover:shadow-md transition-all">
-                <img
-                  src={dest.image}
-                  alt={dest.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[11px] font-bold tracking-wide text-primary shadow-sm">
-                  From {dest.price.split("/")[0]}
+          {isLoading
+            ? [...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse space-y-4">
+                  <div className="aspect-[4/5] w-full rounded-2xl bg-slate-200" />
+                  <div className="h-4 bg-slate-200 rounded w-2/3" />
+                  <div className="h-3 bg-slate-200 rounded w-1/3" />
                 </div>
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-headline font-semibold text-lg text-primary group-hover:text-secondary transition-colors">
-                  {dest.title}
-                </h3>
-                <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {dest.location}
-                </p>
-              </div>
-            </div>
-          ))}
+              ))
+            : destinations.map((dest) => (
+                <div key={dest._id} className="group cursor-pointer space-y-4">
+                  <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-sm group-hover:shadow-md transition-all">
+                    <img
+                      src={dest.image}
+                      alt={dest.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[11px] font-bold tracking-wide text-primary shadow-sm">
+                      ${dest.price}/night
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-headline font-semibold text-lg text-primary group-hover:text-secondary transition-colors">
+                      {dest.title}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                        <MapPin className="w-3 h-3" /> {dest.location}
+                      </p>
+                      <span className="text-xs font-semibold text-amber-500 flex items-center gap-0.5">
+                        <Star className="w-3 h-3 fill-current" /> {dest.rating}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
         </div>
       </section>
 
