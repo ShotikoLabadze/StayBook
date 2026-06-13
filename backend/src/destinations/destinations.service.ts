@@ -40,4 +40,8 @@ export class DestinationsService {
   async findHotelsByDestination(destinationSlug: string) {
     return this.hotelModel.find({ destinationId: destinationSlug }).exec();
   }
+
+  async getUniquePropertyTypes() {
+    return this.hotelModel.distinct('propertyType').exec();
+  }
 }

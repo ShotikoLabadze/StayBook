@@ -24,4 +24,9 @@ export class DestinationsController {
   async createDestinations(@Body() body: any) {
     return this.destinationsService.create(body);
   }
+
+  @Get('property-types')
+  async getPropertyTypes() {
+    return this.destinationsService.getUniquePropertyTypes();
+  }
 }
