@@ -59,4 +59,9 @@ export const destinationService = {
     const response = await api.get(`/destinations/${slug}/hotels`);
     return response.data as Hotel[];
   },
+
+  getPropertyTypes: async () => {
+    const response = await api.get("/destinations/property-types");
+    return response.data as string[];
+  },
 };

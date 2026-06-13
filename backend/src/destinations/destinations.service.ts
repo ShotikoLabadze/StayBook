@@ -38,6 +38,9 @@ export class DestinationsService {
   }
 
   async findHotelsByDestination(destinationSlug: string) {
+    if (destinationSlug === 'all') {
+      return this.hotelModel.find().exec();
+    }
     return this.hotelModel.find({ destinationId: destinationSlug }).exec();
   }
 

@@ -5,6 +5,16 @@ import { DestinationsService } from './destinations.service';
 export class DestinationsController {
   constructor(private readonly destinationsService: DestinationsService) {}
 
+  @Get('property-types')
+  async getPropertyTypes() {
+    return this.destinationsService.getUniquePropertyTypes();
+  }
+
+  @Get()
+  async getDestinations() {
+    return this.destinationsService.findAll();
+  }
+
   @Get(':slug/hotels')
   async getDestinationHotels(@Param('slug') slug: string) {
     return this.destinationsService.findHotelsByDestination(slug);
@@ -15,18 +25,8 @@ export class DestinationsController {
     return this.destinationsService.createHotels(body);
   }
 
-  @Get()
-  async getDestinations() {
-    return this.destinationsService.findAll();
-  }
-
   @Post()
   async createDestinations(@Body() body: any) {
     return this.destinationsService.create(body);
-  }
-
-  @Get('property-types')
-  async getPropertyTypes() {
-    return this.destinationsService.getUniquePropertyTypes();
   }
 }

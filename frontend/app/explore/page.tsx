@@ -9,7 +9,8 @@ import HotelCard from "./components/HotelCard";
 import SearchHeader from "./components/SearchHeader";
 
 export default function ExplorePage() {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [allHotels, setAllHotels] = useState<Hotel[]>([]);
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,14 +19,12 @@ export default function ExplorePage() {
       try {
         setIsLoading(true);
 
-        const data =
-          await destinationService.getHotelsByDestination("santorini-greece");
-        setHotels(data);
+        const data = await destinationService.getHotelsByDestination("all");
+        setAllHotels(data);
+        setFilteredHotels(data);
       } catch (err) {
         console.error("Failed to load hotels:", err);
-        setError(
-          "Unable to find luxury sanctuaries right now. Please try again later.",
-        );
+        setError("Unable to find luxury sanctuaries right now.");
       } finally {
         setIsLoading(false);
       }
@@ -33,6 +32,33 @@ export default function ExplorePage() {
 
     fetchHotels();
   }, []);
+
+  const handleFilterChange = (filters: {
+    minPrice: number;
+    maxPrice: number;
+    rating: number | null;
+    propertyTypes: string[];
+  }) => {
+    let result = [...allHotels];
+
+    result = result.filter(
+      (hotel) =>
+        hotel.pricePerNight >= filters.minPrice &&
+        hotel.pricePerNight <= filters.maxPrice,
+    );
+
+    if (filters.rating !== null) {
+      result = result.filter((hotel) => hotel.rating >= filters.rating!);
+    }
+
+    if (filters.propertyTypes.length > 0) {
+      result = result.filter((hotel) =>
+        filters.propertyTypes.includes(hotel.propertyType),
+      );
+    }
+
+    setFilteredHotels(result);
+  };
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
@@ -53,40 +79,46 @@ export default function ExplorePage() {
           <SearchHeader />
 
           {error && (
-            <div className="text-red-500 text-xs font-semibold text-left bg-red-50 p-4 rounded-xl border border-red-100">
+            <div className="text-red-500 text-xs font-semibold text-left">
               {error}
             </div>
           )}
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start flex-1 w-full">
             <div className="xl:col-span-4">
-              <FilterSidebar />
+              <FilterSidebar onFilterChange={handleFilterChange} />
             </div>
 
             <div className="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              {isLoading
-                ? [...Array(4)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
-                    />
-                  ))
-                : hotels.map((hotel) => (
-                    <HotelCard
-                      key={hotel._id}
-                      title={hotel.name}
-                      location={hotel.neighborhood}
-                      rating={hotel.rating}
-                      reviews={hotel.reviewCount}
-                      price={hotel.pricePerNight}
-                      image={hotel.image}
-                      features={hotel.tags}
-                    />
-                  ))}
+              {isLoading ? (
+                [...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
+                  />
+                ))
+              ) : filteredHotels.length === 0 ? (
+                <div className="col-span-2 text-center py-20 text-slate-400 font-medium text-sm">
+                  No luxury properties match your selected criteria.
+                </div>
+              ) : (
+                filteredHotels.map((hotel) => (
+                  <HotelCard
+                    key={hotel._id}
+                    title={hotel.name}
+                    location={hotel.neighborhood}
+                    rating={hotel.rating}
+                    reviews={hotel.reviewCount}
+                    price={hotel.pricePerNight}
+                    image={hotel.image}
+                    features={hotel.tags}
+                  />
+                ))
+              )}
             </div>
           </div>
 
-          <Footer />
+          <Footer variant="dashboard" />
         </div>
       </main>
     </div>
