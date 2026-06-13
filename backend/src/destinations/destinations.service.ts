@@ -47,4 +47,20 @@ export class DestinationsService {
   async getUniquePropertyTypes() {
     return this.hotelModel.distinct('propertyType').exec();
   }
+
+  async getUniqueCategories() {
+    return this.destinationModel.distinct('category').exec();
+  }
+
+  async getUniqueWeatherConditions() {
+    return this.destinationModel.distinct('weather.condition').exec();
+  }
+
+  async getUniqueDurations() {
+    return this.destinationModel.distinct('duration').exec();
+  }
+
+  async getUniqueActivities() {
+    return this.destinationModel.distinct('activities').exec();
+  }
 }

@@ -15,6 +15,26 @@ export class DestinationsController {
     return this.destinationsService.findAll();
   }
 
+  @Get('categories')
+  async getCategories() {
+    return this.destinationsService.getUniqueCategories();
+  }
+
+  @Get('weather-conditions')
+  async getWeatherConditions() {
+    return this.destinationsService.getUniqueWeatherConditions();
+  }
+
+  @Get('durations')
+  async getDurations() {
+    return this.destinationsService.getUniqueDurations();
+  }
+
+  @Get('activities')
+  async getActivities() {
+    return this.destinationsService.getUniqueActivities();
+  }
+
   @Get(':slug/hotels')
   async getDestinationHotels(@Param('slug') slug: string) {
     return this.destinationsService.findHotelsByDestination(slug);
