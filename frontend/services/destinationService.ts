@@ -7,10 +7,32 @@ export interface Destination {
   name: string;
   country: string;
   region: string;
+  tagline: string;
+  description: string;
   image: string;
+  gallery: string[];
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   pricePerNight: number;
+  currency: string;
   rating: number;
   reviewCount: number;
+  category: string;
+  tags: string[];
+  activities: string[];
+  duration: string;
+  weather: {
+    temp: number;
+    unit: string;
+    condition: string;
+  };
+  flightTime?: string;
+  bestSeason?: string;
+  highlights?: string[];
+  featured?: boolean;
+  tips?: string[];
 }
 
 export interface Testimonial {
@@ -69,14 +91,17 @@ export const destinationService = {
     const response = await api.get("/destinations/categories");
     return response.data as string[];
   },
+
   getWeatherConditions: async () => {
     const response = await api.get("/destinations/weather-conditions");
     return response.data as string[];
   },
+
   getDurations: async () => {
     const response = await api.get("/destinations/durations");
     return response.data as string[];
   },
+
   getActivities: async () => {
     const response = await api.get("/destinations/activities");
     return response.data as string[];

@@ -3,44 +3,100 @@ import { Document } from 'mongoose';
 
 export type DestinationDocument = Destination & Document;
 
-@Schema()
-class Review {
-  @Prop({ required: true })
-  author!: string;
+@Schema({ _id: false })
+class Weather {
+  @Prop({ type: Number })
+  temp!: number;
 
-  @Prop({ required: true })
-  role!: string;
+  @Prop()
+  unit!: string;
 
-  @Prop({ required: true })
-  quote!: string;
-
-  @Prop({ type: Number, required: true, min: 1, max: 5 })
-  rating!: number;
+  @Prop()
+  condition!: string;
 }
-const ReviewSchema = SchemaFactory.createForClass(Review);
 
 @Schema({ timestamps: true })
 export class Destination {
-  @Prop({ required: true })
-  title!: string;
+  @Prop({ required: true, unique: true })
+  id!: string;
 
   @Prop({ required: true })
-  location!: string;
+  slug!: string;
 
-  @Prop({ required: true, type: Number })
-  price!: number;
+  @Prop({ required: true })
+  name!: string;
+
+  @Prop({ required: true })
+  country!: string;
+
+  @Prop({ required: true })
+  region!: string;
+
+  @Prop()
+  tagline!: string;
+
+  @Prop()
+  description!: string;
+
+  @Prop({ required: true })
+  image!: string;
+
+  @Prop({ type: [String], default: [] })
+  gallery!: string[];
+
+  @Prop({
+    type: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
+    },
+    required: true,
+  })
+  coordinates!: {
+    lat: number;
+    lng: number;
+  };
+
+  @Prop({ type: Number, required: true })
+  pricePerNight!: number;
+
+  @Prop({ default: 'USD' })
+  currency!: string;
 
   @Prop({ type: Number, default: 4.5 })
   rating!: number;
 
   @Prop({ type: Number, default: 0 })
-  reviewsCount!: number;
+  reviewCount!: number;
 
-  @Prop({ required: true })
-  image!: string;
+  @Prop()
+  category!: string;
 
-  @Prop({ type: [ReviewSchema], default: [] })
-  reviews!: Review[];
+  @Prop({ type: [String], default: [] })
+  tags!: string[];
+
+  @Prop({ type: [String], default: [] })
+  activities!: string[];
+
+  @Prop()
+  duration!: string;
+
+  @Prop({ type: Weather })
+  weather!: Weather;
+
+  @Prop()
+  flightTime!: string;
+
+  @Prop()
+  bestSeason!: string;
+
+  @Prop({ type: [String], default: [] })
+  highlights!: string[];
+
+  @Prop({ type: Boolean, default: false })
+  featured!: boolean;
+
+  @Prop({ type: [String], default: [] })
+  tips!: string[];
 }
 
 export const DestinationSchema = SchemaFactory.createForClass(Destination);

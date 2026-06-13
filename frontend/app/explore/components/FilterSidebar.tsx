@@ -4,50 +4,84 @@ import { destinationService } from "@/services/destinationService";
 import { RotateCcw, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const RATING_OPTIONS = [4.9, 4.8, 4.5, 4.0];
+const RATING_OPTIONS = [4.9, 4.7, 4.5, 4.0];
 
 interface FilterSidebarProps {
   onFilterChange: (filters: {
+    categories: string[];
     minPrice: number;
     maxPrice: number;
     rating: number | null;
+    weather: string[];
+    durations: string[];
+    activities: string[];
     propertyTypes: string[];
   }) => void;
 }
 
 export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
+  const [categories, setCategories] = useState<string[]>([]);
+  const [weatherConditions, setWeatherConditions] = useState<string[]>([]);
+  const [durations, setDurations] = useState<string[]>([]);
+  const [activities, setActivities] = useState<string[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState(480);
+  const [maxPrice, setMaxPrice] = useState(2450);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [selectedWeather, setSelectedWeather] = useState<string[]>([]);
+  const [selectedDurations, setSelectedDurations] = useState<string[]>([]);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
   const sliderMin = 0;
   const sliderMax = 3200;
-
-  const [minPrice, setMinPrice] = useState(200);
-  const [maxPrice, setMaxPrice] = useState(1200);
-  const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-
   const sliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchTypes = async () => {
+    const fetchAllFilterTags = async () => {
       try {
-        const types = await destinationService.getPropertyTypes();
+        const [cats, weather, durs, acts, types] = await Promise.all([
+          destinationService.getCategories(),
+          destinationService.getWeatherConditions(),
+          destinationService.getDurations(),
+          destinationService.getActivities(),
+          destinationService.getPropertyTypes(),
+        ]);
+        setCategories(cats);
+        setWeatherConditions(weather);
+        setDurations(durs);
+        setActivities(acts);
         setPropertyTypes(types);
       } catch (err) {
-        console.error("Failed to load property types:", err);
+        console.error("Failed to load filter tags:", err);
       }
     };
-    fetchTypes();
+    fetchAllFilterTags();
   }, []);
 
   useEffect(() => {
     onFilterChange({
+      categories: selectedCategories,
       minPrice,
       maxPrice,
       rating: selectedRating,
+      weather: selectedWeather,
+      durations: selectedDurations,
+      activities: selectedActivities,
       propertyTypes: selectedTypes,
     });
-  }, [minPrice, maxPrice, selectedRating, selectedTypes]);
+  }, [
+    selectedCategories,
+    minPrice,
+    maxPrice,
+    selectedRating,
+    selectedWeather,
+    selectedDurations,
+    selectedActivities,
+    selectedTypes,
+  ]);
 
   const convertPosToPrice = (clientX: number) => {
     if (!sliderRef.current) return 0;
@@ -86,16 +120,26 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const togglePropertyType = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+  const toggleFilter = (
+    list: string[],
+    setList: React.Dispatch<React.SetStateAction<string[]>>,
+    value: string,
+  ) => {
+    setList((prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value],
     );
   };
 
   const handleReset = () => {
-    setMinPrice(200);
-    setMaxPrice(1200);
+    setSelectedCategories([]);
+    setMinPrice(480);
+    setMaxPrice(2450);
     setSelectedRating(null);
+    setSelectedWeather([]);
+    setSelectedDurations([]);
+    setSelectedActivities([]);
     setSelectedTypes([]);
   };
 
@@ -103,7 +147,7 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
   const maxPercent = ((maxPrice - sliderMin) / (sliderMax - sliderMin)) * 100;
 
   return (
-    <aside className="w-72 shrink-0 space-y-7 text-left font-body text-primary bg-white border border-slate-100 p-5 rounded-3xl shadow-sm">
+    <aside className="w-74 shrink-0 space-y-7 text-left font-body text-primary bg-white border border-slate-100 p-5 rounded-3xl shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-wider text-primary font-headline">
           Filters
@@ -111,6 +155,31 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
       </div>
 
       <div className="space-y-3">
+        <p className="text-xs font-semibold text-slate-700">Category</p>
+        <div className="flex flex-wrap gap-1.5">
+          {categories.map((cat) => {
+            const active = selectedCategories.includes(cat);
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() =>
+                  toggleFilter(selectedCategories, setSelectedCategories, cat)
+                }
+                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                  active
+                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-3 border-t border-slate-100 pt-5">
         <p className="text-xs font-semibold text-slate-700">
           Price Range (per night)
         </p>
@@ -142,7 +211,7 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 border-t border-slate-100 pt-5">
         <p className="text-xs font-semibold text-slate-700">Property Rating</p>
         <div className="flex flex-wrap gap-1.5">
           {RATING_OPTIONS.map((num) => {
@@ -158,7 +227,7 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                     : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
                 }`}
               >
-                <span>{num.toFixed(1)}</span>
+                <span>{num.toFixed(1)}+</span>
                 <Star
                   className={`h-2.5 w-2.5 ${active ? "fill-secondary text-secondary" : "fill-slate-300 text-slate-300"}`}
                 />
@@ -169,29 +238,102 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
       </div>
 
       <div className="space-y-3 border-t border-slate-100 pt-5">
+        <p className="text-xs font-semibold text-slate-700">Weather</p>
+        <div className="flex flex-wrap gap-1.5">
+          {weatherConditions.map((cond) => {
+            const active = selectedWeather.includes(cond);
+            return (
+              <button
+                key={cond}
+                type="button"
+                onClick={() =>
+                  toggleFilter(selectedWeather, setSelectedWeather, cond)
+                }
+                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                  active
+                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {cond}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-3 border-t border-slate-100 pt-5">
+        <p className="text-xs font-semibold text-slate-700">Duration</p>
+        <div className="flex flex-wrap gap-1.5">
+          {durations.map((dur) => {
+            const active = selectedDurations.includes(dur);
+            return (
+              <button
+                key={dur}
+                type="button"
+                onClick={() =>
+                  toggleFilter(selectedDurations, setSelectedDurations, dur)
+                }
+                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                  active
+                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {dur}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-3 border-t border-slate-100 pt-5">
+        <p className="text-xs font-semibold text-slate-700">Activities</p>
+        <div className="flex flex-wrap gap-1.5">
+          {activities.map((act) => {
+            const active = selectedActivities.includes(act);
+            return (
+              <button
+                key={act}
+                type="button"
+                onClick={() =>
+                  toggleFilter(selectedActivities, setSelectedActivities, act)
+                }
+                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                  active
+                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                {act}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-3 border-t border-slate-100 pt-5">
         <p className="text-xs font-semibold text-slate-700">Property Type</p>
         <div className="flex flex-wrap gap-1.5 w-full">
-          {propertyTypes.length === 0 ? (
-            <span className="text-xs text-slate-400">Loading types...</span>
-          ) : (
-            propertyTypes.map((type) => {
-              const active = selectedTypes.includes(type);
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => togglePropertyType(type)}
-                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                    active
-                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-primary"
-                  }`}
-                >
-                  {type}
-                </button>
-              );
-            })
-          )}
+          {propertyTypes.map((type) => {
+            const active = selectedTypes.includes(type);
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() =>
+                  toggleFilter(selectedTypes, setSelectedTypes, type)
+                }
+                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                  active
+                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold shadow-xs"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-primary"
+                }`}
+              >
+                {type}
+              </button>
+            );
+          })}
         </div>
       </div>
 
