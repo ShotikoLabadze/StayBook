@@ -2,14 +2,15 @@ import api from "./api";
 
 export interface Destination {
   _id: string;
-  title: string;
-  location: string;
-  price: number;
-  rating: number;
-  reviews: number;
+  id: string;
+  slug: string;
+  name: string;
+  country: string;
+  region: string;
   image: string;
-  createdAt?: string;
-  updatedAt?: string;
+  pricePerNight: number;
+  rating: number;
+  reviewCount: number;
 }
 
 export interface Testimonial {
@@ -20,14 +21,42 @@ export interface Testimonial {
   destinationTitle?: string;
 }
 
+export interface Hotel {
+  _id: string;
+  id: string;
+  destinationId: string;
+  name: string;
+  neighborhood: string;
+  image: string;
+  gallery: string[];
+  rating: number;
+  reviewCount: number;
+  pricePerNight: number;
+  currency: string;
+  propertyType: string;
+  tags: string[];
+  amenities: string[];
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  description: string;
+  highlights: string[];
+}
+
 export const destinationService = {
-  getAll: async (): Promise<Destination[]> => {
-    const response = await api.get<Destination[]>("/destinations");
-    return response.data;
+  getAll: async () => {
+    const response = await api.get("/destinations");
+    return response.data as Destination[];
   },
 
-  getTestimonials: async (): Promise<Testimonial[]> => {
-    const response = await api.get<Testimonial[]>("/destinations/testimonials");
-    return response.data;
+  getTestimonials: async () => {
+    const response = await api.get("/destinations/testimonials");
+    return response.data as Testimonial[];
+  },
+
+  getHotelsByDestination: async (slug: string) => {
+    const response = await api.get(`/destinations/${slug}/hotels`);
+    return response.data as Hotel[];
   },
 };

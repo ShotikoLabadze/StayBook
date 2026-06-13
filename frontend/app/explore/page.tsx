@@ -2,48 +2,37 @@
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
-
+import { destinationService, Hotel } from "@/services/destinationService";
+import { useEffect, useState } from "react";
 import FilterSidebar from "./components/FilterSidebar";
 import HotelCard from "./components/HotelCard";
 import SearchHeader from "./components/SearchHeader";
 
 export default function ExplorePage() {
-  const mockHotels = [
-    {
-      id: "h-1",
-      title: "Grace Hotel, Auberge Resorts",
-      location: "Imerovigli, Santorini",
-      rating: 4.9,
-      reviews: 124,
-      price: 850,
-      image:
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=500&auto=format&fit=crop",
-      features: ["Infinity Pool", "Ocean View"],
-      initiallyFavorited: true,
-    },
-    {
-      id: "h-2",
-      title: "Canaves Oia Epitome",
-      location: "Oia Village, Santorini",
-      rating: 4.8,
-      reviews: 96,
-      price: 920,
-      image:
-        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=500&auto=format&fit=crop",
-      features: ["Private Butler", "Ocean View"],
-    },
-    {
-      id: "h-3",
-      title: "Katikies Santorini",
-      location: "Oia Village, Santorini",
-      rating: 4.7,
-      reviews: 142,
-      price: 780,
-      image:
-        "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?q=80&w=500&auto=format&fit=crop",
-      features: ["Caldera View", "Spa & Wellness"],
-    },
-  ];
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        setIsLoading(true);
+
+        const data =
+          await destinationService.getHotelsByDestination("santorini-greece");
+        setHotels(data);
+      } catch (err) {
+        console.error("Failed to load hotels:", err);
+        setError(
+          "Unable to find luxury sanctuaries right now. Please try again later.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHotels();
+  }, []);
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
@@ -63,15 +52,37 @@ export default function ExplorePage() {
         <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
           <SearchHeader />
 
+          {error && (
+            <div className="text-red-500 text-xs font-semibold text-left bg-red-50 p-4 rounded-xl border border-red-100">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start flex-1 w-full">
             <div className="xl:col-span-4">
               <FilterSidebar />
             </div>
 
             <div className="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              {mockHotels.map((hotel) => (
-                <HotelCard key={hotel.id} {...hotel} />
-              ))}
+              {isLoading
+                ? [...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
+                    />
+                  ))
+                : hotels.map((hotel) => (
+                    <HotelCard
+                      key={hotel._id}
+                      title={hotel.name}
+                      location={hotel.neighborhood}
+                      rating={hotel.rating}
+                      reviews={hotel.reviewCount}
+                      price={hotel.pricePerNight}
+                      image={hotel.image}
+                      features={hotel.tags}
+                    />
+                  ))}
             </div>
           </div>
 
