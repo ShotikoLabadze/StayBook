@@ -1,13 +1,18 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { DestinationsService } from './destinations.service';
 
 @Controller('destinations')
 export class DestinationsController {
   constructor(private readonly destinationsService: DestinationsService) {}
 
-  @Get('testimonials')
-  async getTestimonials() {
-    return this.destinationsService.getTopReviews();
+  @Get(':slug/hotels')
+  async getDestinationHotels(@Param('slug') slug: string) {
+    return this.destinationsService.findHotelsByDestination(slug);
+  }
+
+  @Post('hotels')
+  async createHotels(@Body() body: any) {
+    return this.destinationsService.createHotels(body);
   }
 
   @Get()

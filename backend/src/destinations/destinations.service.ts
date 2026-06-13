@@ -5,12 +5,16 @@ import {
   Destination,
   DestinationDocument,
 } from '../schemas/destination.schema';
+import { Hotel, HotelDocument } from '../schemas/hotel.schema';
 
 @Injectable()
 export class DestinationsService {
   constructor(
     @InjectModel(Destination.name)
     private destinationModel: Model<DestinationDocument>,
+
+    @InjectModel(Hotel.name)
+    private hotelModel: Model<HotelDocument>,
   ) {}
 
   async findAll(): Promise<Destination[]> {
@@ -21,26 +25,19 @@ export class DestinationsService {
     if (Array.isArray(data)) {
       return this.destinationModel.insertMany(data);
     }
-
     const newDestination = new this.destinationModel(data);
     return newDestination.save();
   }
 
-  async getTopReviews() {
-    const destinations = await this.destinationModel
-      .find({ 'reviews.0': { $exists: true } })
-      .exec();
+  async createHotels(data: any) {
+    if (Array.isArray(data)) {
+      return this.hotelModel.insertMany(data);
+    }
+    const newHotel = new this.hotelModel(data);
+    return newHotel.save();
+  }
 
-    const allReviews = destinations.flatMap((dest) =>
-      dest.reviews.map((review) => ({
-        quote: review.quote,
-        author: review.author,
-        role: review.role,
-        rating: review.rating,
-        destinationTitle: dest.title,
-      })),
-    );
-
-    return allReviews.slice(0, 3);
+  async findHotelsByDestination(destinationSlug: string) {
+    return this.hotelModel.find({ destinationId: destinationSlug }).exec();
   }
 }
