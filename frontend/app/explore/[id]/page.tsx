@@ -9,6 +9,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BookingCard from "./components/BookingCard";
+import HotelAmenities from "./components/HotelAmenities";
 import HotelDescription from "./components/HotelDescription";
 import HotelHero from "./components/HotelHero";
 
@@ -106,6 +107,8 @@ export default function HotelDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
           <div className="lg:col-span-8 space-y-8">
             <HotelDescription hotel={hotel} />
+
+            <HotelAmenities hotel={hotel} />
           </div>
 
           <div className="lg:col-span-4 lg:sticky lg:top-[30px] z-20">
