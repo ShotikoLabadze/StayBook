@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { DestinationsService } from './destinations.service';
 
 @Controller('destinations')
@@ -36,8 +36,11 @@ export class DestinationsController {
   }
 
   @Get(':slug/hotels')
-  async getDestinationHotels(@Param('slug') slug: string) {
-    return this.destinationsService.findHotelsByDestination(slug);
+  async getDestinationHotels(
+    @Param('slug') slug: string,
+    @Query() queryParams: any,
+  ) {
+    return this.destinationsService.findHotelsByDestination(slug, queryParams);
   }
 
   @Post('hotels')

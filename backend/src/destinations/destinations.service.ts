@@ -37,11 +37,54 @@ export class DestinationsService {
     return newHotel.save();
   }
 
-  async findHotelsByDestination(destinationSlug: string) {
-    if (destinationSlug === 'all') {
-      return this.hotelModel.find().exec();
+  async findHotelsByDestination(destinationSlug: string, queryParams: any) {
+    const { search, sortBy, minPrice, maxPrice, rating, propertyTypes } =
+      queryParams;
+
+    let filter: any = {};
+
+    if (destinationSlug !== 'all') {
+      filter.destinationId = destinationSlug;
     }
-    return this.hotelModel.find({ destinationId: destinationSlug }).exec();
+
+    if (minPrice || maxPrice) {
+      filter.pricePerNight = {};
+      if (minPrice) filter.pricePerNight.$gte = Number(minPrice);
+      if (maxPrice) filter.pricePerNight.$lte = Number(maxPrice);
+    }
+
+    if (rating) {
+      filter.rating = { $gte: Number(rating) };
+    }
+
+    if (propertyTypes) {
+      const typesArray = Array.isArray(propertyTypes)
+        ? propertyTypes
+        : propertyTypes.split(',');
+      if (typesArray.length > 0) {
+        filter.propertyType = { $in: typesArray };
+      }
+    }
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { neighborhood: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    let sortOptions: any = {};
+    if (sortBy === 'priceLow') {
+      sortOptions.pricePerNight = 1;
+    } else if (sortBy === 'priceHigh') {
+      sortOptions.pricePerNight = -1;
+    } else if (sortBy === 'rating') {
+      sortOptions.rating = -1;
+    } else {
+      sortOptions.reviewCount = -1;
+    }
+
+    return this.hotelModel.find(filter).sort(sortOptions).exec();
   }
 
   async getUniquePropertyTypes() {
