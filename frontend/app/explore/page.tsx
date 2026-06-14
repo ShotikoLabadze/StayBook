@@ -3,10 +3,20 @@
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { destinationService, Hotel } from "@/services/destinationService";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import FilterSidebar from "./components/FilterSidebar";
 import HotelCard from "./components/HotelCard";
 import SearchHeader from "./components/SearchHeader";
+
+const ExploreMap = dynamic(() => import("./components/ExploreMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[650px] bg-slate-100 animate-pulse rounded-3xl flex items-center justify-center text-xs font-bold text-slate-400">
+      Loading luxury interactive map...
+    </div>
+  ),
+});
 
 interface ActiveFilters {
   categories: string[];
@@ -26,6 +36,8 @@ export default function ExplorePage() {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("popular");
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+
   const [currentFilters, setCurrentFilters] = useState<ActiveFilters>({
     categories: [],
     minPrice: 480,
@@ -50,6 +62,15 @@ export default function ExplorePage() {
         };
 
         if (currentFilters.rating) queryParams.rating = currentFilters.rating;
+
+        if (currentFilters.categories.length > 0)
+          queryParams.categories = currentFilters.categories.join(",");
+        if (currentFilters.weather.length > 0)
+          queryParams.weather = currentFilters.weather.join(",");
+        if (currentFilters.durations.length > 0)
+          queryParams.durations = currentFilters.durations.join(",");
+        if (currentFilters.activities.length > 0)
+          queryParams.activities = currentFilters.activities.join(",");
         if (currentFilters.propertyTypes.length > 0) {
           queryParams.propertyTypes = currentFilters.propertyTypes.join(",");
         }
@@ -96,6 +117,8 @@ export default function ExplorePage() {
             onSearchChange={setSearchTerm}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
           />
 
           {error && (
@@ -109,31 +132,37 @@ export default function ExplorePage() {
               <FilterSidebar onFilterChange={setCurrentFilters} />
             </div>
 
-            <div className="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+            <div className="xl:col-span-8 w-full">
               {isLoading ? (
-                [...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
-                  />
-                ))
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
+                    />
+                  ))}
+                </div>
               ) : hotels.length === 0 ? (
-                <div className="col-span-2 text-center py-20 text-slate-400 font-medium text-sm">
+                <div className="text-center py-20 text-slate-400 font-medium text-sm">
                   No luxury properties found matching these parameters.
                 </div>
+              ) : viewMode === "grid" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                  {hotels.map((hotel) => (
+                    <HotelCard
+                      key={hotel._id}
+                      title={hotel.name}
+                      location={hotel.neighborhood}
+                      rating={hotel.rating}
+                      reviews={hotel.reviewCount}
+                      price={hotel.pricePerNight}
+                      image={hotel.image}
+                      features={hotel.tags}
+                    />
+                  ))}
+                </div>
               ) : (
-                hotels.map((hotel) => (
-                  <HotelCard
-                    key={hotel._id}
-                    title={hotel.name}
-                    location={hotel.neighborhood}
-                    rating={hotel.rating}
-                    reviews={hotel.reviewCount}
-                    price={hotel.pricePerNight}
-                    image={hotel.image}
-                    features={hotel.tags}
-                  />
-                ))
+                <ExploreMap hotels={hotels} />
               )}
             </div>
           </div>

@@ -8,6 +8,8 @@ interface SearchHeaderProps {
   onSearchChange: (value: string) => void;
   sortBy: string;
   onSortChange: (value: string) => void;
+  viewMode: "grid" | "map";
+  onViewModeChange: (view: "grid" | "map") => void;
 }
 
 export default function SearchHeader({
@@ -16,6 +18,8 @@ export default function SearchHeader({
   onSearchChange,
   sortBy,
   onSortChange,
+  viewMode,
+  onViewModeChange,
 }: SearchHeaderProps) {
   return (
     <div className="space-y-5 text-left w-full">
@@ -45,11 +49,27 @@ export default function SearchHeader({
         </div>
 
         <div className="flex items-center gap-4 ml-auto w-full sm:w-auto justify-between sm:justify-end">
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-500 shadow-2xs border border-slate-200/20">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary rounded-lg shadow-2xs cursor-pointer">
-              <Grid className="w-3.5 h-3.5 text-primary" /> Grid
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-500 border border-slate-200/20 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => onViewModeChange("grid")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-white text-primary shadow-2xs"
+                  : "text-slate-400 hover:text-primary"
+              }`}
+            >
+              <Grid className="w-3.5 h-3.5" /> Grid
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 hover:text-primary transition-colors cursor-pointer">
+            <button
+              type="button"
+              onClick={() => onViewModeChange("map")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === "map"
+                  ? "bg-white text-primary shadow-2xs"
+                  : "text-slate-400 hover:text-primary"
+              }`}
+            >
               <Map className="w-3.5 h-3.5" /> Map
             </button>
           </div>
