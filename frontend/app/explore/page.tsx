@@ -168,7 +168,7 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          <Footer />
+          <Footer variant="dashboard" />
         </div>
       </main>
     </div>

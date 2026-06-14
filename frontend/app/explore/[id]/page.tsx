@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import {
   Destination,
@@ -130,6 +131,7 @@ export default function HotelDetailsPage() {
             <BookingCard hotel={hotel} />
           </div>
         </div>
+        <Footer variant="dashboard" />
       </main>
     </div>
   );
