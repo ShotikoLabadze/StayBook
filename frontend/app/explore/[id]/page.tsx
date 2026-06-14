@@ -6,12 +6,22 @@ import {
   destinationService,
   Hotel,
 } from "@/services/destinationService";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BookingCard from "./components/BookingCard";
 import HotelAmenities from "./components/HotelAmenities";
 import HotelDescription from "./components/HotelDescription";
 import HotelHero from "./components/HotelHero";
+
+const HotelMap = dynamic(() => import("./components/HotelMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[350px] bg-white border border-slate-100 rounded-3xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-bold">
+      Opening sanctuary gates...
+    </div>
+  ),
+});
 
 interface ActiveFilters {
   categories: string[];
@@ -109,6 +119,8 @@ export default function HotelDetailsPage() {
             <HotelDescription hotel={hotel} />
 
             <HotelAmenities hotel={hotel} />
+
+            <HotelMap hotel={hotel} />
           </div>
 
           <div className="lg:col-span-4 lg:sticky lg:top-[30px] z-20">
