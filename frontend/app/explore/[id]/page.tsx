@@ -8,6 +8,7 @@ import {
 } from "@/services/destinationService";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import BookingCard from "./components/BookingCard";
 import HotelDescription from "./components/HotelDescription";
 import HotelHero from "./components/HotelHero";
 
@@ -107,7 +108,9 @@ export default function HotelDetailsPage() {
             <HotelDescription hotel={hotel} />
           </div>
 
-          <div className="lg:col-span-4 sticky top-[85px]"></div>
+          <div className="lg:col-span-4 lg:sticky lg:top-[30px] z-20">
+            <BookingCard hotel={hotel} />
+          </div>
         </div>
       </main>
     </div>
