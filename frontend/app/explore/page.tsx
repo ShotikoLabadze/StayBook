@@ -2,115 +2,77 @@
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
-import {
-  Destination,
-  destinationService,
-  Hotel,
-} from "@/services/destinationService";
+import { destinationService, Hotel } from "@/services/destinationService";
 import { useEffect, useState } from "react";
 import FilterSidebar from "./components/FilterSidebar";
 import HotelCard from "./components/HotelCard";
 import SearchHeader from "./components/SearchHeader";
 
+interface ActiveFilters {
+  categories: string[];
+  minPrice: number;
+  maxPrice: number;
+  rating: number | null;
+  weather: string[];
+  durations: string[];
+  activities: string[];
+  propertyTypes: string[];
+}
+
 export default function ExplorePage() {
-  const [allHotels, setAllHotels] = useState<Hotel[]>([]);
-  const [allDestinations, setAllDestinations] = useState<Destination[]>([]);
-  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("popular");
+  const [currentFilters, setCurrentFilters] = useState<ActiveFilters>({
+    categories: [],
+    minPrice: 480,
+    maxPrice: 2450,
+    rating: null,
+    weather: [],
+    durations: [],
+    activities: [],
+    propertyTypes: [],
+  });
+
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchFilteredData = async () => {
       try {
         setIsLoading(true);
 
-        const [hotelsData, destsData] = await Promise.all([
-          destinationService.getHotelsByDestination("all"),
-          destinationService.getAll(),
-        ]);
-        setAllHotels(hotelsData);
-        setAllDestinations(destsData);
-        setFilteredHotels(hotelsData);
+        const queryParams: any = {
+          search: searchTerm,
+          sortBy: sortBy,
+          minPrice: currentFilters.minPrice,
+          maxPrice: currentFilters.maxPrice,
+        };
+
+        if (currentFilters.rating) queryParams.rating = currentFilters.rating;
+        if (currentFilters.propertyTypes.length > 0) {
+          queryParams.propertyTypes = currentFilters.propertyTypes.join(",");
+        }
+
+        const data = await destinationService.getHotelsByDestination(
+          "all",
+          queryParams,
+        );
+        setHotels(data);
       } catch (err) {
-        console.error("Failed to load initial explore data:", err);
-        setError("Unable to find luxury sanctuaries right now.");
+        console.error("Failed to load filtered hotels:", err);
+        setError("Unable to sync with luxury database right now.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchInitialData();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchFilteredData();
+    }, 300);
 
-  const handleFilterChange = (filters: {
-    categories: string[];
-    minPrice: number;
-    maxPrice: number;
-    rating: number | null;
-    weather: string[];
-    durations: string[];
-    activities: string[];
-    propertyTypes: string[];
-  }) => {
-    let result = [...allHotels];
-
-    result = result.filter(
-      (hotel) =>
-        hotel.pricePerNight >= filters.minPrice &&
-        hotel.pricePerNight <= filters.maxPrice,
-    );
-
-    if (filters.rating !== null) {
-      result = result.filter((hotel) => hotel.rating >= filters.rating!);
-    }
-
-    if (filters.propertyTypes.length > 0) {
-      result = result.filter((hotel) =>
-        filters.propertyTypes.includes(hotel.propertyType),
-      );
-    }
-
-    if (
-      filters.categories.length > 0 ||
-      filters.weather.length > 0 ||
-      filters.durations.length > 0 ||
-      filters.activities.length > 0
-    ) {
-      result = result.filter((hotel) => {
-        const matchedDest = allDestinations.find(
-          (d) => d.slug === hotel.destinationId || d.id === hotel.destinationId,
-        );
-        if (!matchedDest) return false;
-
-        const matchesCategory =
-          filters.categories.length === 0 ||
-          filters.categories.includes(matchedDest.category);
-
-        const matchesWeather =
-          filters.weather.length === 0 ||
-          filters.weather.includes((matchedDest as any).weather?.condition);
-
-        const matchesDuration =
-          filters.durations.length === 0 ||
-          filters.durations.includes((matchedDest as any).duration);
-
-        const matchesActivities =
-          filters.activities.length === 0 ||
-          (matchedDest as any).activities?.some((act: string) =>
-            filters.activities.includes(act),
-          );
-
-        return (
-          matchesCategory &&
-          matchesWeather &&
-          matchesDuration &&
-          matchesActivities
-        );
-      });
-    }
-
-    setFilteredHotels(result);
-  };
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, sortBy, currentFilters]);
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
@@ -128,7 +90,13 @@ export default function ExplorePage() {
         </header>
 
         <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <SearchHeader resultsCount={filteredHotels.length} />
+          <SearchHeader
+            resultsCount={hotels.length}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
 
           {error && (
             <div className="text-red-500 text-xs font-semibold text-left">
@@ -138,7 +106,7 @@ export default function ExplorePage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start flex-1 w-full">
             <div className="xl:col-span-4">
-              <FilterSidebar onFilterChange={handleFilterChange} />
+              <FilterSidebar onFilterChange={setCurrentFilters} />
             </div>
 
             <div className="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
@@ -149,12 +117,12 @@ export default function ExplorePage() {
                     className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
                   />
                 ))
-              ) : filteredHotels.length === 0 ? (
+              ) : hotels.length === 0 ? (
                 <div className="col-span-2 text-center py-20 text-slate-400 font-medium text-sm">
-                  No luxury properties match your selected filters.
+                  No luxury properties found matching these parameters.
                 </div>
               ) : (
-                filteredHotels.map((hotel) => (
+                hotels.map((hotel) => (
                   <HotelCard
                     key={hotel._id}
                     title={hotel.name}

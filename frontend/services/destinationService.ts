@@ -77,8 +77,8 @@ export const destinationService = {
     return response.data as Testimonial[];
   },
 
-  getHotelsByDestination: async (slug: string) => {
-    const response = await api.get(`/destinations/${slug}/hotels`);
+  getHotelsByDestination: async (slug: string, params?: any) => {
+    const response = await api.get(`/destinations/${slug}/hotels`, { params });
     return response.data as Hotel[];
   },
 

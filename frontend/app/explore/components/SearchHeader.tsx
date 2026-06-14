@@ -4,9 +4,19 @@ import { Grid, Map, Search } from "lucide-react";
 
 interface SearchHeaderProps {
   resultsCount: number;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+  sortBy: string;
+  onSortChange: (value: string) => void;
 }
 
-export default function SearchHeader({ resultsCount }: SearchHeaderProps) {
+export default function SearchHeader({
+  resultsCount,
+  searchTerm,
+  onSearchChange,
+  sortBy,
+  onSortChange,
+}: SearchHeaderProps) {
   return (
     <div className="space-y-5 text-left w-full">
       <div>
@@ -28,6 +38,8 @@ export default function SearchHeader({ resultsCount }: SearchHeaderProps) {
           <input
             type="text"
             placeholder="Search destinations, countries, vibes..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200/70 rounded-xl text-sm font-semibold focus:outline-none focus:border-secondary transition-all text-primary placeholder:text-slate-400 shadow-2xs"
           />
         </div>
@@ -46,11 +58,15 @@ export default function SearchHeader({ resultsCount }: SearchHeaderProps) {
             {resultsCount} results
           </span>
 
-          <select className="bg-white border border-slate-200/70 px-4 py-2 rounded-xl text-xs font-bold text-primary focus:outline-none shadow-2xs cursor-pointer h-[38px]">
-            <option>Most popular</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Top Rated</option>
+          <select
+            value={sortBy}
+            onChange={(e) => onSortChange(e.target.value)}
+            className="bg-white border border-slate-200/70 px-4 py-2 rounded-xl text-xs font-bold text-primary focus:outline-none shadow-2xs cursor-pointer h-[38px]"
+          >
+            <option value="popular">Most popular</option>
+            <option value="priceLow">Price: Low to High</option>
+            <option value="priceHigh">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
           </select>
         </div>
       </div>
