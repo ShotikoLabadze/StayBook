@@ -8,6 +8,7 @@ import {
 } from "@/services/destinationService";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import HotelDescription from "./components/HotelDescription";
 import HotelHero from "./components/HotelHero";
 
 interface ActiveFilters {
@@ -100,6 +101,14 @@ export default function HotelDetailsPage() {
 
       <main className="flex-1 flex flex-col min-w-0 p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         <HotelHero hotel={hotel} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
+          <div className="lg:col-span-8 space-y-8">
+            <HotelDescription hotel={hotel} />
+          </div>
+
+          <div className="lg:col-span-4 sticky top-[85px]"></div>
+        </div>
       </main>
     </div>
   );
