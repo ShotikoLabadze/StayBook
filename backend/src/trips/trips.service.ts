@@ -5,11 +5,37 @@ import { Trip, TripDocument } from '../schemas/trip.schema';
 
 @Injectable()
 export class TripsService {
-  constructor(@InjectModel(Trip.name) private tripModel: Model<TripDocument>) {}
+  constructor(
+    @InjectModel(Trip.name) private tripModel: Model<TripDocument>,
+    @InjectModel('Hotel') private hotelModel: Model<any>,
+  ) {}
 
   async create(tripData: any, userId: string) {
     const startDate = new Date(tripData.startDate);
     const endDate = new Date(tripData.endDate);
+
+    let hotelActivity: any = null;
+    if (tripData.hotelId) {
+      const hotel = await this.hotelModel.findById(tripData.hotelId).exec();
+      if (hotel) {
+        const timeDiff = endDate.getTime() - startDate.getTime();
+        const daysCount = Math.ceil(timeDiff / (1000 * 3600 * 24)) || 1;
+
+        hotelActivity = {
+          id: `act-hotel-${Date.now()}`,
+          title: `Stay at ${hotel.name}`,
+          note: 'Premium luxury sanctuary check-in.',
+          time: '15:00',
+          cost: hotel.pricePerNight * daysCount,
+          category: 'hotel',
+          location: {
+            name: hotel.neighborhood || hotel.name,
+            lat: hotel.coordinates?.lat || 48.8566,
+            lng: hotel.coordinates?.lng || 2.3522,
+          },
+        };
+      }
+    }
 
     const itinerary: any[] = [];
     let currentDayNumber = 1;
@@ -22,7 +48,9 @@ export class TripsService {
       itinerary.push({
         dayNumber: currentDayNumber,
         date: new Date(date),
-        activities: [],
+
+        activities:
+          currentDayNumber === 1 && hotelActivity ? [hotelActivity] : [],
       });
       currentDayNumber++;
     }
@@ -31,6 +59,11 @@ export class TripsService {
       ...tripData,
       owner: userId,
       itinerary,
+
+      budget: tripData.budget || {
+        totalLimit: hotelActivity ? hotelActivity.cost + 1000 : 2000,
+        currency: 'USD',
+      },
     });
 
     const savedTrip = await newTrip.save();
@@ -38,14 +71,12 @@ export class TripsService {
   }
 
   async findAllUserTrips(userId: string) {
-    const trips = await this.tripModel
+    return this.tripModel
       .find({
         $or: [{ owner: userId }, { collaborators: userId }],
       } as any)
       .sort({ createdAt: -1 })
       .exec();
-
-    return trips;
   }
 
   async findOne(tripId: string, userId: string) {
