@@ -128,7 +128,7 @@ export default function ExplorePage() {
         </header>
 
         <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <SearchHeader />
+          <SearchHeader resultsCount={filteredHotels.length} />
 
           {error && (
             <div className="text-red-500 text-xs font-semibold text-left">

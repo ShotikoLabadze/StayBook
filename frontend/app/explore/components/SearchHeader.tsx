@@ -1,73 +1,58 @@
 "use client";
 
-import { Calendar, MapPin, Search, Users } from "lucide-react";
+import { Grid, Map, Search } from "lucide-react";
 
-export default function SearchHeader() {
+interface SearchHeaderProps {
+  resultsCount: number;
+}
+
+export default function SearchHeader({ resultsCount }: SearchHeaderProps) {
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-5 text-left w-full">
       <div>
+        <span className="text-xs font-bold text-secondary uppercase tracking-widest font-headline block mb-1">
+          Explore
+        </span>
         <h1 className="font-headline text-3xl font-bold text-primary tracking-tight">
-          Find your sanctuary.
+          Find your next escape
         </h1>
-        <p className="mt-1 text-sm font-medium text-secondary">
-          428 luxury destinations available in Santorini, Greece
+        <p className="mt-1 text-xs font-medium text-slate-400">
+          Browse hand-picked destinations and refine by climate, budget, and the
+          kind of trip you have in mind.
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-xs md:flex-row md:items-center">
-        <div className="flex-1 px-3 py-1.5 text-left">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Destination
-          </label>
-          <div className="mt-1.5 flex items-center gap-2 text-sm text-primary font-semibold">
-            <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
-            <input
-              type="text"
-              defaultValue="Santorini, Greece"
-              className="w-full bg-transparent border-none p-0 text-sm font-semibold text-primary focus:outline-none focus:ring-0 placeholder:text-slate-400"
-              placeholder="Where to?"
-            />
-          </div>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+        <div className="relative w-full sm:w-[450px]">
+          <Search className="w-4.5 h-4.5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search destinations, countries, vibes..."
+            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200/70 rounded-xl text-sm font-semibold focus:outline-none focus:border-secondary transition-all text-primary placeholder:text-slate-400 shadow-2xs"
+          />
         </div>
 
-        <div className="hidden h-10 w-px bg-slate-100 md:block shrink-0" />
-
-        <div className="flex-1 px-3 py-1.5 text-left">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Dates
-          </label>
-          <div className="mt-1.5 flex items-center gap-2 text-sm text-primary font-semibold">
-            <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-            <input
-              type="text"
-              defaultValue="Jun 12 – Jun 18, 2026"
-              className="w-full bg-transparent border-none p-0 text-sm font-semibold text-primary focus:outline-none focus:ring-0 placeholder:text-slate-400"
-              placeholder="When?"
-            />
+        <div className="flex items-center gap-4 ml-auto w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-500 shadow-2xs border border-slate-200/20">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary rounded-lg shadow-2xs cursor-pointer">
+              <Grid className="w-3.5 h-3.5 text-primary" /> Grid
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 hover:text-primary transition-colors cursor-pointer">
+              <Map className="w-3.5 h-3.5" /> Map
+            </button>
           </div>
+
+          <span className="text-xs font-bold text-primary shrink-0">
+            {resultsCount} results
+          </span>
+
+          <select className="bg-white border border-slate-200/70 px-4 py-2 rounded-xl text-xs font-bold text-primary focus:outline-none shadow-2xs cursor-pointer h-[38px]">
+            <option>Most popular</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+            <option>Top Rated</option>
+          </select>
         </div>
-
-        <div className="hidden h-10 w-px bg-slate-100 md:block shrink-0" />
-
-        <div className="flex-1 px-3 py-1.5 text-left">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Guests
-          </label>
-          <div className="mt-1.5 flex items-center gap-2 text-sm text-primary font-semibold">
-            <Users className="h-4 w-4 text-slate-400 shrink-0" />
-            <input
-              type="text"
-              defaultValue="2 Adults, 1 Child"
-              className="w-full bg-transparent border-none p-0 text-sm font-semibold text-primary focus:outline-none focus:ring-0 placeholder:text-slate-400"
-              placeholder="Who is coming?"
-            />
-          </div>
-        </div>
-
-        <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary/95 px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/10 transition-all cursor-pointer tracking-wide shrink-0">
-          <Search className="h-4 w-4 text-secondary stroke-[2.5]" />
-          Search
-        </button>
       </div>
     </div>
   );
