@@ -13,6 +13,7 @@ import BookingCard from "./components/BookingCard";
 import HotelAmenities from "./components/HotelAmenities";
 import HotelDescription from "./components/HotelDescription";
 import HotelHero from "./components/HotelHero";
+import HotelReviews from "./components/HotelReviews";
 
 const HotelMap = dynamic(() => import("./components/HotelMap"), {
   ssr: false,
@@ -121,6 +122,8 @@ export default function HotelDetailsPage() {
             <HotelAmenities hotel={hotel} />
 
             <HotelMap hotel={hotel} />
+
+            <HotelReviews hotel={hotel} />
           </div>
 
           <div className="lg:col-span-4 lg:sticky lg:top-[30px] z-20">
