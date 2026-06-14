@@ -7,7 +7,15 @@ import { UsersService } from '../users/users.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private usersService: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: any) => {
+          if (req && req.headers && req.headers.authorization) {
+            return req.headers.authorization.split(' ')[1];
+          }
+          return null;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || 'SECRET',
     });
@@ -19,6 +27,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found or session invalid!');
     }
 
-    return { id: user._id, email: user.email, name: user.name };
+    return {
+      id: String(user._id),
+      email: user.email,
+      name: user.name,
+    };
   }
 }
