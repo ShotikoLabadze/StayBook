@@ -151,6 +151,7 @@ export default function ExplorePage() {
                   {hotels.map((hotel) => (
                     <HotelCard
                       key={hotel._id}
+                      id={hotel.id || hotel._id}
                       title={hotel.name}
                       location={hotel.neighborhood}
                       rating={hotel.rating}

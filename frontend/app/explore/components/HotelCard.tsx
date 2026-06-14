@@ -1,9 +1,11 @@
 "use client";
 
 import { Heart, MapPin, Star } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export interface HotelCardProps {
+  id: string;
   title: string;
   location: string;
   rating: number;
@@ -16,6 +18,7 @@ export interface HotelCardProps {
 }
 
 export default function HotelCard({
+  id,
   title,
   location,
   rating,
@@ -103,12 +106,13 @@ export default function HotelCard({
               {priceNote}
             </p>
           </div>
-          <button
-            type="button"
-            className="rounded-xl border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold text-primary transition hover:bg-secondary/20 cursor-pointer tracking-wide"
+
+          <Link
+            href={`/explore/${id}`}
+            className="rounded-xl border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold text-primary transition hover:bg-secondary/20 cursor-pointer tracking-wide flex items-center justify-center"
           >
             View Details
-          </button>
+          </Link>
         </div>
       </div>
     </article>
