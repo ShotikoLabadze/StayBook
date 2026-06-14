@@ -30,6 +30,11 @@ export class DestinationsController {
     return this.destinationsService.getUniqueDurations();
   }
 
+  @Get('hotels/:id')
+  async getHotelById(@Param('id') id: string) {
+    return this.destinationsService.findHotelById(id);
+  }
+
   @Get('activities')
   async getActivities() {
     return this.destinationsService.getUniqueActivities();

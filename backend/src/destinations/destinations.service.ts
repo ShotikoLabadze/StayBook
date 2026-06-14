@@ -106,4 +106,15 @@ export class DestinationsService {
   async getUniqueActivities() {
     return this.destinationModel.distinct('activities').exec();
   }
+
+  async findHotelById(hotelId: string) {
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(hotelId);
+
+    if (isValidObjectId) {
+      const hotel = await this.hotelModel.findById(hotelId).exec();
+      if (hotel) return hotel;
+    }
+
+    return this.hotelModel.findOne({ id: hotelId }).exec();
+  }
 }
