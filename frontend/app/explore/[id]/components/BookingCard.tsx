@@ -51,8 +51,7 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       const savedTrip = response.data;
 
       if (savedTrip && savedTrip._id) {
-        // მივფრინავთ ითინერარზე!
-        router.push(`/trips/${savedTrip._id}/itinerary`);
+        router.push(`/trips/${savedTrip._id}`);
       }
     } catch (err: any) {
       console.error("Booking failed:", err);

@@ -19,29 +19,26 @@ export class TripsController {
 
   @Post()
   async create(@Body() createTripDto: CreateTripDto, @Req() req: any) {
-    const userId = req.user.id;
+    const userId = req.user.sub || req.user.id;
     const result = await this.tripsService.create(createTripDto, userId);
     return result;
   }
 
   @Get()
   async findAll(@Req() req: any) {
-    const userId = req.user.id;
-    const result = await this.tripsService.findAllUserTrips(userId);
-    return result;
+    const userId = req.user.sub || req.user.id;
+    return await this.tripsService.findAllUserTrips(userId);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.id;
-    const result = await this.tripsService.findOne(id, userId);
-    return result;
+    const userId = req.user.sub || req.user.id;
+    return await this.tripsService.findOne(id, userId);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.id;
-    const result = await this.tripsService.remove(id, userId);
-    return result;
+    const userId = req.user.sub || req.user.id;
+    return await this.tripsService.remove(id, userId);
   }
 }
