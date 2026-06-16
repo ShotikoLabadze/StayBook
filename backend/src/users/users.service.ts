@@ -17,4 +17,8 @@ export class UsersService {
     const foundUser = await this.userModel.findOne({ email }).exec();
     return foundUser;
   }
+
+  async findById(id: string) {
+    return await this.userModel.findById(id).exec();
+  }
 }

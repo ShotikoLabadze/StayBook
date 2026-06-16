@@ -1,30 +1,20 @@
 import {
   IsDateString,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class CreateTripDto {
-  @IsNotEmpty()
-  @IsString()
-  title!: string;
+  @IsNotEmpty() @IsString() title!: string;
+  @IsNotEmpty() @IsString() destination!: string;
+  @IsNotEmpty() @IsDateString() startDate!: string;
+  @IsNotEmpty() @IsDateString() endDate!: string;
 
-  @IsNotEmpty()
-  @IsString()
-  destination!: string;
-
-  @IsNotEmpty()
-  @IsDateString()
-  startDate!: string;
-
-  @IsNotEmpty()
-  @IsDateString()
-  endDate!: string;
-
-  @IsOptional()
-  budget?: {
-    totalLimit: number;
-    currency: string;
-  };
+  @IsOptional() @IsDateString() checkIn?: string;
+  @IsOptional() @IsDateString() checkOut?: string;
+  @IsOptional() @IsNumber() guests?: number;
+  @IsOptional() @IsNumber() totalPrice?: number;
+  @IsOptional() @IsString() hotelId?: string;
 }

@@ -36,12 +36,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await api.post("/auth/login", { email, password });
     const { accessToken, user: userData } = response.data;
 
-    setToken(accessToken);
-    setUser(userData);
-
     localStorage.setItem("token", accessToken);
     localStorage.setItem("user", JSON.stringify(userData));
 
+    setToken(accessToken);
+    setUser(userData);
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
     router.push("/dashboard");
   };
 
