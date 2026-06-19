@@ -97,4 +97,50 @@ export class TripsService {
     }
     return { success: true, message: 'Trip deleted successfully' };
   }
+
+  async addActivity(
+    tripId: string,
+    dayIndex: number,
+    activity: any,
+    userId: string,
+  ) {
+    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    trip.itinerary[dayIndex].activities.push(activity);
+
+    trip.markModified('itinerary');
+    return await trip.save();
+  }
+
+  async deleteActivity(
+    tripId: string,
+    dayIndex: number,
+    activityId: string,
+    userId: string,
+  ) {
+    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    trip.itinerary[dayIndex].activities = trip.itinerary[
+      dayIndex
+    ].activities.filter((act: any) => act.id !== activityId);
+
+    trip.markModified('itinerary');
+    return await trip.save();
+  }
+
+  async updateItinerary(
+    tripId: string,
+    updatedItinerary: any[],
+    userId: string,
+  ) {
+    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    trip.itinerary = updatedItinerary;
+
+    trip.markModified('itinerary');
+    return await trip.save();
+  }
 }
