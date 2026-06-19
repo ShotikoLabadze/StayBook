@@ -4,6 +4,8 @@ import {
   closestCorners,
   DndContext,
   DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -13,6 +15,7 @@ import { useState } from "react";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { DaySchedule } from "./components/day-schedule";
+import { PlanItem } from "./components/plan-item";
 
 export default function PlannerPage() {
   const [itinerary, setItinerary] = useState([
@@ -59,11 +62,18 @@ export default function PlannerPage() {
     },
   ]);
 
+  const [activeId, setActiveId] = useState<string | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -107,6 +117,10 @@ export default function PlannerPage() {
     setItinerary(nextItinerary);
   }
 
+  const activeItem = itinerary
+    .flatMap((d) => d.activities)
+    .find((a) => a.id === activeId);
+
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
       <Sidebar />
@@ -123,6 +137,7 @@ export default function PlannerPage() {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
@@ -148,6 +163,14 @@ export default function PlannerPage() {
                 ))}
               </div>
             </div>
+
+            <DragOverlay dropAnimation={null}>
+              {activeItem ? (
+                <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
+                  <PlanItem item={activeItem} dayIndex={-1} isClone />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
 
           <Footer variant="dashboard" />
