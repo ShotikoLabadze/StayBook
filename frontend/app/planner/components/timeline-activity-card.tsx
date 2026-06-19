@@ -1,5 +1,7 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Clock, GripVertical, MessageSquare, Paperclip } from "lucide-react";
 
 interface Activity {
@@ -8,7 +10,7 @@ interface Activity {
   time?: string;
   note?: string;
   category: string;
-  status?: "confirmed" | "pending" | "cancelled" | string;
+  status?: string;
 }
 
 interface TimelineActivityCardProps {
@@ -16,16 +18,39 @@ interface TimelineActivityCardProps {
 }
 
 export function TimelineActivityCard({ activity }: TimelineActivityCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: activity.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+  };
+
   const isConfirmed =
-    activity.status === "confirmed" ||
-    activity.category === "flight" ||
-    activity.category === "hotel";
+    activity.category === "flight" || activity.category === "hotel";
 
   return (
-    <div className="group flex items-start gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-2xs hover:shadow-xs transition-all">
-      <div className="flex items-center gap-1.5 mt-1 shrink-0 text-slate-300 group-hover:text-slate-400 transition-colors">
-        <GripVertical className="h-3.5 w-3.5 cursor-grab active:cursor-grabbing" />
-        <div className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-xs">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group flex items-start gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-2xs hover:shadow-xs transition-all touch-none"
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="flex items-center gap-1.5 mt-1 shrink-0 text-slate-300 group-hover:text-slate-400 transition-colors cursor-grab active:cursor-grabbing"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+        <div className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-xs pointer-events-none">
           {activity.category === "flight"
             ? "✈️"
             : activity.category === "hotel"

@@ -1,5 +1,10 @@
 "use client";
 
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CalendarDays } from "lucide-react";
 import { TimelineActivityCard } from "./timeline-activity-card";
 
@@ -12,11 +17,23 @@ interface Day {
 
 interface TimelineDayBlockProps {
   day: Day;
+  dayIndex: number;
 }
 
-export function TimelineDayBlock({ day }: TimelineDayBlockProps) {
+export function TimelineDayBlock({ day, dayIndex }: TimelineDayBlockProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `day-${dayIndex}`,
+  });
+
   return (
-    <div className="border border-slate-100 bg-slate-50/50 rounded-2xl p-5 space-y-4 shadow-2xs">
+    <div
+      ref={setNodeRef}
+      className={`border rounded-2xl p-5 space-y-4 shadow-2xs transition-colors ${
+        isOver
+          ? "bg-sky-50/40 border-sky-200"
+          : "bg-slate-50/50 border-slate-100"
+      }`}
+    >
       <header className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-extrabold text-xs shrink-0">
@@ -37,17 +54,22 @@ export function TimelineDayBlock({ day }: TimelineDayBlockProps) {
         </span>
       </header>
 
-      <div className="flex flex-col gap-2.5">
-        {day.activities.map((activity) => (
-          <TimelineActivityCard key={activity.id} activity={activity} />
-        ))}
+      <SortableContext
+        items={day.activities.map((a) => a.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="flex flex-col gap-2.5 min-h-[50px]">
+          {day.activities.map((activity) => (
+            <TimelineActivityCard key={activity.id} activity={activity} />
+          ))}
 
-        {day.activities.length === 0 && (
-          <div className="text-center py-8 text-xs text-slate-400 italic bg-white border border-dashed border-slate-100 rounded-xl">
-            No activities scheduled for this day.
-          </div>
-        )}
-      </div>
+          {day.activities.length === 0 && (
+            <div className="text-center py-8 text-xs text-slate-400 italic bg-white border border-dashed border-slate-100 rounded-xl">
+              Drop activities here
+            </div>
+          )}
+        </div>
+      </SortableContext>
     </div>
   );
 }

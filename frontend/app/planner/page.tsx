@@ -248,13 +248,13 @@ export default function PlannerPage() {
             </div>
           </div>
 
-          {activeTab === "board" && (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCorners}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            {activeTab === "board" && (
               <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
                 <div className="mb-6 text-left border-b border-slate-100 pb-4">
                   <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
@@ -281,18 +281,18 @@ export default function PlannerPage() {
                   ))}
                 </div>
               </div>
+            )}
 
-              <DragOverlay dropAnimation={null}>
-                {activeItem ? (
-                  <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
-                    <PlanItem item={activeItem} dayIndex={-1} isClone />
-                  </div>
-                ) : null}
-              </DragOverlay>
-            </DndContext>
-          )}
+            {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
 
-          {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
+            <DragOverlay dropAnimation={null}>
+              {activeItem ? (
+                <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
+                  <PlanItem item={activeItem} dayIndex={-1} isClone />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
 
           {activeTab !== "board" && activeTab !== "timeline" && (
             <div className="bg-white border border-slate-100 border-dashed rounded-3xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center flex-1">

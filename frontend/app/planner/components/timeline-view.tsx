@@ -26,8 +26,8 @@ export function TimelineView({ itinerary }: TimelineViewProps) {
       </div>
 
       <div className="flex flex-col gap-6">
-        {itinerary.map((day) => (
-          <TimelineDayBlock key={day.dayNumber} day={day} />
+        {itinerary.map((day, idx) => (
+          <TimelineDayBlock key={day.dayNumber} day={day} dayIndex={idx} />
         ))}
       </div>
     </div>
