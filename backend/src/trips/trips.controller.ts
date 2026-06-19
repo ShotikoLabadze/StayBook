@@ -18,23 +18,25 @@ import { TripsService } from './trips.service';
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
+  private getUserId(req: any): string {
+    return req.user?.id;
+  }
+
+  @Post()
   @Post()
   async create(@Body() createTripDto: CreateTripDto, @Req() req: any) {
-    const userId = req.user.sub || req.user.id;
-    const result = await this.tripsService.create(createTripDto, userId);
-    return result;
+    const userId = req.user?.id;
+    return await this.tripsService.create(createTripDto, userId);
   }
 
   @Get()
   async findAll(@Req() req: any) {
-    const userId = req.user.sub || req.user.id;
-    return await this.tripsService.findAllUserTrips(userId);
+    return await this.tripsService.findAllUserTrips(this.getUserId(req));
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.sub || req.user.id;
-    return await this.tripsService.findOne(id, userId);
+    return await this.tripsService.findOne(id, this.getUserId(req));
   }
 
   @Delete(':id')

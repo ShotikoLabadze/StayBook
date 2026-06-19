@@ -11,63 +11,17 @@ export class TripsService {
   ) {}
 
   async create(tripData: any, userId: string) {
-    const startDate = new Date(tripData.startDate);
-    const endDate = new Date(tripData.endDate);
-
-    let hotelActivity: any = null;
-    if (tripData.hotelId) {
-      const hotel = await this.hotelModel.findById(tripData.hotelId).exec();
-      if (hotel) {
-        const timeDiff = endDate.getTime() - startDate.getTime();
-        const daysCount = Math.ceil(timeDiff / (1000 * 3600 * 24)) || 1;
-
-        hotelActivity = {
-          id: `act-hotel-${Date.now()}`,
-          title: `Stay at ${hotel.name}`,
-          note: 'Premium luxury sanctuary check-in.',
-          time: '15:00',
-          cost: hotel.pricePerNight * daysCount,
-          category: 'hotel',
-          location: {
-            name: hotel.neighborhood || hotel.name,
-            lat: hotel.coordinates?.lat || 48.8566,
-            lng: hotel.coordinates?.lng || 2.3522,
-          },
-        };
-      }
-    }
-
-    const itinerary: any[] = [];
-    let currentDayNumber = 1;
-
-    for (
-      let date = new Date(startDate);
-      date <= endDate;
-      date.setDate(date.getDate() + 1)
-    ) {
-      itinerary.push({
-        dayNumber: currentDayNumber,
-        date: new Date(date),
-
-        activities:
-          currentDayNumber === 1 && hotelActivity ? [hotelActivity] : [],
-      });
-      currentDayNumber++;
+    if (!userId) {
+      throw new Error('Unauthorized: User ID not found in token');
     }
 
     const newTrip = new this.tripModel({
       ...tripData,
       owner: userId,
-      itinerary,
-
-      budget: tripData.budget || {
-        totalLimit: hotelActivity ? hotelActivity.cost + 1000 : 2000,
-        currency: 'USD',
-      },
+      itinerary: tripData.itinerary || [],
     });
 
-    const savedTrip = await newTrip.save();
-    return savedTrip;
+    return await newTrip.save();
   }
 
   async findAllUserTrips(userId: string) {
@@ -112,6 +66,14 @@ export class TripsService {
       .exec();
 
     if (!trip) throw new NotFoundException('Trip not found or access denied');
+
+    if (!trip.itinerary[dayIndex]) {
+      trip.itinerary[dayIndex] = {
+        dayNumber: dayIndex + 1,
+        date: new Date(),
+        activities: [],
+      } as any;
+    }
 
     trip.itinerary[dayIndex].activities.push(activity);
     trip.markModified('itinerary');
