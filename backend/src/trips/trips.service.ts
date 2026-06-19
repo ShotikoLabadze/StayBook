@@ -80,7 +80,7 @@ export class TripsService {
   }
 
   async findOne(tripId: string, userId: string) {
-    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
+    const trip = await this.tripModel.findById(tripId).exec();
 
     if (!trip) {
       throw new NotFoundException('Trip not found in database!');
