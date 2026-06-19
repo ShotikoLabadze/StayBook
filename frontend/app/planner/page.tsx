@@ -2,45 +2,53 @@
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
-import { Timeline } from "lucide-react";
-import LiveUpdates from "./[id]/components/LiveUpdates";
-import MapPreview from "./[id]/components/MapPreview";
-import PlannerHeader from "./[id]/components/PlannerHeader";
-import TripHeroBanner from "./[id]/components/TripHeroBanner";
-import TripManagement from "./[id]/components/TripManagement";
+import { PlanItem } from "./components/plan-item";
 
 export default function PlannerPage() {
-  const currentTrip = {
-    title: "Amalfi Coast Adventure",
-    dates: "Sep 12 — Sep 22, 2026",
-    image:
-      "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=1200&auto=format&fit=crop",
-  };
+  const testItems = [
+    {
+      id: "1",
+      title: "Flight LX1204 - Zurich to Naples",
+      time: "14:00",
+      note: "Terminal 1. Gate information will update live.",
+      category: "flight",
+    },
+    {
+      id: "2",
+      title: "Check-in at Hotel Le Sirenuse",
+      time: "15:30",
+      note: "Sea View Junior Suite. Booking reference: #STAY-9921",
+      category: "hotel",
+    },
+    {
+      id: "3",
+      title: "Oia Sunset Walk & Luxury Dinner",
+      time: "19:00",
+      note: "Dress code: Smart casual. Balcony table reserved.",
+      category: "activity",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <PlannerHeader tripTitle={currentTrip.title} />
+        <div className="p-10 space-y-10 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+          <header className="text-left">
+            <p className="text-sm font-medium text-primary">StayBook</p>
+            <h1 className="mt-2 text-3xl font-bold text-primary md:text-4xl tracking-tight font-headline">
+              Premium Planner Workspace
+            </h1>
+          </header>
 
-        <div className="p-8 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <TripHeroBanner
-            title={currentTrip.title}
-            dates={currentTrip.dates}
-            image={currentTrip.image}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-8">
-              <Timeline />
-            </div>
-
-            <div className="lg:col-span-4 space-y-6">
-              <TripManagement />
-              <MapPreview />
-              <LiveUpdates />
-            </div>
+          <div className="w-full max-w-sm space-y-3 flex-1">
+            <p className="text-xs text-slate-400 mb-2 font-semibold text-left">
+              PlanItem Components List Preview:
+            </p>
+            {testItems.map((singleItem) => (
+              <PlanItem key={singleItem.id} item={singleItem} />
+            ))}
           </div>
 
           <Footer variant="dashboard" />
