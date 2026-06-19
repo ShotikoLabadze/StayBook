@@ -10,7 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
@@ -64,9 +64,23 @@ export default function PlannerPage() {
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
+
+  function handleDeleteActivity(dayIndex: number, activityId: string) {
+    const nextItinerary = [...itinerary];
+    nextItinerary[dayIndex].activities = nextItinerary[
+      dayIndex
+    ].activities.filter((act) => act.id !== activityId);
+    setItinerary(nextItinerary);
+  }
 
   function handleAddActivity(dayIndex: number, newActivity: any) {
     const nextItinerary = [...itinerary];
@@ -127,6 +141,35 @@ export default function PlannerPage() {
     .flatMap((d) => d.activities)
     .find((a) => a.id === activeId);
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-neutral-bg font-body flex">
+        <Sidebar />
+        <main className="flex-1 flex flex-col min-w-0">
+          <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+            <header className="text-left">
+              <p className="text-sm font-medium text-primary">StayBook</p>
+              <h1 className="mt-2 text-3xl font-bold text-primary md:text-4xl tracking-tight font-headline">
+                Premium Planner Workspace
+              </h1>
+            </header>
+            <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
+              <div className="mb-6 text-left border-b border-slate-100 pb-4">
+                <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                  Trip Itinerary Board
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Loading workspace...
+                </p>
+              </div>
+            </div>
+            <Footer variant="dashboard" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
       <Sidebar />
@@ -166,6 +209,7 @@ export default function PlannerPage() {
                     activities={dayContext.activities}
                     dayIndex={idx}
                     onAddActivity={handleAddActivity}
+                    onDeleteActivity={handleDeleteActivity}
                   />
                 ))}
               </div>

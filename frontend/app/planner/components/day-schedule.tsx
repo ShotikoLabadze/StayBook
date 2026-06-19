@@ -17,6 +17,7 @@ interface DayScheduleProps {
   activities: any[];
   dayIndex: number;
   onAddActivity: (dayIndex: number, newAct: any) => void;
+  onDeleteActivity: (dayIndex: number, activityId: string) => void;
 }
 
 export function DaySchedule({
@@ -26,6 +27,7 @@ export function DaySchedule({
   activities,
   dayIndex,
   onAddActivity,
+  onDeleteActivity,
 }: DayScheduleProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -71,14 +73,13 @@ export function DaySchedule({
       >
         <div className="flex flex-col gap-3 flex-1 justify-start">
           {activities.map((activity) => (
-            <PlanItem key={activity.id} item={activity} dayIndex={dayIndex} />
+            <PlanItem
+              key={activity.id}
+              item={activity}
+              dayIndex={dayIndex}
+              onDelete={onDeleteActivity}
+            />
           ))}
-
-          {activities.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 text-center text-xs font-medium text-slate-400 my-auto">
-              Drop activities here
-            </div>
-          )}
         </div>
       </SortableContext>
 

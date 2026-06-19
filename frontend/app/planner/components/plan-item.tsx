@@ -9,6 +9,7 @@ import {
   Hotel,
   Plane,
   Sparkles,
+  Trash2,
   Utensils,
 } from "lucide-react";
 
@@ -30,9 +31,15 @@ interface PlanItemProps {
   };
   dayIndex: number;
   isClone?: boolean;
+  onDelete?: (dayIndex: number, activityId: string) => void;
 }
 
-export function PlanItem({ item, dayIndex, isClone = false }: PlanItemProps) {
+export function PlanItem({
+  item,
+  dayIndex,
+  isClone = false,
+  onDelete,
+}: PlanItemProps) {
   const {
     attributes,
     listeners,
@@ -58,7 +65,7 @@ export function PlanItem({ item, dayIndex, isClone = false }: PlanItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3.5 shadow-xs transition-all hover:border-slate-200 w-full"
+      className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3.5 shadow-xs transition-all hover:border-slate-200 w-full group relative"
     >
       <button
         type="button"
@@ -73,7 +80,7 @@ export function PlanItem({ item, dayIndex, isClone = false }: PlanItemProps) {
         <Icon className="h-4 w-4" />
       </div>
 
-      <div className="min-w-0 flex-1 text-left">
+      <div className="min-w-0 flex-1 text-left pr-6">
         <div className="flex items-center gap-1.5">
           {item.time && (
             <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 border border-slate-100">
@@ -82,15 +89,29 @@ export function PlanItem({ item, dayIndex, isClone = false }: PlanItemProps) {
             </span>
           )}
         </div>
-        <p className="mt-1 truncate text-xs font-bold text-slate-800 select-text">
+        <p className="mt-1 truncate text-xs font-bold text-slate-800">
           {item.title}
         </p>
         {item.note && (
-          <p className="mt-1 text-[11px] text-slate-400 bg-slate-50/50 p-2 rounded-md border border-slate-100/80 italic select-text">
+          <p className="mt-1 text-[11px] text-slate-400 bg-slate-50/50 p-2 rounded-md border border-slate-100/80 italic">
             {item.note}
           </p>
         )}
       </div>
+
+      {!isClone && onDelete && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(dayIndex, item.id);
+          }}
+          className="absolute right-3 top-3.5 text-slate-300 hover:text-rose-500 p-1 rounded-lg hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all border-none bg-transparent cursor-pointer outline-none"
+          aria-label="Delete activity"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      )}
     </div>
   );
 }
