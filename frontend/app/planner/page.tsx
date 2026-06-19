@@ -68,6 +68,12 @@ export default function PlannerPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
 
+  function handleAddActivity(dayIndex: number, newActivity: any) {
+    const nextItinerary = [...itinerary];
+    nextItinerary[dayIndex].activities.push(newActivity);
+    setItinerary(nextItinerary);
+  }
+
   function handleDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id));
   }
@@ -159,6 +165,7 @@ export default function PlannerPage() {
                     date={dayContext.date}
                     activities={dayContext.activities}
                     dayIndex={idx}
+                    onAddActivity={handleAddActivity}
                   />
                 ))}
               </div>

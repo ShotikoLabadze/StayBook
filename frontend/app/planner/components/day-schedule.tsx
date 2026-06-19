@@ -5,7 +5,9 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Plus } from "lucide-react";
+import { useState } from "react";
+import { AddActivityModal } from "./add-activity-modal";
 import { PlanItem } from "./plan-item";
 
 interface DayScheduleProps {
@@ -14,6 +16,7 @@ interface DayScheduleProps {
   title: string;
   activities: any[];
   dayIndex: number;
+  onAddActivity: (dayIndex: number, newAct: any) => void;
 }
 
 export function DaySchedule({
@@ -22,7 +25,10 @@ export function DaySchedule({
   title,
   activities,
   dayIndex,
+  onAddActivity,
 }: DayScheduleProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+
   const { setNodeRef, isOver } = useDroppable({
     id: `day-${dayIndex}`,
     data: { dayIndex, type: "day" },
@@ -63,7 +69,7 @@ export function DaySchedule({
         items={activities.map((a) => a.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex flex-col gap-3 min-h-[150px]">
+        <div className="flex flex-col gap-3 flex-1 justify-start">
           {activities.map((activity) => (
             <PlanItem key={activity.id} item={activity} dayIndex={dayIndex} />
           ))}
@@ -75,6 +81,22 @@ export function DaySchedule({
           )}
         </div>
       </SortableContext>
+
+      <button
+        type="button"
+        onClick={() => setModalOpen(true)}
+        className="mt-2 border border-dashed border-slate-200 hover:border-primary/40 w-full py-2.5 rounded-xl text-slate-400 hover:text-primary hover:bg-slate-50/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold bg-transparent outline-none"
+      >
+        <Plus className="h-4 w-4" />
+        Add Activity
+      </button>
+
+      <AddActivityModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        dayTitle={`Day ${dayNumber} - ${title}`}
+        onSave={(newAct) => onAddActivity(dayIndex, newAct)}
+      />
     </section>
   );
 }
