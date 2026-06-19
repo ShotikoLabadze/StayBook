@@ -42,6 +42,12 @@ export function AddActivityModal({
       time: time || undefined,
       note: note || undefined,
       category,
+      cost: 0,
+      location: {
+        name: "Selected Destination Location",
+        lat: 41.7151,
+        lng: 44.8271,
+      },
     };
 
     onSave(newActivity);
