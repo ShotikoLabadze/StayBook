@@ -104,11 +104,16 @@ export class TripsService {
     activity: any,
     userId: string,
   ) {
-    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
-    if (!trip) throw new NotFoundException('Trip not found');
+    const trip = await this.tripModel
+      .findOne({
+        _id: tripId,
+        $or: [{ owner: userId }, { collaborators: userId }],
+      } as any)
+      .exec();
+
+    if (!trip) throw new NotFoundException('Trip not found or access denied');
 
     trip.itinerary[dayIndex].activities.push(activity);
-
     trip.markModified('itinerary');
     return await trip.save();
   }
@@ -119,8 +124,14 @@ export class TripsService {
     activityId: string,
     userId: string,
   ) {
-    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
-    if (!trip) throw new NotFoundException('Trip not found');
+    const trip = await this.tripModel
+      .findOne({
+        _id: tripId,
+        $or: [{ owner: userId }, { collaborators: userId }],
+      } as any)
+      .exec();
+
+    if (!trip) throw new NotFoundException('Trip not found or access denied');
 
     trip.itinerary[dayIndex].activities = trip.itinerary[
       dayIndex
@@ -129,17 +140,20 @@ export class TripsService {
     trip.markModified('itinerary');
     return await trip.save();
   }
-
   async updateItinerary(
     tripId: string,
     updatedItinerary: any[],
     userId: string,
   ) {
-    const trip = await this.tripModel.findOne({ _id: tripId }).exec();
-    if (!trip) throw new NotFoundException('Trip not found');
+    const trip = await this.tripModel
+      .findOne({
+        _id: tripId,
+        $or: [{ owner: userId }, { collaborators: userId }],
+      } as any)
+      .exec();
+    if (!trip) throw new NotFoundException('Trip not found or access denied');
 
     trip.itinerary = updatedItinerary;
-
     trip.markModified('itinerary');
     return await trip.save();
   }
