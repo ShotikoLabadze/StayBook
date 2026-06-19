@@ -16,6 +16,7 @@ import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { DaySchedule } from "./components/day-schedule";
 import { PlanItem } from "./components/plan-item";
+import { TimelineView } from "./components/timeline-view";
 
 export default function PlannerPage() {
   const [itinerary, setItinerary] = useState([
@@ -291,7 +292,9 @@ export default function PlannerPage() {
             </DndContext>
           )}
 
-          {activeTab !== "board" && (
+          {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
+
+          {activeTab !== "board" && activeTab !== "timeline" && (
             <div className="bg-white border border-slate-100 border-dashed rounded-3xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center flex-1">
               <p className="text-sm font-bold text-slate-700 capitalize">
                 {activeTab} View Workspace
