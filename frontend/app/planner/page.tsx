@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { DaySchedule } from "./components/day-schedule";
+import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
 import { TimelineView } from "./components/timeline-view";
 
@@ -285,6 +286,8 @@ export default function PlannerPage() {
 
             {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
 
+            {activeTab === "map" && <MapView itinerary={itinerary} />}
+
             <DragOverlay dropAnimation={null}>
               {activeItem ? (
                 <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
@@ -294,17 +297,19 @@ export default function PlannerPage() {
             </DragOverlay>
           </DndContext>
 
-          {activeTab !== "board" && activeTab !== "timeline" && (
-            <div className="bg-white border border-slate-100 border-dashed rounded-3xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center flex-1">
-              <p className="text-sm font-bold text-slate-700 capitalize">
-                {activeTab} View Workspace
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                This workspace view is currently empty and ready for
-                development.
-              </p>
-            </div>
-          )}
+          {activeTab !== "board" &&
+            activeTab !== "timeline" &&
+            activeTab !== "map" && (
+              <div className="bg-white border border-slate-100 border-dashed rounded-3xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center flex-1">
+                <p className="text-sm font-bold text-slate-700 capitalize">
+                  {activeTab} View Workspace
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  This workspace view is currently empty and ready for
+                  development.
+                </p>
+              </div>
+            )}
 
           <Footer variant="dashboard" />
         </div>
