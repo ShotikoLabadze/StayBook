@@ -2,14 +2,12 @@
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
-
-import PlannerHeader from "./components/PlannerHeader";
-import Timeline from "./components/Timeline";
-import TripHeroBanner from "./components/TripHeroBanner";
-
-import LiveUpdates from "./components/LiveUpdates";
-import MapPreview from "./components/MapPreview";
-import TripManagement from "./components/TripManagement";
+import { Timeline } from "lucide-react";
+import LiveUpdates from "./[id]/components/LiveUpdates";
+import MapPreview from "./[id]/components/MapPreview";
+import PlannerHeader from "./[id]/components/PlannerHeader";
+import TripHeroBanner from "./[id]/components/TripHeroBanner";
+import TripManagement from "./[id]/components/TripManagement";
 
 export default function PlannerPage() {
   const currentTrip = {
