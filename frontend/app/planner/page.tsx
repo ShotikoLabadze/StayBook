@@ -1,5 +1,6 @@
 "use client";
 
+import { tripService } from "@/services/tripService";
 import {
   closestCorners,
   DndContext,
@@ -19,51 +20,11 @@ import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
 import { TimelineView } from "./components/timeline-view";
 
-export default function PlannerPage() {
-  const [itinerary, setItinerary] = useState([
-    {
-      dayNumber: 1,
-      title: "Arrival & Settling In",
-      date: "2026-06-12",
-      activities: [
-        {
-          id: "1",
-          title: "Flight LX1204 - Zurich to Naples",
-          time: "14:00",
-          note: "Terminal 1.",
-          category: "flight",
-        },
-        {
-          id: "2",
-          title: "Check-in at Hotel Le Sirenuse",
-          time: "15:30",
-          note: "Sea View Junior Suite.",
-          category: "hotel",
-        },
-      ],
-    },
-    {
-      dayNumber: 2,
-      title: "Exploration & Sunset",
-      date: "2026-06-13",
-      activities: [
-        {
-          id: "3",
-          title: "Oia Sunset Walk & Luxury Dinner",
-          time: "19:00",
-          note: "Balcony table reserved.",
-          category: "activity",
-        },
-      ],
-    },
-    {
-      dayNumber: 3,
-      title: "Free Day in Positano",
-      date: "2026-06-14",
-      activities: [],
-    },
-  ]);
+const TRIP_ID = "6a35bf247b891f664afaf1ff";
 
+export default function PlannerPage() {
+  const [itinerary, setItinerary] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -72,43 +33,95 @@ export default function PlannerPage() {
 
   useEffect(() => {
     setMounted(true);
+
+    const loadTripData = async () => {
+      try {
+        const data = await tripService.getById(TRIP_ID);
+
+        const formattedItinerary = data.itinerary.map((day) => ({
+          ...day,
+          title: (day as any).title || `Day ${day.dayNumber} Schedule`,
+          activities: (day.activities || []).map((act: any) => ({
+            ...act,
+            id: act.id || act._id,
+            category: act.category || "activity",
+            cost: Number(act.cost) || 0,
+            location: act.location || { name: "Unknown", lat: 0, lng: 0 },
+          })),
+        }));
+
+        setItinerary(formattedItinerary);
+      } catch (error) {
+        console.error("Failed to fetch trip data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTripData();
   }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
 
-  function handleDeleteActivity(dayIndex: number, activityId: string) {
+  async function handleDeleteActivity(dayIndex: number, activityId: string) {
+    const previousItinerary = [...itinerary];
     const nextItinerary = itinerary.map((day, idx) => {
       if (idx === dayIndex) {
         return {
           ...day,
-          activities: day.activities.filter((act) => act.id !== activityId),
+          activities: day.activities.filter(
+            (act: any) => act.id !== activityId,
+          ),
         };
       }
       return day;
     });
     setItinerary(nextItinerary);
+
+    try {
+      await tripService.deleteActivity(TRIP_ID, dayIndex, activityId);
+    } catch (err) {
+      console.error("Failed to delete activity from server:", err);
+      setItinerary(previousItinerary);
+    }
   }
 
-  function handleAddActivity(dayIndex: number, newActivity: any) {
+  async function handleAddActivity(dayIndex: number, newActivity: any) {
+    const previousItinerary = [...itinerary];
+
+    const verifiedActivity = {
+      ...newActivity,
+      category: newActivity.category || "activity",
+      cost: Number(newActivity.cost) || 0,
+      location: newActivity.location || { name: "Unknown", lat: 0, lng: 0 },
+    };
+
     const nextItinerary = itinerary.map((day, idx) => {
       if (idx === dayIndex) {
         return {
           ...day,
-          activities: [...day.activities, newActivity],
+          activities: [...day.activities, verifiedActivity],
         };
       }
       return day;
     });
     setItinerary(nextItinerary);
+
+    try {
+      await tripService.addActivity(TRIP_ID, dayIndex, verifiedActivity);
+    } catch (err) {
+      console.error("Failed to add activity to server:", err);
+      setItinerary(previousItinerary);
+    }
   }
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(String(event.active.id));
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
     if (!over) return;
@@ -121,14 +134,14 @@ export default function PlannerPage() {
     let activeItemIdx = -1;
 
     itinerary.forEach((day, dIdx) => {
-      const aIdx = day.activities.findIndex((a) => a.id === activeIdStr);
+      const aIdx = day.activities.findIndex((a: any) => a.id === activeIdStr);
       if (aIdx !== -1) {
         fromDayIdx = dIdx;
         activeItemIdx = aIdx;
       }
       if (
         overIdStr === `day-${dIdx}` ||
-        day.activities.some((a) => a.id === overIdStr)
+        day.activities.some((a: any) => a.id === overIdStr)
       ) {
         toDayIdx = dIdx;
       }
@@ -138,7 +151,7 @@ export default function PlannerPage() {
 
     const nextItinerary = itinerary.map((day) => ({
       ...day,
-      activities: [...day.activities],
+      activities: day.activities.map((act: any) => ({ ...act })),
     }));
 
     const [movedItem] = nextItinerary[fromDayIdx].activities.splice(
@@ -150,17 +163,44 @@ export default function PlannerPage() {
       nextItinerary[toDayIdx].activities.push(movedItem);
     } else {
       const overItemIdx = nextItinerary[toDayIdx].activities.findIndex(
-        (a) => a.id === overIdStr,
+        (a: any) => a.id === overIdStr,
       );
       nextItinerary[toDayIdx].activities.splice(overItemIdx, 0, movedItem);
     }
 
     setItinerary(nextItinerary);
+
+    const cleanedItineraryForBackend = nextItinerary.map((day) => ({
+      dayNumber: day.dayNumber,
+      date: day.date,
+      activities: day.activities.map((act: any) => ({
+        id: act.id,
+        title: act.title,
+        note: act.note || "",
+        time: act.time || "",
+        cost: Number(act.cost) || 0,
+        category: act.category || "activity",
+        location:
+          act.location && act.location.name
+            ? {
+                name: act.location.name,
+                lat: Number(act.location.lat) || 0,
+                lng: Number(act.location.lng) || 0,
+              }
+            : { name: "Unknown", lat: 0, lng: 0 },
+      })),
+    }));
+
+    try {
+      await tripService.updateItinerary(TRIP_ID, cleanedItineraryForBackend);
+    } catch (err) {
+      console.error("Failed to sync drag and drop to backend:", err);
+    }
   };
 
   const activeItem = itinerary
     .flatMap((d) => d.activities)
-    .find((a) => a.id === activeId);
+    .find((a: any) => a.id === activeId);
 
   const totalDays = itinerary.length;
   const totalEvents = itinerary.reduce(
@@ -173,20 +213,10 @@ export default function PlannerPage() {
   const tripProgress =
     totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-neutral-bg font-body flex">
-        <Sidebar />
-        <main className="flex-1 flex flex-col min-w-0">
-          <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-            <header className="text-left">
-              <p className="text-sm font-medium text-primary">StayBook</p>
-              <h1 className="mt-2 text-3xl font-bold text-primary md:text-4xl tracking-tight font-headline">
-                Premium Planner Workspace
-              </h1>
-            </header>
-          </div>
-        </main>
+      <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-slate-500 font-medium text-sm">
+        <div className="animate-pulse">Loading Planner Workspace...</div>
       </div>
     );
   }
