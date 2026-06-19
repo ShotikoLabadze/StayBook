@@ -63,7 +63,6 @@ export default function PlannerPage() {
   ]);
 
   const [activeId, setActiveId] = useState<string | null>(null);
-
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -75,16 +74,28 @@ export default function PlannerPage() {
   );
 
   function handleDeleteActivity(dayIndex: number, activityId: string) {
-    const nextItinerary = [...itinerary];
-    nextItinerary[dayIndex].activities = nextItinerary[
-      dayIndex
-    ].activities.filter((act) => act.id !== activityId);
+    const nextItinerary = itinerary.map((day, idx) => {
+      if (idx === dayIndex) {
+        return {
+          ...day,
+          activities: day.activities.filter((act) => act.id !== activityId),
+        };
+      }
+      return day;
+    });
     setItinerary(nextItinerary);
   }
 
   function handleAddActivity(dayIndex: number, newActivity: any) {
-    const nextItinerary = [...itinerary];
-    nextItinerary[dayIndex].activities.push(newActivity);
+    const nextItinerary = itinerary.map((day, idx) => {
+      if (idx === dayIndex) {
+        return {
+          ...day,
+          activities: [...day.activities, newActivity],
+        };
+      }
+      return day;
+    });
     setItinerary(nextItinerary);
   }
 
@@ -97,39 +108,44 @@ export default function PlannerPage() {
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = String(active.id);
-    const overId = String(over.id);
+    const activeIdStr = String(active.id);
+    const overIdStr = String(over.id);
 
     let fromDayIdx = -1;
     let toDayIdx = -1;
     let activeItemIdx = -1;
 
     itinerary.forEach((day, dIdx) => {
-      const aIdx = day.activities.findIndex((a) => a.id === activeId);
+      const aIdx = day.activities.findIndex((a) => a.id === activeIdStr);
       if (aIdx !== -1) {
         fromDayIdx = dIdx;
         activeItemIdx = aIdx;
       }
-      if (overId.startsWith("day-") && overId === `day-${dIdx}`) {
-        toDayIdx = dIdx;
-      } else if (day.activities.some((a) => a.id === overId)) {
+      if (
+        overIdStr === `day-${dIdx}` ||
+        day.activities.some((a) => a.id === overIdStr)
+      ) {
         toDayIdx = dIdx;
       }
     });
 
     if (fromDayIdx === -1 || toDayIdx === -1) return;
 
-    const nextItinerary = [...itinerary];
+    const nextItinerary = itinerary.map((day) => ({
+      ...day,
+      activities: [...day.activities],
+    }));
+
     const [movedItem] = nextItinerary[fromDayIdx].activities.splice(
       activeItemIdx,
       1,
     );
 
-    if (overId.startsWith("day-")) {
+    if (overIdStr.startsWith("day-")) {
       nextItinerary[toDayIdx].activities.push(movedItem);
     } else {
       const overItemIdx = nextItinerary[toDayIdx].activities.findIndex(
-        (a) => a.id === overId,
+        (a) => a.id === overIdStr,
       );
       nextItinerary[toDayIdx].activities.splice(overItemIdx, 0, movedItem);
     }
