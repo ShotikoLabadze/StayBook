@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
+import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
@@ -341,6 +342,14 @@ export default function PlannerPage() {
               </div>
             )}
 
+          {activeTab === "budget" && (
+            <BudgetView
+              itinerary={itinerary}
+              budgetLimit={12450}
+              currency="USD"
+              onDeleteExpense={handleDeleteActivity}
+            />
+          )}
           <Footer variant="dashboard" />
         </div>
       </main>
