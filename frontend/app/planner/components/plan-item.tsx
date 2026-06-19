@@ -1,5 +1,7 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Car,
   Clock,
@@ -26,16 +28,43 @@ interface PlanItemProps {
     note?: string;
     category: string;
   };
+  dayIndex: number;
+  isClone?: boolean;
 }
 
-export function PlanItem({ item }: PlanItemProps) {
+export function PlanItem({ item, dayIndex, isClone = false }: PlanItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    data: { dayIndex, type: "plan-item" },
+    disabled: isClone,
+  });
+
   const Icon = ITEM_ICONS[item.category] || Sparkles;
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.05 : 1,
+  };
+
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3.5 shadow-xs transition-all hover:border-slate-200">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3.5 shadow-xs transition-all hover:border-slate-200 w-full"
+    >
       <button
         type="button"
-        className="mt-1 text-slate-300 hover:text-slate-400 cursor-grab bg-transparent border-none p-0 outline-none"
+        {...(isClone ? {} : attributes)}
+        {...(isClone ? {} : listeners)}
+        className="mt-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing bg-transparent border-none p-0 outline-none flex shrink-0 transition-colors"
       >
         <GripVertical className="h-4 w-4" />
       </button>
@@ -53,11 +82,11 @@ export function PlanItem({ item }: PlanItemProps) {
             </span>
           )}
         </div>
-        <p className="mt-1 truncate text-xs font-bold text-slate-800">
+        <p className="mt-1 truncate text-xs font-bold text-slate-800 select-text">
           {item.title}
         </p>
         {item.note && (
-          <p className="mt-1 text-[11px] text-slate-400 bg-slate-50/50 p-2 rounded-md border border-slate-100/80 italic">
+          <p className="mt-1 text-[11px] text-slate-400 bg-slate-50/50 p-2 rounded-md border border-slate-100/80 italic select-text">
             {item.note}
           </p>
         )}

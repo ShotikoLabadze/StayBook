@@ -1,5 +1,10 @@
 "use client";
 
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CalendarDays } from "lucide-react";
 import { PlanItem } from "./plan-item";
 
@@ -8,6 +13,7 @@ interface DayScheduleProps {
   date: string;
   title: string;
   activities: any[];
+  dayIndex: number;
 }
 
 export function DaySchedule({
@@ -15,9 +21,22 @@ export function DaySchedule({
   date,
   title,
   activities,
+  dayIndex,
 }: DayScheduleProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `day-${dayIndex}`,
+    data: { dayIndex, type: "day" },
+  });
+
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-xs">
+    <section
+      ref={setNodeRef}
+      className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-xs transition-colors h-full ${
+        isOver
+          ? "bg-slate-50/80 border-primary/30"
+          : "bg-white border-slate-100"
+      }`}
+    >
       <header className="flex items-center justify-between border-b border-slate-50 pb-3">
         <div className="flex items-center gap-3">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm">
@@ -34,24 +53,28 @@ export function DaySchedule({
             </p>
           </div>
         </div>
-
         <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-400">
           <CalendarDays className="h-3.5 w-3.5" />
           {activities.length} {activities.length === 1 ? "item" : "items"}
         </span>
       </header>
 
-      <div className="flex flex-col gap-3">
-        {activities.map((activity) => (
-          <PlanItem key={activity.id} item={activity} />
-        ))}
+      <SortableContext
+        items={activities.map((a) => a.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="flex flex-col gap-3 min-h-[150px]">
+          {activities.map((activity) => (
+            <PlanItem key={activity.id} item={activity} dayIndex={dayIndex} />
+          ))}
 
-        {activities.length === 0 && (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-center text-xs font-medium text-slate-400">
-            No activities planned
-          </div>
-        )}
-      </div>
+          {activities.length === 0 && (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 text-center text-xs font-medium text-slate-400 my-auto">
+              Drop activities here
+            </div>
+          )}
+        </div>
+      </SortableContext>
     </section>
   );
 }
