@@ -15,10 +15,49 @@ export class TripsService {
       throw new Error('Unauthorized: User ID not found in token');
     }
 
+    let itinerary = tripData.itinerary || [];
+
+    if (itinerary.length === 0 && tripData.startDate && tripData.endDate) {
+      const start = new Date(tripData.startDate);
+      const end = new Date(tripData.endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
+      for (let i = 0; i < totalDays; i++) {
+        const currentDayDate = new Date(start);
+        currentDayDate.setDate(start.getDate() + i);
+
+        const activities =
+          i === 0
+            ? [
+                {
+                  id: `act-hotel-${Date.now()}`,
+                  title: tripData.title || 'Luxury Sanctuary Accommodations',
+                  category: 'hotel',
+                  cost: Number(tripData.totalPrice) || 0,
+                  time: '15:00',
+                  note: 'Premium Suite Reserved via StayBook Bespoke Concierge.',
+                  location: {
+                    name: tripData.destination || 'Selected Sanctuary Location',
+                    lat: 41.7151,
+                    lng: 44.8271,
+                  },
+                },
+              ]
+            : [];
+
+        itinerary.push({
+          dayNumber: i + 1,
+          date: currentDayDate.toISOString().split('T')[0],
+          activities,
+        });
+      }
+    }
+
     const newTrip = new this.tripModel({
       ...tripData,
       owner: userId,
-      itinerary: tripData.itinerary || [],
+      itinerary,
     });
 
     return await newTrip.save();
@@ -102,6 +141,7 @@ export class TripsService {
     trip.markModified('itinerary');
     return await trip.save();
   }
+
   async updateItinerary(
     tripId: string,
     updatedItinerary: any[],

@@ -8,17 +8,21 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const TRIP_ID = "6a35bf247b891f664afaf1ff";
-
 export function usePlanner() {
+  const { tripId } = useParams();
+  const TRIP_ID = String(tripId);
+
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (!TRIP_ID || TRIP_ID === "undefined") return;
+
     setMounted(true);
     const loadTripData = async () => {
       try {
@@ -42,7 +46,7 @@ export function usePlanner() {
       }
     };
     loadTripData();
-  }, []);
+  }, [TRIP_ID]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),

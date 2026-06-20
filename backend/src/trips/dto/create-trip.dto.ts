@@ -2,6 +2,7 @@ import {
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -17,4 +18,9 @@ export class CreateTripDto {
   @IsOptional() @IsNumber() guests?: number;
   @IsOptional() @IsNumber() totalPrice?: number;
   @IsOptional() @IsString() hotelId?: string;
+
+  @IsOptional() @IsObject() budget?: {
+    totalLimit: number;
+    currency: string;
+  };
 }
