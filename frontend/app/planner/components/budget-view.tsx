@@ -1,6 +1,16 @@
 "use client";
 
-import { PieChart, Trash2, Wallet } from "lucide-react";
+import {
+  Car,
+  Hotel,
+  Landmark,
+  PieChart,
+  Plane,
+  Sparkles,
+  Trash2,
+  Utensils,
+  Wallet,
+} from "lucide-react";
 import { useState } from "react";
 import { AddExpenseModal } from "./add-expense-modal";
 
@@ -30,14 +40,38 @@ interface BudgetViewProps {
 
 const CATEGORY_CONFIG: Record<
   string,
-  { label: string; color: string; icon: string }
+  { label: string; color: string; icon: React.ReactNode }
 > = {
-  flight: { label: "Flights", color: "bg-sky-500", icon: "✈️" },
-  hotel: { label: "Hotels", color: "bg-purple-500", icon: "🏨" },
-  food: { label: "Dining", color: "bg-orange-500", icon: "🍽️" },
-  activity: { label: "Activities", color: "bg-emerald-500", icon: "✨" },
-  transport: { label: "Transport", color: "bg-amber-500", icon: "🚗" },
-  other: { label: "Other", color: "bg-slate-500", icon: "📍" },
+  flight: {
+    label: "Flights",
+    color: "bg-sky-500",
+    icon: <Plane className="h-3.5 w-3.5 text-slate-500" />,
+  },
+  hotel: {
+    label: "Hotels",
+    color: "bg-purple-500",
+    icon: <Hotel className="h-3.5 w-3.5 text-slate-500" />,
+  },
+  food: {
+    label: "Dining",
+    color: "bg-orange-500",
+    icon: <Utensils className="h-3.5 w-3.5 text-slate-500" />,
+  },
+  activity: {
+    label: "Activities",
+    color: "bg-emerald-500",
+    icon: <Sparkles className="h-3.5 w-3.5 text-slate-500" />,
+  },
+  transport: {
+    label: "Transport",
+    color: "bg-amber-500",
+    icon: <Car className="h-3.5 w-3.5 text-slate-500" />,
+  },
+  other: {
+    label: "Other",
+    color: "bg-slate-500",
+    icon: <Landmark className="h-3.5 w-3.5 text-slate-500" />,
+  },
 };
 
 export function BudgetView({
@@ -116,7 +150,7 @@ export function BudgetView({
           </div>
           <button
             onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-100 cursor-pointer"
+            className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-100 cursor-pointer flex items-center gap-1.5"
           >
             + Add expense
           </button>
@@ -150,7 +184,7 @@ export function BudgetView({
               <div key={key} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs text-[11px]">
+                    <span className="w-5 h-5 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs">
                       {config.icon}
                     </span>
                     <span>{config.label}</span>
@@ -193,7 +227,7 @@ export function BudgetView({
                 className="flex items-center justify-between py-3 group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs text-sm shrink-0">
+                  <span className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs shrink-0">
                     {config.icon}
                   </span>
                   <div className="min-w-0 text-left">
@@ -234,6 +268,7 @@ export function BudgetView({
               the log.
             </div>
           )}
+
           <AddExpenseModal
             isOpen={modalOpen}
             onClose={() => setModalOpen(false)}

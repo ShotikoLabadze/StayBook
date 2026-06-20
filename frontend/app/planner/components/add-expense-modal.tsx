@@ -1,6 +1,15 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
+import {
+  Car,
+  Hotel,
+  Landmark,
+  Plane,
+  Plus,
+  Sparkles,
+  Utensils,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -56,6 +65,23 @@ export function AddExpenseModal({
     onClose();
   }
 
+  const renderCategoryIcon = () => {
+    switch (category) {
+      case "hotel":
+        return <Hotel className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "flight":
+        return <Plane className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "food":
+        return <Utensils className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "activity":
+        return <Sparkles className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "transport":
+        return <Car className="h-4 w-4 text-slate-500 shrink-0" />;
+      default:
+        return <Landmark className="h-4 w-4 text-slate-500 shrink-0" />;
+    }
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
@@ -85,18 +111,24 @@ export function AddExpenseModal({
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Category
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px]"
-              >
-                <option value="hotel">🏨 Hotels</option>
-                <option value="flight">✈️ Flights</option>
-                <option value="food">🍽️ Dining</option>
-                <option value="activity">✨ Activities</option>
-                <option value="transport">🚗 Transport</option>
-                <option value="other">📍 Other</option>
-              </select>
+              <div className="relative flex items-center">
+                <div className="absolute left-3 pointer-events-none">
+                  {renderCategoryIcon()}
+                </div>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px] cursor-pointer appearance-none"
+                >
+                  <option value="hotel">Hotels</option>
+                  <option value="flight">Flights</option>
+                  <option value="food">Dining</option>
+                  <option value="activity">Activities</option>
+                  <option value="transport">Transport</option>
+                  <option value="other">Other</option>
+                </select>
+                <div className="absolute right-3 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-400 w-0 h-0" />
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -119,7 +151,7 @@ export function AddExpenseModal({
             <select
               value={dayIndex}
               onChange={(e) => setDayIndex(Number(e.target.value))}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px]"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px] cursor-pointer"
             >
               {Array.from({ length: totalDays }).map((_, idx) => (
                 <option key={idx} value={idx}>
@@ -140,7 +172,7 @@ export function AddExpenseModal({
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800 h-[34px]"
               />
             </div>
 
@@ -151,7 +183,7 @@ export function AddExpenseModal({
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px]"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px] cursor-pointer"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -169,7 +201,7 @@ export function AddExpenseModal({
               placeholder="e.g., Sunset dinner at Selene"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800 h-[34px]"
             />
           </div>
 

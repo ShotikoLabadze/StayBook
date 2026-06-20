@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
+import { Car, Hotel, Plane, Plus, Sparkles, Utensils, X } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -59,6 +59,23 @@ export function AddActivityModal({
     onClose();
   }
 
+  const renderCategoryIcon = () => {
+    switch (category) {
+      case "activity":
+        return <Sparkles className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "flight":
+        return <Plane className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "hotel":
+        return <Hotel className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "food":
+        return <Utensils className="h-4 w-4 text-slate-500 shrink-0" />;
+      case "transport":
+        return <Car className="h-4 w-4 text-slate-500 shrink-0" />;
+      default:
+        return <Sparkles className="h-4 w-4 text-slate-500 shrink-0" />;
+    }
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
@@ -103,17 +120,24 @@ export function AddActivityModal({
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Category
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px]"
-              >
-                <option value="activity">✨ Activity</option>
-                <option value="flight">✈️ Flight</option>
-                <option value="hotel">🏨 Hotel</option>
-                <option value="food">🍽️ Dining</option>
-                <option value="transport">🚗 Transport</option>
-              </select>
+              <div className="relative flex items-center">
+                <div className="absolute left-3 pointer-events-none">
+                  {renderCategoryIcon()}
+                </div>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-700 h-[34px] cursor-pointer appearance-none"
+                >
+                  <option value="activity">Activity</option>
+                  <option value="flight">Flight</option>
+                  <option value="hotel">Hotel</option>
+                  <option value="food">Dining</option>
+                  <option value="transport">Transport</option>
+                </select>
+
+                <div className="absolute right-3 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-400 w-0 h-0" />
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -125,7 +149,7 @@ export function AddActivityModal({
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 placeholder="e.g., 20:30"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium outline-none focus:border-primary transition-colors text-slate-800 h-[34px]"
               />
             </div>
           </div>
