@@ -1,6 +1,8 @@
 "use client";
 
 import { PieChart, Trash2, Wallet } from "lucide-react";
+import { useState } from "react";
+import { AddExpenseModal } from "./add-expense-modal";
 
 interface Activity {
   id: string;
@@ -54,6 +56,8 @@ export function BudgetView({
       })),
     )
     .filter((act) => act.cost > 0);
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const totalSpent = allExpenses.reduce((sum, item) => sum + item.cost, 0);
   const remainingBudget = Math.max(0, budgetLimit - totalSpent);
@@ -110,7 +114,10 @@ export function BudgetView({
               · {formatMoney(remainingBudget)} remaining
             </p>
           </div>
-          <button className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-100 cursor-pointer">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-100 cursor-pointer"
+          >
             + Add expense
           </button>
         </div>
@@ -227,6 +234,16 @@ export function BudgetView({
               the log.
             </div>
           )}
+          <AddExpenseModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={
+              onDeleteExpense
+                ? (dayIdx, newExp) => onDeleteExpense(dayIdx, newExp)
+                : () => {}
+            }
+            totalDays={itinerary.length}
+          />
         </div>
       </div>
     </div>
