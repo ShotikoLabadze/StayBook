@@ -30,19 +30,24 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       setIsSubmitting(true);
       setErrorMessage(null);
 
+      const start = new Date(checkIn);
+      const end = new Date(checkOut);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const nightsCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
       const tripPayload = {
         title: `Escape to ${hotel.name}`,
         destination: hotel.neighborhood || "Luxury Sanctuary",
-        startDate: new Date(checkIn).toISOString(),
-        endDate: new Date(checkOut).toISOString(),
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
 
-        checkIn: new Date(checkIn).toISOString(),
-        checkOut: new Date(checkOut).toISOString(),
+        checkIn: start.toISOString(),
+        checkOut: end.toISOString(),
         guests: Number(guests),
-        totalPrice: hotel.pricePerNight * 3,
+        totalPrice: hotel.pricePerNight * nightsCount,
         hotelId: String(hotel._id || hotel.id),
         budget: {
-          totalLimit: hotel.pricePerNight * 3 + 1000,
+          totalLimit: hotel.pricePerNight * nightsCount + 1000,
           currency: "USD",
         },
       };
@@ -51,7 +56,7 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       const savedTrip = response.data;
 
       if (savedTrip && savedTrip._id) {
-        router.push(`/trips/${savedTrip._id}`);
+        router.push(`/planner/${savedTrip._id}`);
       }
     } catch (err: any) {
       console.error("Booking failed:", err);
