@@ -2,11 +2,8 @@
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import {
-  Destination,
-  destinationService,
-  Testimonial,
-} from "@/services/destinationService";
+import { Destination, destinationService } from "@/services/destinationService";
+import { Testimonial, testimonialService } from "@/services/testimonialService";
 import { useEffect, useState } from "react";
 
 import { CallToAction } from "@/components/components-landing/CallToAction";
@@ -30,15 +27,14 @@ export default function LandingPage() {
         setIsTestimonialsLoading(true);
 
         const destData = await destinationService.getAll();
-
         const topRatedDestinations = [...destData]
           .sort((a, b) => (b.rating || 0) - (a.rating || 0))
           .slice(0, 3);
-
         setDestinations(topRatedDestinations);
 
-        const reviewData = await destinationService.getTestimonials();
-        setTestimonials(reviewData);
+        const reviewData = await testimonialService.getAll();
+        const latestThreeTestimonials = [...reviewData].reverse().slice(0, 3);
+        setTestimonials(latestThreeTestimonials);
       } catch (err) {
         console.error("Failed to load landing data:", err);
         setError("Could not load fresh data. Please try again later.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { Testimonial } from "@/services/destinationService";
+import { Testimonial } from "@/services/testimonialService";
 import { Star } from "lucide-react";
 
 interface TestimonialsSectionProps {
@@ -37,9 +37,9 @@ export function TestimonialsSection({
                 </div>
               </div>
             ))
-          : testimonials.map((t, i) => (
+          : testimonials.map((t) => (
               <div
-                key={i}
+                key={t._id}
                 className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6"
               >
                 <div className="space-y-4">
