@@ -24,6 +24,14 @@ import { PlanItem } from "./components/plan-item";
 import { TimelineView } from "./components/timeline-view";
 import { TripsView } from "./components/trips-view";
 
+const WORKSPACE_TABS = [
+  { id: "trips", label: "Trips" },
+  { id: "board", label: "Board" },
+  { id: "timeline", label: "Timeline" },
+  { id: "map", label: "Map" },
+  { id: "budget", label: "Budget" },
+] as const;
+
 export default function PlannerPage() {
   const router = useRouter();
   const params = useParams();
@@ -36,10 +44,11 @@ export default function PlannerPage() {
   const [allWorkspaceTrips, setAllWorkspaceTrips] = useState<any[]>([]);
   const [activeItem, setActiveItem] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const {
     itinerary,
-    loading,
+    loading: plannerLoading,
     mounted: plannerMounted,
     sensors: plannerSensors,
     activeItem: plannerActiveItem,
@@ -56,7 +65,8 @@ export default function PlannerPage() {
     tripService
       .getAll()
       .then((data) => setAllWorkspaceTrips(data))
-      .catch((err) => console.error("Workspace Board fetch failed:", err));
+      .catch((err) => console.error("Workspace Board fetch failed:", err))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -180,42 +190,36 @@ export default function PlannerPage() {
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <div className="p-10 space-y-6 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <header className="text-left">
-            <p className="text-sm font-medium text-primary">StayBook</p>
-            <h1 className="mt-2 text-3xl font-bold text-primary md:text-4xl tracking-tight font-headline">
-              Premium Planner Workspace
-            </h1>
-          </header>
-
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-3 border border-slate-100 rounded-2xl shadow-xs">
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-              {(["trips", "board", "timeline", "map", "budget"] as const).map(
-                (tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
-                      activeTab === tab
-                        ? "bg-primary text-white shadow-xs"
-                        : "text-slate-500 hover:text-primary hover:bg-slate-50"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ),
-              )}
+        <div className="p-10 space-y-5 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div className="text-left">
+              <span className="text-xs font-bold text-secondary uppercase tracking-widest font-headline block mb-1">
+                StayBook
+              </span>
+              <h1 className="font-headline text-3xl font-bold text-primary tracking-tight">
+                Premium Planner Workspace
+              </h1>
+              <p className="mt-1 text-xs font-medium text-slate-400">
+                Manage hand-picked luxury itineraries and dynamically sync
+                travel steps.
+              </p>
             </div>
 
-            <div className="flex items-center gap-6 text-right px-2 self-end lg:self-center">
-              <div className="space-y-0.5">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Workspace Status
-                </p>
-                <p className="text-xs font-extrabold text-slate-700">
-                  {allWorkspaceTrips.length} Active Trips
-                </p>
-              </div>
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-500 border border-slate-200/20 shadow-2xs self-start sm:self-center">
+              {WORKSPACE_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    activeTab === tab.id
+                      ? "bg-white text-primary shadow-2xs font-semibold"
+                      : "text-slate-400 hover:text-primary"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
