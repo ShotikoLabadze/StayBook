@@ -30,7 +30,6 @@ export interface TripData {
 }
 
 export const tripService = {
-  // 🎯 ახალი მეთოდი იუზერის ყველა ტრიპის წამოსაღებად
   getAll: async () => {
     const response = await api.get("/trips");
     return response.data as TripData[];
