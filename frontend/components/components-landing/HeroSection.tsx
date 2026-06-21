@@ -2,8 +2,26 @@
 
 import { motion } from "framer-motion";
 import { Calendar, MapPin, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function HeroSection() {
+  const router = useRouter();
+
+  const [whereInput, setWhereInput] = useState("");
+  const [whenInput, setWhenInput] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!whereInput.trim()) {
+      router.push("/explore");
+      return;
+    }
+
+    router.push(`/explore?search=${encodeURIComponent(whereInput.trim())}`);
+  };
+
   return (
     <section className="relative min-h-[85vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden bg-primary text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.12),transparent_60%)]" />
@@ -36,7 +54,8 @@ export function HeroSection() {
           itineraries seamlessly with StayBook.
         </motion.p>
 
-        <motion.div
+        <motion.form
+          onSubmit={handleSearch}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -46,6 +65,8 @@ export function HeroSection() {
             <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
+              value={whereInput}
+              onChange={(e) => setWhereInput(e.target.value)}
               placeholder="Where do you want to go?"
               className="w-full text-sm font-medium focus:outline-none placeholder:text-slate-400 bg-transparent text-primary"
             />
@@ -54,14 +75,19 @@ export function HeroSection() {
             <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
+              value={whenInput}
+              onChange={(e) => setWhenInput(e.target.value)}
               placeholder="When?"
               className="w-full text-sm font-medium focus:outline-none placeholder:text-slate-400 bg-transparent text-primary"
             />
           </div>
-          <button className="sm:col-span-3 w-full py-3 bg-secondary hover:bg-secondary/90 text-primary text-sm font-bold rounded-xl sm:rounded-full transition-all flex items-center justify-center gap-2 shadow-lg shadow-secondary/10 cursor-pointer tracking-wide">
+          <button
+            type="submit"
+            className="sm:col-span-3 w-full py-3 bg-secondary hover:bg-secondary/90 text-primary text-sm font-bold rounded-xl sm:rounded-full transition-all flex items-center justify-center gap-2 shadow-lg shadow-secondary/10 cursor-pointer tracking-wide"
+          >
             <Search className="w-4 h-4 text-primary stroke-[3]" /> Search
           </button>
-        </motion.div>
+        </motion.form>
       </div>
     </section>
   );
