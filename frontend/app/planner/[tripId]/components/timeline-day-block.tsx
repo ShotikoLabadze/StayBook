@@ -13,6 +13,7 @@ interface Day {
   title: string;
   date: string;
   activities: any[];
+  _id?: string;
 }
 
 interface TimelineDayBlockProps {
@@ -21,14 +22,16 @@ interface TimelineDayBlockProps {
 }
 
 export function TimelineDayBlock({ day, dayIndex }: TimelineDayBlockProps) {
+  const droppableId = day._id ? `trip-${day._id}` : `day-${dayIndex}`;
+
   const { setNodeRef, isOver } = useDroppable({
-    id: `day-${dayIndex}`,
+    id: droppableId,
   });
 
   return (
     <div
       ref={setNodeRef}
-      className={`border rounded-2xl p-5 space-y-4 shadow-2xs transition-colors ${
+      className={`border rounded-2xl p-5 space-y-4 shadow-2xs transition-colors text-left ${
         isOver
           ? "bg-sky-50/40 border-sky-200"
           : "bg-slate-50/50 border-slate-100"
@@ -55,12 +58,15 @@ export function TimelineDayBlock({ day, dayIndex }: TimelineDayBlockProps) {
       </header>
 
       <SortableContext
-        items={day.activities.map((a) => a.id)}
+        items={day.activities.map((a) => a.id || a._id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex flex-col gap-2.5 min-h-[50px]">
+        <div className="flex flex-col gap-2.5 min-h-[60px]">
           {day.activities.map((activity) => (
-            <TimelineActivityCard key={activity.id} activity={activity} />
+            <TimelineActivityCard
+              key={activity.id || activity._id}
+              activity={activity}
+            />
           ))}
 
           {day.activities.length === 0 && (

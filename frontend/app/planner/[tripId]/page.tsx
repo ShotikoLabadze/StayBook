@@ -227,60 +227,65 @@ export default function PlannerPage() {
             <TripsView onTripSelect={handleTripSwitch} />
           )}
 
-          {activeTab === "board" && (
+          {activeTab === "board" || activeTab === "timeline" ? (
             <DndContext
               sensors={sensors}
               collisionDetection={closestCorners}
               onDragStart={handleGlobalDragStart}
               onDragEnd={handleGlobalDragEnd}
             >
-              <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
-                <div className="mb-6 text-left border-b border-slate-100 pb-4">
-                  <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                    Global Trip Master Board
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Drag and drop activities across your different travel
-                    packages smoothly.
-                  </p>
-                </div>
+              {activeTab === "board" && (
+                <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
+                  <div className="mb-6 text-left border-b border-slate-100 pb-4">
+                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                      Global Trip Master Board
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Drag and drop activities across your different travel
+                      packages smoothly.
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
-                  {allWorkspaceTrips.map((trip, idx) => {
-                    const flatActivities =
-                      trip.itinerary?.flatMap((d: any) => d.activities || []) ||
-                      [];
-                    return (
-                      <DaySchedule
-                        key={trip._id}
-                        dayNumber={idx + 1}
-                        title={trip.title || "Curated Sanctuary Package"}
-                        date={`${trip.itinerary?.length || 0} Days Plan`}
-                        activities={flatActivities}
-                        dayIndex={idx}
-                        id={`trip-${trip._id}`}
-                        onAddActivity={() => {}}
-                        onDeleteActivity={() => {}}
-                      />
-                    );
-                  })}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
+                    {allWorkspaceTrips.map((trip, idx) => {
+                      const flatActivities =
+                        trip.itinerary?.flatMap(
+                          (d: any) => d.activities || [],
+                        ) || [];
+                      return (
+                        <DaySchedule
+                          key={trip._id}
+                          dayNumber={idx + 1}
+                          title={trip.title || "Curated Sanctuary Package"}
+                          date={`${trip.itinerary?.length || 0} Days Plan`}
+                          activities={flatActivities}
+                          dayIndex={idx}
+                          id={`trip-${trip._id}`}
+                          onAddActivity={() => {}}
+                          onDeleteActivity={() => {}}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {activeTab === "timeline" && (
+                <TimelineView trips={allWorkspaceTrips} />
+              )}
 
               <DragOverlay dropAnimation={null}>
                 {activeItem ? (
-                  <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
+                  <div className="shadow-2xl opacity-95 scale-102 rotate-1 transition-transform w-[300px] pointer-events-none z-50">
                     <PlanItem item={activeItem} dayIndex={-1} isClone />
                   </div>
                 ) : null}
               </DragOverlay>
             </DndContext>
-          )}
+          ) : null}
 
-          {activeTab === "timeline" && (
-            <TimelineView trips={allWorkspaceTrips} />
-          )}
           {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
+
           {activeTab === "budget" && (
             <BudgetView
               itinerary={itinerary}
