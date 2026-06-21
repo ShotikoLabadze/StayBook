@@ -29,6 +29,8 @@ interface ActiveFilters {
   propertyTypes: string[];
 }
 
+const ITEMS_PER_PAGE = 6;
+
 export default function ExplorePage() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -37,6 +39,8 @@ export default function ExplorePage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("popular");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const [currentFilters, setCurrentFilters] = useState<ActiveFilters>({
     categories: [],
@@ -48,6 +52,10 @@ export default function ExplorePage() {
     activities: [],
     propertyTypes: [],
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortBy, currentFilters]);
 
   useEffect(() => {
     const fetchFilteredData = async () => {
@@ -95,6 +103,13 @@ export default function ExplorePage() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, sortBy, currentFilters]);
 
+  const totalItems = hotels.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+
+  const currentHotels = hotels.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex">
       <Sidebar />
@@ -132,10 +147,10 @@ export default function ExplorePage() {
               <FilterSidebar onFilterChange={setCurrentFilters} />
             </div>
 
-            <div className="xl:col-span-8 w-full">
+            <div className="xl:col-span-8 w-full flex flex-col gap-8">
               {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-                  {[...Array(4)].map((_, i) => (
+                  {[...Array(6)].map((_, i) => (
                     <div
                       key={i}
                       className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
@@ -147,21 +162,77 @@ export default function ExplorePage() {
                   No luxury properties found matching these parameters.
                 </div>
               ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-                  {hotels.map((hotel) => (
-                    <HotelCard
-                      key={hotel._id}
-                      id={hotel.id || hotel._id}
-                      title={hotel.name}
-                      location={hotel.neighborhood}
-                      rating={hotel.rating}
-                      reviews={hotel.reviewCount}
-                      price={hotel.pricePerNight}
-                      image={hotel.image}
-                      features={hotel.tags}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                    {currentHotels.map((hotel) => (
+                      <HotelCard
+                        key={hotel._id}
+                        id={hotel.id || hotel._id}
+                        title={hotel.name}
+                        location={hotel.neighborhood}
+                        rating={hotel.rating}
+                        reviews={hotel.reviewCount}
+                        price={hotel.pricePerNight}
+                        image={hotel.image}
+                        features={hotel.tags}
+                      />
+                    ))}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-6 pt-10 mt-6 border-t border-slate-100 w-full select-none">
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 transition-all cursor-pointer shadow-3xs"
+                        aria-label="Previous page"
+                      >
+                        <svg
+                          className="w-4 h-4 stroke-[2.5]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 19.5L8.25 12l7.5-7.5"
+                          />
+                        </svg>
+                      </button>
+
+                      <span className="text-xs font-bold text-primary font-headline tracking-wide">
+                        Page {currentPage} of {totalPages}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages),
+                          )
+                        }
+                        disabled={currentPage === totalPages}
+                        className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 transition-all cursor-pointer shadow-3xs"
+                        aria-label="Next page"
+                      >
+                        <svg
+                          className="w-4 h-4 stroke-[2.5]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <ExploreMap hotels={hotels} />
               )}
