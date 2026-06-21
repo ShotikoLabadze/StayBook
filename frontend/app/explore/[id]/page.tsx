@@ -54,7 +54,10 @@ export default function HotelDetailsPage() {
 
         const allHotels =
           await destinationService.getHotelsByDestination("all");
-        const foundHotel = allHotels.find((h) => h._id === id || h.id === id);
+
+        const foundHotel = allHotels.find(
+          (h) => h._id === id || h.id === id || h.destinationId === id,
+        );
 
         if (!foundHotel) {
           setError("Sanctuary not found in our database.");
@@ -68,7 +71,8 @@ export default function HotelDetailsPage() {
         const matchedDest = allDestinations.find(
           (d) =>
             d.slug === foundHotel.destinationId ||
-            d.id === foundHotel.destinationId,
+            d.id === foundHotel.destinationId ||
+            d._id === foundHotel.destinationId,
         );
 
         if (matchedDest) {

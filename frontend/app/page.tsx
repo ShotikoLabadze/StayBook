@@ -30,7 +30,12 @@ export default function LandingPage() {
         setIsTestimonialsLoading(true);
 
         const destData = await destinationService.getAll();
-        setDestinations(destData.slice(0, 3));
+
+        const topRatedDestinations = [...destData]
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 3);
+
+        setDestinations(topRatedDestinations);
 
         const reviewData = await destinationService.getTestimonials();
         setTestimonials(reviewData);
