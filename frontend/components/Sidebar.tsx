@@ -90,7 +90,11 @@ export default function Sidebar() {
           <nav className="space-y-1.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+
+              const isActive =
+                item.id === "planner"
+                  ? pathname.startsWith("/planner")
+                  : pathname === item.href;
 
               return (
                 <Link
