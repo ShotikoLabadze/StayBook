@@ -1,7 +1,8 @@
 "use client";
 
 import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
 
 import Footer from "@/components/Footer";
@@ -11,11 +12,16 @@ import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
 import { TimelineView } from "./components/timeline-view";
+import { TripsView } from "./components/trips-view";
 
 export default function PlannerPage() {
+  const router = useRouter();
+  const params = useParams();
+  const currentTripId = params?.tripId;
+
   const [activeTab, setActiveTab] = useState<
-    "board" | "timeline" | "map" | "budget"
-  >("board");
+    "board" | "timeline" | "map" | "budget" | "trips"
+  >("trips");
 
   const {
     itinerary,
@@ -31,6 +37,17 @@ export default function PlannerPage() {
     handleDragStart,
     handleDragEnd,
   } = usePlanner();
+
+  useEffect(() => {
+    if (currentTripId) {
+      setActiveTab("board");
+    }
+  }, [currentTripId]);
+
+  const handleTripSwitch = (tripId: string) => {
+    setActiveTab("board");
+    router.push(`/planner/${tripId}`);
+  };
 
   if (!mounted || loading) {
     return (
@@ -55,19 +72,21 @@ export default function PlannerPage() {
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-3 border border-slate-100 rounded-2xl shadow-xs">
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-              {(["board", "timeline", "map", "budget"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
-                    activeTab === tab
-                      ? "bg-primary text-white shadow-xs"
-                      : "text-slate-500 hover:text-primary hover:bg-slate-50"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+              {(["trips", "board", "timeline", "map", "budget"] as const).map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                      activeTab === tab
+                        ? "bg-primary text-white shadow-xs"
+                        : "text-slate-500 hover:text-primary hover:bg-slate-50"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ),
+              )}
             </div>
 
             <div className="flex items-center gap-6 text-right px-2 self-end lg:self-center">
@@ -96,52 +115,60 @@ export default function PlannerPage() {
             </div>
           </div>
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            {activeTab === "board" && (
-              <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
-                <div className="mb-6 text-left border-b border-slate-100 pb-4">
-                  <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                    Trip Itinerary Board
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Manage your daily schedule and drag activities to
-                    reorganize.
-                  </p>
-                </div>
+          {activeTab === "trips" && (
+            <TripsView onTripSelect={handleTripSwitch} />
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1">
-                  {itinerary.map((dayContext, idx) => (
-                    <DaySchedule
-                      key={dayContext.dayNumber}
-                      dayNumber={dayContext.dayNumber}
-                      title={dayContext.title}
-                      date={dayContext.date}
-                      activities={dayContext.activities}
-                      dayIndex={idx}
-                      onAddActivity={handleAddActivity}
-                      onDeleteActivity={handleDeleteActivity}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+          {activeTab !== "trips" && (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCorners}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              {activeTab === "board" && (
+                <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
+                  <div className="mb-6 text-left border-b border-slate-100 pb-4">
+                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                      Trip Itinerary Board
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Manage your daily schedule and drag activities to
+                      reorganize.
+                    </p>
+                  </div>
 
-            {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
-            {activeTab === "map" && <MapView itinerary={itinerary} />}
-
-            <DragOverlay dropAnimation={null}>
-              {activeItem ? (
-                <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
-                  <PlanItem item={activeItem} dayIndex={-1} isClone />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1">
+                    {itinerary.map((dayContext, idx) => (
+                      <DaySchedule
+                        key={dayContext.dayNumber}
+                        dayNumber={dayContext.dayNumber}
+                        title={dayContext.title}
+                        date={dayContext.date}
+                        activities={dayContext.activities}
+                        dayIndex={idx}
+                        onAddActivity={handleAddActivity}
+                        onDeleteActivity={handleDeleteActivity}
+                      />
+                    ))}
+                  </div>
                 </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
+              )}
+
+              {activeTab === "timeline" && (
+                <TimelineView itinerary={itinerary} />
+              )}
+              {activeTab === "map" && <MapView itinerary={itinerary} />}
+
+              <DragOverlay dropAnimation={null}>
+                {activeItem ? (
+                  <div className="shadow-2xl opacity-90 scale-102 rotate-1 transition-transform">
+                    <PlanItem item={activeItem} dayIndex={-1} isClone />
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          )}
 
           {activeTab === "budget" && (
             <BudgetView
