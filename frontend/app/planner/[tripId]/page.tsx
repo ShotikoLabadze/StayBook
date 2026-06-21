@@ -273,7 +273,9 @@ export default function PlannerPage() {
             </DndContext>
           )}
 
-          {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
+          {activeTab === "timeline" && (
+            <TimelineView trips={allWorkspaceTrips} />
+          )}
           {activeTab === "map" && <MapView itinerary={itinerary} />}
           {activeTab === "budget" && (
             <BudgetView
