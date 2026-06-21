@@ -276,7 +276,7 @@ export default function PlannerPage() {
           {activeTab === "timeline" && (
             <TimelineView trips={allWorkspaceTrips} />
           )}
-          {activeTab === "map" && <MapView itinerary={itinerary} />}
+          {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
           {activeTab === "budget" && (
             <BudgetView
               itinerary={itinerary}
