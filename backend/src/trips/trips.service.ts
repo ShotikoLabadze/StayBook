@@ -23,6 +23,9 @@ export class TripsService {
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
+      const lat = tripData.latitude ? Number(tripData.latitude) : 41.8902;
+      const lng = tripData.longitude ? Number(tripData.longitude) : 12.4964;
+
       for (let i = 0; i < totalDays; i++) {
         const currentDayDate = new Date(start);
         currentDayDate.setDate(start.getDate() + i);
@@ -39,8 +42,8 @@ export class TripsService {
                   note: 'Premium Suite Reserved via StayBook Bespoke Concierge.',
                   location: {
                     name: tripData.destination || 'Selected Sanctuary Location',
-                    lat: 41.7151,
-                    lng: 44.8271,
+                    lat: lat,
+                    lng: lng,
                   },
                 },
               ]

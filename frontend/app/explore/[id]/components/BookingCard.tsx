@@ -46,6 +46,10 @@ export default function BookingCard({ hotel }: BookingCardProps) {
         guests: Number(guests),
         totalPrice: hotel.pricePerNight * nightsCount,
         hotelId: String(hotel._id || hotel.id),
+
+        latitude: hotel.coordinates?.lat,
+        longitude: hotel.coordinates?.lng,
+
         budget: {
           totalLimit: hotel.pricePerNight * nightsCount + 1000,
           currency: "USD",
