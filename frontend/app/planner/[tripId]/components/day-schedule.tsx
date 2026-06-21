@@ -16,6 +16,7 @@ interface DayScheduleProps {
   title: string;
   activities: any[];
   dayIndex: number;
+  id?: string;
   onAddActivity: (dayIndex: number, newAct: any) => void;
   onDeleteActivity: (dayIndex: number, activityId: string) => void;
 }
@@ -26,20 +27,23 @@ export function DaySchedule({
   title,
   activities,
   dayIndex,
+  id,
   onAddActivity,
   onDeleteActivity,
 }: DayScheduleProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
+  const droppableId = id || `day-${dayIndex}`;
+
   const { setNodeRef, isOver } = useDroppable({
-    id: `day-${dayIndex}`,
+    id: droppableId,
     data: { dayIndex, type: "day" },
   });
 
   return (
     <section
       ref={setNodeRef}
-      className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-xs transition-colors h-full ${
+      className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-xs transition-colors h-full min-h-[500px] ${
         isOver
           ? "bg-slate-50/80 border-primary/30"
           : "bg-white border-slate-100"
@@ -47,21 +51,15 @@ export function DaySchedule({
     >
       <header className="flex items-center justify-between border-b border-slate-50 pb-3">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm shrink-0">
             {String(dayNumber).padStart(2, "0")}
           </span>
-          <div className="text-left">
-            <p className="text-sm font-bold text-slate-800">{title}</p>
-            <p className="text-xs text-slate-400">
-              {new Date(date).toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}
-            </p>
+          <div className="text-left min-w-0">
+            <p className="text-sm font-bold text-slate-800 truncate">{title}</p>
+            <p className="text-xs text-slate-400 truncate">{date}</p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-400">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-400 shrink-0">
           <CalendarDays className="h-3.5 w-3.5" />
           {activities.length} {activities.length === 1 ? "item" : "items"}
         </span>
@@ -71,7 +69,7 @@ export function DaySchedule({
         items={activities.map((a) => a.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex flex-col gap-3 flex-1 justify-start">
+        <div className="flex flex-col gap-3 flex-1 justify-start min-h-[150px]">
           {activities.map((activity) => (
             <PlanItem
               key={activity.id}
@@ -80,6 +78,11 @@ export function DaySchedule({
               onDelete={onDeleteActivity}
             />
           ))}
+          {activities.length === 0 && (
+            <div className="text-center py-10 text-xs text-slate-400 italic border border-dashed border-slate-100 rounded-xl bg-slate-50/30">
+              No active tasks
+            </div>
+          )}
         </div>
       </SortableContext>
 
@@ -95,7 +98,7 @@ export function DaySchedule({
       <AddActivityModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        dayTitle={`Day ${dayNumber} - ${title}`}
+        dayTitle={title}
         onSave={(newAct) => onAddActivity(dayIndex, newAct)}
       />
     </section>

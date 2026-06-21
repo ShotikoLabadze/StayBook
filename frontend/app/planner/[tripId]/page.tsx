@@ -1,6 +1,16 @@
 "use client";
 
-import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core";
+import { tripService } from "@/services/tripService";
+import {
+  closestCorners,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
@@ -20,36 +30,144 @@ export default function PlannerPage() {
   const currentTripId = params?.tripId;
 
   const [activeTab, setActiveTab] = useState<
-    "board" | "timeline" | "map" | "budget" | "trips"
-  >("trips");
+    "trips" | "board" | "timeline" | "map" | "budget"
+  >("board");
+
+  const [allWorkspaceTrips, setAllWorkspaceTrips] = useState<any[]>([]);
+  const [activeItem, setActiveItem] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   const {
     itinerary,
     loading,
-    mounted,
-    sensors,
-    activeItem,
+    mounted: plannerMounted,
+    sensors: plannerSensors,
+    activeItem: plannerActiveItem,
     totalDays,
     totalEvents,
     tripProgress,
     handleDeleteActivity,
     handleAddActivity,
-    handleDragStart,
-    handleDragEnd,
+    handleDragStart: defaultDragStart,
+    handleDragEnd: defaultDragEnd,
   } = usePlanner();
 
+  const fetchGlobalWorkspace = () => {
+    tripService
+      .getAll()
+      .then((data) => setAllWorkspaceTrips(data))
+      .catch((err) => console.error("Workspace Board fetch failed:", err));
+  };
+
   useEffect(() => {
-    if (currentTripId) {
-      setActiveTab("board");
+    setMounted(true);
+    fetchGlobalWorkspace();
+  }, [currentTripId, activeTab]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
+
+  const handleGlobalDragStart = (event: DragStartEvent) => {
+    const activeIdStr = String(event.active.id);
+    let foundAct: any = null;
+
+    allWorkspaceTrips.forEach((trip) => {
+      trip.itinerary?.forEach((day: any) => {
+        day.activities?.forEach((act: any) => {
+          if (String(act.id || act._id) === activeIdStr) {
+            foundAct = act;
+          }
+        });
+      });
+    });
+    setActiveItem(foundAct);
+  };
+
+  const handleGlobalDragEnd = async (event: DragEndEvent) => {
+    setActiveItem(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeIdStr = String(active.id);
+    const overIdStr = String(over.id);
+
+    let fromTripIdx = -1;
+    let fromDayIdx = -1;
+    let fromActIdx = -1;
+    let targetAct: any = null;
+
+    allWorkspaceTrips.forEach((trip, tIdx) => {
+      trip.itinerary?.forEach((day: any, dIdx: number) => {
+        day.activities?.forEach((act: any, aIdx: number) => {
+          if (String(act.id || act._id) === activeIdStr) {
+            fromTripIdx = tIdx;
+            fromDayIdx = dIdx;
+            fromActIdx = aIdx;
+            targetAct = { ...act };
+          }
+        });
+      });
+    });
+
+    let toTripIdx = allWorkspaceTrips.findIndex(
+      (t) => `trip-${t._id}` === overIdStr,
+    );
+
+    if (toTripIdx === -1) {
+      allWorkspaceTrips.forEach((trip, tIdx) => {
+        trip.itinerary?.forEach((day: any) => {
+          if (
+            day.activities?.some(
+              (a: any) => String(a.id || a._id) === overIdStr,
+            )
+          ) {
+            toTripIdx = tIdx;
+          }
+        });
+      });
     }
-  }, [currentTripId]);
+
+    if (fromTripIdx === -1 || toTripIdx === -1 || !targetAct) return;
+    if (fromTripIdx === toTripIdx) return;
+
+    const updatedTrips = [...allWorkspaceTrips];
+    updatedTrips[fromTripIdx].itinerary[fromDayIdx].activities.splice(
+      fromActIdx,
+      1,
+    );
+
+    if (!updatedTrips[toTripIdx].itinerary[0]) {
+      updatedTrips[toTripIdx].itinerary[0] = {
+        dayNumber: 1,
+        date: new Date().toISOString(),
+        activities: [],
+      };
+    }
+    updatedTrips[toTripIdx].itinerary[0].activities.push(targetAct);
+    setAllWorkspaceTrips(updatedTrips);
+
+    try {
+      await tripService.updateItinerary(
+        updatedTrips[fromTripIdx]._id,
+        updatedTrips[fromTripIdx].itinerary,
+      );
+      await tripService.updateItinerary(
+        updatedTrips[toTripIdx]._id,
+        updatedTrips[toTripIdx].itinerary,
+      );
+    } catch (err) {
+      console.error("Cross-trip sync failed:", err);
+      fetchGlobalWorkspace();
+    }
+  };
 
   const handleTripSwitch = (tripId: string) => {
     setActiveTab("board");
     router.push(`/planner/${tripId}`);
   };
 
-  if (!mounted || loading) {
+  if (!mounted || !plannerMounted || loading) {
     return (
       <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-slate-500 font-medium text-sm">
         <div className="animate-pulse">Loading Planner Workspace...</div>
@@ -92,25 +210,11 @@ export default function PlannerPage() {
             <div className="flex items-center gap-6 text-right px-2 self-end lg:self-center">
               <div className="space-y-0.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Activities Count
+                  Workspace Status
                 </p>
                 <p className="text-xs font-extrabold text-slate-700">
-                  {totalEvents} Items{" "}
-                  <span className="text-slate-400 font-normal">
-                    in {totalDays} Days
-                  </span>
+                  {allWorkspaceTrips.length} Active Trips
                 </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">
-                  Planning {tripProgress}%
-                </p>
-                <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-tertiary transition-all duration-500"
-                    style={{ width: `${tripProgress}%` }}
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -119,46 +223,45 @@ export default function PlannerPage() {
             <TripsView onTripSelect={handleTripSwitch} />
           )}
 
-          {activeTab !== "trips" && (
+          {activeTab === "board" && (
             <DndContext
               sensors={sensors}
               collisionDetection={closestCorners}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
+              onDragStart={handleGlobalDragStart}
+              onDragEnd={handleGlobalDragEnd}
             >
-              {activeTab === "board" && (
-                <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
-                  <div className="mb-6 text-left border-b border-slate-100 pb-4">
-                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                      Trip Itinerary Board
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Manage your daily schedule and drag activities to
-                      reorganize.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1">
-                    {itinerary.map((dayContext, idx) => (
-                      <DaySchedule
-                        key={dayContext.dayNumber}
-                        dayNumber={dayContext.dayNumber}
-                        title={dayContext.title}
-                        date={dayContext.date}
-                        activities={dayContext.activities}
-                        dayIndex={idx}
-                        onAddActivity={handleAddActivity}
-                        onDeleteActivity={handleDeleteActivity}
-                      />
-                    ))}
-                  </div>
+              <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
+                <div className="mb-6 text-left border-b border-slate-100 pb-4">
+                  <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                    Global Trip Master Board
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Drag and drop activities across your different travel
+                    packages smoothly.
+                  </p>
                 </div>
-              )}
 
-              {activeTab === "timeline" && (
-                <TimelineView itinerary={itinerary} />
-              )}
-              {activeTab === "map" && <MapView itinerary={itinerary} />}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
+                  {allWorkspaceTrips.map((trip, idx) => {
+                    const flatActivities =
+                      trip.itinerary?.flatMap((d: any) => d.activities || []) ||
+                      [];
+                    return (
+                      <DaySchedule
+                        key={trip._id}
+                        dayNumber={idx + 1}
+                        title={trip.title || "Curated Sanctuary Package"}
+                        date={`${trip.itinerary?.length || 0} Days Plan`}
+                        activities={flatActivities}
+                        dayIndex={idx}
+                        id={`trip-${trip._id}`}
+                        onAddActivity={() => {}}
+                        onDeleteActivity={() => {}}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
 
               <DragOverlay dropAnimation={null}>
                 {activeItem ? (
@@ -170,6 +273,8 @@ export default function PlannerPage() {
             </DndContext>
           )}
 
+          {activeTab === "timeline" && <TimelineView itinerary={itinerary} />}
+          {activeTab === "map" && <MapView itinerary={itinerary} />}
           {activeTab === "budget" && (
             <BudgetView
               itinerary={itinerary}
