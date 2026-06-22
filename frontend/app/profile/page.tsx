@@ -14,7 +14,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -36,6 +36,7 @@ const itemVariants = {
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -59,6 +60,31 @@ export default function ProfilePage() {
       );
     }
   }, [user]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 1 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setMessage({
+        type: "error",
+        text: "File is too large! Maximum allowed size is 1MB.",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatar(reader.result as string);
+      setMessage(null);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +173,18 @@ export default function ProfilePage() {
             variants={itemVariants}
             className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-6"
           >
-            <div className="relative group cursor-pointer">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            <div
+              onClick={handleAvatarClick}
+              className="relative group cursor-pointer shrink-0"
+            >
               <img
                 src={
                   avatar ||
@@ -163,11 +200,12 @@ export default function ProfilePage() {
             <div>
               <button
                 type="button"
+                onClick={handleAvatarClick}
                 className="px-4 py-2 bg-[#0f172a] text-white text-sm font-medium rounded-xl hover:bg-opacity-90 transition duration-200 active:scale-95 cursor-pointer"
               >
                 Change avatar
               </button>
-              <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 2MB</p>
+              <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 1MB</p>
             </div>
           </motion.div>
 
