@@ -24,6 +24,15 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
   const [hotelImage, setHotelImage] = useState("");
   const [description, setDescription] = useState("");
 
+  const [currency, setCurrency] = useState("USD");
+  const [rating, setRating] = useState("4.5");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [tagsInput, setTagsInput] = useState("");
+  const [amenitiesInput, setAmenitiesInput] = useState("");
+  const [highlightsInput, setHighlightsInput] = useState("");
+  const [galleryInput, setGalleryInput] = useState("");
+
   const [formLoading, setFormLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -35,31 +44,47 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
     setFormLoading(true);
     setMessage(null);
 
-    const generatedId =
-      hotelName.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now();
+    const destPrefix = destinationId.substring(0, 3).toLowerCase();
+    const generatedId = `htl-${destPrefix}-${Date.now().toString().slice(-4)}`;
+
+    const parseToArray = (input: string) =>
+      input
+        ? input
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
 
     try {
-      const payload = {
+      const payload: Partial<Hotel> = {
         id: generatedId,
         destinationId: destinationId.toLowerCase().trim(),
         name: hotelName,
         neighborhood,
         propertyType,
         pricePerNight: Number(price),
-        image:
-          hotelImage ||
-          "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
-        coordinates: { lat: 41.7151, lng: 44.8271 },
+        currency,
+        rating: Number(rating),
+        reviewCount: 0,
+        image: hotelImage,
         description,
-        gallery: [],
-        tags: [],
-        amenities: [],
-        highlights: [],
+        coordinates: {
+          lat: Number(lat) || 0,
+          lng: Number(lng) || 0,
+        },
+
+        gallery: parseToArray(galleryInput),
+        tags: parseToArray(tagsInput),
+        amenities: parseToArray(amenitiesInput),
+        highlights: parseToArray(highlightsInput),
       };
 
       const newHotel = await destinationService.createHotel(payload);
       setHotels((prev) => [newHotel, ...prev]);
-      setMessage({ type: "success", text: "Hotel successfully published!" });
+      setMessage({
+        type: "success",
+        text: "Hotel successfully published with all dynamic data!",
+      });
 
       setHotelName("");
       setDestinationId("");
@@ -67,6 +92,13 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
       setPrice("");
       setHotelImage("");
       setDescription("");
+      setRating("4.5");
+      setLat("");
+      setLng("");
+      setTagsInput("");
+      setAmenitiesInput("");
+      setHighlightsInput("");
+      setGalleryInput("");
     } catch (error) {
       setMessage({ type: "error", text: "Failed to create hotel entry." });
     } finally {
@@ -86,7 +118,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
           </h3>
         </div>
 
-        <div className="divide-y divide-slate-100 max-h-[65vh] overflow-y-auto">
+        <div className="divide-y divide-slate-100 max-h-[85vh] overflow-y-auto">
           <AnimatePresence initial={false}>
             {hotels.length === 0 ? (
               <div className="p-8 text-center text-sm text-slate-400">
@@ -115,6 +147,9 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
                         <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-medium">
                           {hotel.propertyType}
                         </span>
+                        <span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 rounded-md text-[10px] font-bold">
+                          ★ {hotel.rating}
+                        </span>
                       </div>
                       <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                         <MapPin className="w-3 h-3 text-slate-400" />{" "}
@@ -124,7 +159,8 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
                   </div>
                   <div className="text-right">
                     <span className="text-sm font-bold text-[#10b981]">
-                      ${hotel.pricePerNight}
+                      {hotel.currency === "EUR" ? "€" : "$"}
+                      {hotel.pricePerNight}
                     </span>
                     <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
                       per night
@@ -137,7 +173,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
           <Plus className="w-4 h-4 text-[#38bdf8]" />
           <h3 className="text-base font-bold font-headline text-[#0f172a]">
@@ -169,7 +205,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
             </label>
             <input
               type="text"
-              placeholder="Grand Plaza Resort"
+              placeholder="Cheval Blanc Paris"
               value={hotelName}
               onChange={(e) => setHotelName(e.target.value)}
               className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
@@ -184,7 +220,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
               </label>
               <input
                 type="text"
-                placeholder="batumi"
+                placeholder="paris-france"
                 value={destinationId}
                 onChange={(e) => setDestinationId(e.target.value)}
                 className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
@@ -197,7 +233,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
               </label>
               <input
                 type="text"
-                placeholder="Old Boulevard"
+                placeholder="1st Arrondissement"
                 value={neighborhood}
                 onChange={(e) => setNeighborhood(e.target.value)}
                 className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
@@ -211,26 +247,88 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
                 Property Type
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="Palace Hotel"
                 value={propertyType}
                 onChange={(e) => setPropertyType(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Price per night
+              </label>
+              <input
+                type="number"
+                placeholder="1650"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Currency
+              </label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
                 className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
               >
-                <option value="Hotel">Hotel</option>
-                <option value="Apartment">Apartment</option>
-                <option value="Resort">Resort</option>
-                <option value="Villa">Villa</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GEL">GEL (₾)</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Price per night ($)
+                Rating
               </label>
               <input
                 type="number"
-                placeholder="120"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                step="0.01"
+                min="1"
+                max="5"
+                placeholder="4.95"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Latitude (Lat)
+              </label>
+              <input
+                type="number"
+                step="any"
+                placeholder="48.8566"
+                value={lat}
+                onChange={(e) => setLat(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Longitude (Lng)
+              </label>
+              <input
+                type="number"
+                step="any"
+                placeholder="2.3522"
+                value={lng}
+                onChange={(e) => setLng(e.target.value)}
                 className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
                 required
               />
@@ -243,7 +341,7 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
             </label>
             <input
               type="url"
-              placeholder="https://..."
+              placeholder="https://unsplash.com/..."
               value={hotelImage}
               onChange={(e) => setHotelImage(e.target.value)}
               className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
@@ -253,21 +351,74 @@ export default function HotelsTab({ hotels, setHotels }: HotelsTabProps) {
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Gallery (Comma separated URLs)
+            </label>
+            <input
+              type="text"
+              placeholder="url1, url2, url3"
+              value={galleryInput}
+              onChange={(e) => setGalleryInput(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Tags (Comma separated)
+            </label>
+            <input
+              type="text"
+              placeholder="Luxury, Top Rated, Romantic"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Amenities (Comma separated)
+            </label>
+            <input
+              type="text"
+              placeholder="Free WiFi, Pool, Spa, Gym"
+              value={amenitiesInput}
+              onChange={(e) => setAmenitiesInput(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Highlights (Comma separated)
+            </label>
+            <input
+              type="text"
+              placeholder="Overlooking the Seine, Fine Dining"
+              value={highlightsInput}
+              onChange={(e) => setHighlightsInput(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Description
             </label>
             <textarea
-              placeholder="Brief overview..."
+              placeholder="Overlooking the Seine, Cheval Blanc Paris captures..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={2}
+              rows={3}
               className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] transition"
+              required
             />
           </div>
 
           <button
             type="submit"
             disabled={formLoading}
-            className="w-full py-2.5 bg-[#0f172a] text-white text-sm font-semibold rounded-xl hover:bg-opacity-90 transition-all active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2.5 bg-[#0f172a] text-white text-sm font-semibold rounded-xl hover:bg-opacity-90 transition-all active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer sticky bottom-0 shadow-lg"
           >
             {formLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
