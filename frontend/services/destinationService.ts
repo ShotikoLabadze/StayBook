@@ -106,4 +106,9 @@ export const destinationService = {
     const response = await api.get("/destinations/activities");
     return response.data as string[];
   },
+
+  createHotel: async (data: Partial<Hotel>) => {
+    const response = await api.post("/destinations/hotels", data);
+    return response.data as Hotel;
+  },
 };
