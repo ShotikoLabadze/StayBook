@@ -1,12 +1,14 @@
 "use client";
 
 import { destinationService } from "@/services/destinationService";
-import { RotateCcw, Star } from "lucide-react";
+import { RotateCcw, Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const RATING_OPTIONS = [4.9, 4.7, 4.5, 4.0];
 
 interface FilterSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
   onFilterChange: (filters: {
     categories: string[];
     minPrice: number;
@@ -19,7 +21,11 @@ interface FilterSidebarProps {
   }) => void;
 }
 
-export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
+export default function FilterSidebar({
+  isOpen,
+  onClose,
+  onFilterChange,
+}: FilterSidebarProps) {
   const [categories, setCategories] = useState<string[]>([]);
   const [weatherConditions, setWeatherConditions] = useState<string[]>([]);
   const [durations, setDurations] = useState<string[]>([]);
@@ -147,206 +153,227 @@ export default function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
   const maxPercent = ((maxPrice - sliderMin) / (sliderMax - sliderMin)) * 100;
 
   return (
-    <aside className="w-74 shrink-0 space-y-7 text-left font-body text-primary bg-white border border-slate-100 p-5 rounded-3xl shadow-sm">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-primary font-headline">
-          Filters
-        </h3>
-      </div>
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-xs lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold text-slate-700">Category</p>
-        <div className="flex flex-wrap gap-1.5">
-          {categories.map((cat) => {
-            const active = selectedCategories.includes(cat);
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() =>
-                  toggleFilter(selectedCategories, setSelectedCategories, cat)
-                }
-                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
+      <aside
+        className={`w-74 shrink-0 overflow-y-auto space-y-7 text-left font-body text-primary bg-white border border-slate-100 p-5 rounded-3xl shadow-sm transition-transform duration-300 ease-in-out fixed lg:sticky top-0 bottom-0 lg:top-24 z-50 lg:z-0 right-0 h-full lg:h-fit ${
+          isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-slate-50 pb-2 lg:border-none lg:pb-0">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-primary font-headline">
+            Filters
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-primary transition-colors lg:hidden p-1 rounded-lg hover:bg-slate-50"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">
-          Price Range (per night)
-        </p>
-        <div ref={sliderRef} className="relative px-1 pt-2 h-5 select-none">
-          <div className="h-1 w-full rounded-full bg-slate-100" />
-          <div
-            className="absolute h-1 rounded-full bg-secondary top-2"
-            style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
-          />
-          <div
-            onMouseDown={handleMinMouseDown}
-            className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
-            style={{ left: `${minPercent}%` }}
-          />
-          <div
-            onMouseDown={handleMaxMouseDown}
-            className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
-            style={{ left: `${maxPercent}%` }}
-          />
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-slate-700">Category</p>
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((cat) => {
+              const active = selectedCategories.includes(cat);
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() =>
+                    toggleFilter(selectedCategories, setSelectedCategories, cat)
+                  }
+                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex justify-between pt-1 text-[11px] font-bold text-slate-500 font-headline">
-          <span>${minPrice.toLocaleString()}</span>
-          <span>
-            $
-            {maxPrice >= sliderMax
-              ? `${sliderMax.toLocaleString()}+`
-              : maxPrice.toLocaleString()}
-          </span>
-        </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">Property Rating</p>
-        <div className="flex flex-wrap gap-1.5">
-          {RATING_OPTIONS.map((num) => {
-            const active = selectedRating === num;
-            return (
-              <button
-                key={num}
-                type="button"
-                onClick={() => setSelectedRating(active ? null : num)}
-                className={`flex h-10 w-11 cursor-pointer flex-col items-center justify-center rounded-xl border text-xs font-bold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                <span>{num.toFixed(1)}+</span>
-                <Star
-                  className={`h-2.5 w-2.5 ${active ? "fill-secondary text-secondary" : "fill-slate-300 text-slate-300"}`}
-                />
-              </button>
-            );
-          })}
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">
+            Price Range (per night)
+          </p>
+          <div ref={sliderRef} className="relative px-1 pt-2 h-5 select-none">
+            <div className="h-1 w-full rounded-full bg-slate-100" />
+            <div
+              className="absolute h-1 rounded-full bg-secondary top-2"
+              style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+            />
+            <div
+              onMouseDown={handleMinMouseDown}
+              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
+              style={{ left: `${minPercent}%` }}
+            />
+            <div
+              onMouseDown={handleMaxMouseDown}
+              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
+              style={{ left: `${maxPercent}%` }}
+            />
+          </div>
+          <div className="flex justify-between pt-1 text-[11px] font-bold text-slate-500 font-headline">
+            <span>${minPrice.toLocaleString()}</span>
+            <span>
+              $
+              {maxPrice >= sliderMax
+                ? `${sliderMax.toLocaleString()}+`
+                : maxPrice.toLocaleString()}
+            </span>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">Weather</p>
-        <div className="flex flex-wrap gap-1.5">
-          {weatherConditions.map((cond) => {
-            const active = selectedWeather.includes(cond);
-            return (
-              <button
-                key={cond}
-                type="button"
-                onClick={() =>
-                  toggleFilter(selectedWeather, setSelectedWeather, cond)
-                }
-                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {cond}
-              </button>
-            );
-          })}
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">
+            Property Rating
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {RATING_OPTIONS.map((num) => {
+              const active = selectedRating === num;
+              return (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setSelectedRating(active ? null : num)}
+                  className={`flex h-10 w-11 cursor-pointer flex-col items-center justify-center rounded-xl border text-xs font-bold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  <span>{num.toFixed(1)}+</span>
+                  <Star
+                    className={`h-2.5 w-2.5 ${active ? "fill-secondary text-secondary" : "fill-slate-300 text-slate-300"}`}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">Duration</p>
-        <div className="flex flex-wrap gap-1.5">
-          {durations.map((dur) => {
-            const active = selectedDurations.includes(dur);
-            return (
-              <button
-                key={dur}
-                type="button"
-                onClick={() =>
-                  toggleFilter(selectedDurations, setSelectedDurations, dur)
-                }
-                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {dur}
-              </button>
-            );
-          })}
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">Weather</p>
+          <div className="flex flex-wrap gap-1.5">
+            {weatherConditions.map((cond) => {
+              const active = selectedWeather.includes(cond);
+              return (
+                <button
+                  key={cond}
+                  type="button"
+                  onClick={() =>
+                    toggleFilter(selectedWeather, setSelectedWeather, cond)
+                  }
+                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  {cond}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">Activities</p>
-        <div className="flex flex-wrap gap-1.5">
-          {activities.map((act) => {
-            const active = selectedActivities.includes(act);
-            return (
-              <button
-                key={act}
-                type="button"
-                onClick={() =>
-                  toggleFilter(selectedActivities, setSelectedActivities, act)
-                }
-                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {act}
-              </button>
-            );
-          })}
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">Duration</p>
+          <div className="flex flex-wrap gap-1.5">
+            {durations.map((dur) => {
+              const active = selectedDurations.includes(dur);
+              return (
+                <button
+                  key={dur}
+                  type="button"
+                  onClick={() =>
+                    toggleFilter(selectedDurations, setSelectedDurations, dur)
+                  }
+                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  {dur}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-3 border-t border-slate-100 pt-5">
-        <p className="text-xs font-semibold text-slate-700">Property Type</p>
-        <div className="flex flex-wrap gap-1.5 w-full">
-          {propertyTypes.map((type) => {
-            const active = selectedTypes.includes(type);
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() =>
-                  toggleFilter(selectedTypes, setSelectedTypes, type)
-                }
-                className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? "border-secondary/60 bg-secondary/10 text-primary font-bold shadow-xs"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-primary"
-                }`}
-              >
-                {type}
-              </button>
-            );
-          })}
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">Activities</p>
+          <div className="flex flex-wrap gap-1.5">
+            {activities.map((act) => {
+              const active = selectedActivities.includes(act);
+              return (
+                <button
+                  key={act}
+                  type="button"
+                  onClick={() =>
+                    toggleFilter(selectedActivities, setSelectedActivities, act)
+                  }
+                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  {act}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="border-t border-slate-100 pt-4">
-        <button
-          type="button"
-          onClick={handleReset}
-          className="w-full flex items-center justify-center gap-2 py-2.5 border border-red-100 bg-red-50/30 hover:bg-red-50 text-red-500 font-semibold text-xs rounded-xl transition-all cursor-pointer"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          Clear All Filters
-        </button>
-      </div>
-    </aside>
+        <div className="space-y-3 border-t border-slate-100 pt-5">
+          <p className="text-xs font-semibold text-slate-700">Property Type</p>
+          <div className="flex flex-wrap gap-1.5 w-full">
+            {propertyTypes.map((type) => {
+              const active = selectedTypes.includes(type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() =>
+                    toggleFilter(selectedTypes, setSelectedTypes, type)
+                  }
+                  className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                    active
+                      ? "border-secondary/60 bg-secondary/10 text-primary font-bold shadow-xs"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-primary"
+                  }`}
+                >
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-full flex items-center justify-center gap-2 py-2.5 border border-red-100 bg-red-50/30 hover:bg-red-50 text-red-500 font-semibold text-xs rounded-xl transition-all cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Clear All Filters
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

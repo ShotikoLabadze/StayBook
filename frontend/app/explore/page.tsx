@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { destinationService, Hotel } from "@/services/destinationService";
+import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -38,6 +39,8 @@ function ExplorePageContent() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
 
   const [searchTerm, setSearchTerm] = useState<string>(() => {
     return searchParams?.get("search") || "";
@@ -123,7 +126,7 @@ function ExplorePageContent() {
   const currentHotels = hotels.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="p-10 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+    <div className="p-6 md:p-10 space-y-6 md:space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
       <SearchHeader
         resultsCount={hotels.length}
         searchTerm={searchTerm}
@@ -134,21 +137,35 @@ function ExplorePageContent() {
         onViewModeChange={setViewMode}
       />
 
+      <div className="flex xl:hidden justify-start">
+        <button
+          onClick={() => setIsFilterOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-neutral-bg text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+          <span>Filters</span>
+        </button>
+      </div>
+
       {error && (
         <div className="text-red-500 text-xs font-semibold text-left">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start flex-1 w-full">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-10 items-start flex-1 w-full">
         <div className="xl:col-span-4">
-          <FilterSidebar onFilterChange={setCurrentFilters} />
+          <FilterSidebar
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            onFilterChange={setCurrentFilters}
+          />
         </div>
 
         <div className="xl:col-span-8 w-full flex flex-col gap-8">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
                 <div
                   key={i}
                   className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
@@ -246,7 +263,7 @@ export default function ExplorePage() {
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white border-b border-slate-100 px-10 py-5 flex items-center justify-end sticky top-0 z-40 h-[65px]">
+        <header className="bg-white border-b border-slate-100 px-6 md:px-10 py-5 flex items-center justify-end sticky top-0 z-40 h-[65px]">
           <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm cursor-pointer">
             <img
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop"
