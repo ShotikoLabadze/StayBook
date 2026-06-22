@@ -20,12 +20,7 @@ export class AuthService {
       throw new BadRequestException('This email is already registered!');
     }
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-    const newUser = await this.usersService.create({
-      ...userData,
-      password: hashedPassword,
-    });
+    const newUser = await this.usersService.create(userData);
 
     const { password, ...result } = newUser.toObject();
     return result;
@@ -45,7 +40,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password!');
     }
 
-    const payload = { sub: user._id, email: user.email, name: user.name };
+    const payload = {
+      sub: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
 
     return {
       user: {
@@ -53,6 +53,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
+        role: user.role,
       },
       accessToken: this.jwtService.sign(payload),
     };
