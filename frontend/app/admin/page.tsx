@@ -1,9 +1,17 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import api from "@/services/api";
 import { destinationService, Hotel } from "@/services/destinationService";
-import { motion } from "framer-motion";
-import { Loader2, LogOut, ShieldCheck } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Building2,
+  Loader2,
+  LogOut,
+  Plus,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import HotelsTab from "./components/HotelsTab";
@@ -17,8 +25,13 @@ export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<"hotels" | "users">("hotels");
   const [loadingData, setLoadingData] = useState(true);
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+
+  const [triggerCreateHotel, setTriggerCreateHotel] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -26,10 +39,13 @@ export default function AdminDashboard() {
     if (user.role !== "admin") {
       router.replace("/dashboard");
     } else {
-      destinationService
-        .getHotelsByDestination("all")
-        .then((hotelsData) => {
+      Promise.all([
+        destinationService.getHotelsByDestination("all"),
+        api.get("/admin/users").catch(() => ({ data: [] })),
+      ])
+        .then(([hotelsData, usersResponse]) => {
           setHotels(hotelsData);
+          setRegisteredUsers(usersResponse.data || []);
           setLoadingData(false);
         })
         .catch((err) => {
@@ -59,6 +75,9 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold font-headline text-[#0f172a]">
                 StayBook Control Panel
               </h1>
+              <p className="text-xs text-slate-400">
+                Welcome back, {user.name} (Admin)
+              </p>
             </div>
           </div>
 
@@ -70,12 +89,71 @@ export default function AdminDashboard() {
           </button>
         </div>
 
+        <div className="flex justify-between items-end pb-2">
+          <div className="space-y-3">
+            <div className="flex bg-slate-200/60 p-1 rounded-xl border border-slate-100/50 shadow-xs">
+              <button
+                onClick={() => setActiveTab("hotels")}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeTab === "hotels"
+                    ? "bg-[#0f172a] text-white shadow-xs"
+                    : "text-slate-500 hover:text-[#0f172a]"
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" /> Hotels
+              </button>
+              <button
+                onClick={() => setActiveTab("users")}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeTab === "users"
+                    ? "bg-[#0f172a] text-white shadow-xs"
+                    : "text-slate-500 hover:text-[#0f172a]"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" /> Users
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-400 font-medium tracking-wide pl-1">
+              amount ({" "}
+              {activeTab === "hotels" ? hotels.length : registeredUsers.length}{" "}
+              )
+            </div>
+          </div>
+
+          {activeTab === "hotels" && (
+            <button
+              onClick={() => setTriggerCreateHotel((prev) => prev + 1)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0f172a] text-white text-xs font-semibold rounded-xl hover:bg-opacity-90 transition shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add New Property
+            </button>
+          )}
+        </div>
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <HotelsTab hotels={hotels} setHotels={setHotels} />
+          <AnimatePresence mode="wait">
+            {activeTab === "hotels" ? (
+              <HotelsTab
+                hotels={hotels}
+                setHotels={setHotels}
+                triggerCreateHotel={triggerCreateHotel}
+              />
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white p-12 text-center text-sm text-slate-400 rounded-2xl border border-slate-100"
+              >
+                Registered Users count is {registeredUsers.length}. Module is
+                ready.
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </div>
