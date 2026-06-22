@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  User,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,7 +21,6 @@ export default function Sidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const menuItems = [
@@ -37,6 +37,8 @@ export default function Sidebar() {
 
   const toggleMobile = () => setMobileOpen((prev) => !prev);
   const closeMobile = () => setMobileOpen(false);
+
+  const isProfileActive = pathname === "/profile";
 
   return (
     <>
@@ -136,12 +138,28 @@ export default function Sidebar() {
 
         <div className="space-y-1.5 border-t border-slate-100 pt-4">
           <Link
+            href="/profile"
+            onClick={closeMobile}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
+              isProfileActive
+                ? "bg-slate-100 text-primary font-semibold"
+                : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+            }`}
+          >
+            <User
+              className={`w-4 h-4 ${isProfileActive ? "text-primary" : "text-slate-400"}`}
+            />
+            Profile
+          </Link>
+
+          <Link
             href="/help"
             onClick={closeMobile}
             className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none"
           >
             <HelpCircle className="w-4 h-4 text-slate-400" /> Help
           </Link>
+
           <button
             onClick={() => {
               closeMobile();
