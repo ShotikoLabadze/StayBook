@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 interface TripCardProps {
+  id: string;
   title: string;
   dates: string;
   progress: number;
@@ -9,6 +12,7 @@ interface TripCardProps {
 }
 
 export default function TripCard({
+  id,
   title,
   dates,
   progress,
@@ -16,7 +20,10 @@ export default function TripCard({
   image,
 }: TripCardProps) {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-4 space-y-4 shadow-sm hover:shadow-md transition-all group">
+    <Link
+      href={`/planner/${id}`}
+      className="block bg-white border border-slate-100 rounded-2xl p-4 space-y-4 shadow-sm hover:shadow-md hover:border-slate-200/80 transition-all group cursor-pointer"
+    >
       <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-50">
         <img
           src={image}
@@ -29,7 +36,7 @@ export default function TripCard({
       </div>
       <div className="space-y-3">
         <div>
-          <h3 className="font-headline font-semibold text-sm text-primary">
+          <h3 className="font-headline font-semibold text-sm text-primary group-hover:text-secondary transition-colors">
             {title}
           </h3>
           <p className="text-[11px] text-slate-400 font-medium">{dates}</p>
@@ -47,6 +54,6 @@ export default function TripCard({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

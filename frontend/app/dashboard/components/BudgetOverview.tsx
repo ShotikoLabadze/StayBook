@@ -2,12 +2,28 @@
 
 import { MoreHorizontal } from "lucide-react";
 
-export default function BudgetOverview() {
-  const budgetData = [
-    { cat: "Flights", amt: "$4,200", color: "bg-primary" },
-    { cat: "Hotels", amt: "$2,800", color: "bg-secondary" },
-    { cat: "Dining", amt: "$1,150", color: "bg-slate-300" },
-  ];
+interface BudgetCategory {
+  cat: string;
+  amt: string;
+  color: string;
+}
+
+interface BudgetOverviewProps {
+  data: BudgetCategory[];
+  totalLimit: number;
+  totalSpent: number;
+}
+
+export default function BudgetOverview({
+  data,
+  totalLimit,
+  totalSpent,
+}: BudgetOverviewProps) {
+  const percentage =
+    totalLimit > 0
+      ? Math.min(Math.round((totalSpent / totalLimit) * 100), 100)
+      : 0;
+  const strokeDash = `${percentage} 100`;
 
   return (
     <div className="bg-white border border-slate-100 rounded-2xl p-6 space-y-6 shadow-sm">
@@ -41,29 +57,33 @@ export default function BudgetOverview() {
               fill="transparent"
               stroke="#0f172a"
               strokeWidth="3.5"
-              strokeDasharray="70 100"
+              strokeDasharray={strokeDash}
             />
           </svg>
           <div className="absolute text-center">
             <span className="font-headline text-xl font-bold text-primary">
-              70%
+              {percentage}%
             </span>
           </div>
         </div>
 
-        <div className="space-y-3 w-full sm:w-auto">
-          {budgetData.map((b, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between sm:gap-16 text-xs font-medium"
-            >
-              <div className="flex items-center gap-2 text-slate-500">
-                <span className={`w-2 h-2 rounded-full ${b.color}`} />
-                {b.cat}
+        <div className="space-y-3 w-full sm:w-auto min-w-[150px]">
+          {data.length === 0 ? (
+            <p className="text-xs text-slate-400">No expenses recorded.</p>
+          ) : (
+            data.map((b, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-8 text-xs font-medium"
+              >
+                <div className="flex items-center gap-2 text-slate-500">
+                  <span className={`w-2 h-2 rounded-full ${b.color}`} />
+                  {b.cat}
+                </div>
+                <span className="text-primary font-semibold">{b.amt}</span>
               </div>
-              <span className="text-primary font-semibold">{b.amt}</span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
