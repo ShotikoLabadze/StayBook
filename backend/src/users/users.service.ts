@@ -38,7 +38,7 @@ export class UsersService {
   ) {
     const user = await this.userModel.findById(id);
     if (!user) {
-      throw new NotFoundException('მომხმარებელი ვერ მოიძებნა');
+      throw new NotFoundException('User not found');
     }
 
     if (updateData.name) user.name = updateData.name;
@@ -49,5 +49,29 @@ export class UsersService {
     }
 
     return await user.save();
+  }
+
+  async findAllUsers(): Promise<User[]> {
+    return await this.userModel.find().select('-password').exec();
+  }
+
+  async updateRole(userId: string, newRole: string) {
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, { role: newRole }, { new: true })
+      .select('-password')
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async removeUser(userId: string) {
+    const result = await this.userModel.findByIdAndDelete(userId).exec();
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
+    return { success: true, message: 'User permanently deleted successfully' };
   }
 }
