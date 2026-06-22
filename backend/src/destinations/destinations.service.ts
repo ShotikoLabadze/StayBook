@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -116,5 +116,26 @@ export class DestinationsService {
     }
 
     return this.hotelModel.findOne({ id: hotelId }).exec();
+  }
+
+  async deleteHotel(hotelId: string) {
+    const result = await this.hotelModel
+      .findOneAndDelete({ id: hotelId })
+      .exec();
+    if (!result) {
+      throw new NotFoundException('სასტუმრო ვერ მოიძებნა');
+    }
+    return { success: true, message: 'Hotel entry deleted successfully' };
+  }
+
+  async updateHotel(hotelId: string, updateData: any) {
+    const updatedHotel = await this.hotelModel
+      .findOneAndUpdate({ id: hotelId }, updateData, { new: true })
+      .exec();
+
+    if (!updatedHotel) {
+      throw new NotFoundException('სასტუმრო ვერ მოიძებნა');
+    }
+    return updatedHotel;
   }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { DestinationsService } from './destinations.service';
 
 @Controller('destinations')
@@ -56,5 +65,15 @@ export class DestinationsController {
   @Post()
   async createDestinations(@Body() body: any) {
     return this.destinationsService.create(body);
+  }
+
+  @Delete('hotels/:id')
+  async deleteHotel(@Param('id') id: string) {
+    return this.destinationsService.deleteHotel(id);
+  }
+
+  @Put('hotels/:id')
+  async updateHotel(@Param('id') id: string, @Body() updateData: any) {
+    return this.destinationsService.updateHotel(id, updateData);
   }
 }
