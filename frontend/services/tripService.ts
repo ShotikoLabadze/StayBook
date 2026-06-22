@@ -40,6 +40,17 @@ export const tripService = {
     return response.data as TripData;
   },
 
+  create: async (tripData: {
+    title: string;
+    destination: string;
+    startDate: string;
+    endDate: string;
+    budget: { totalLimit: number; currency: string };
+  }) => {
+    const response = await api.post("/trips", tripData);
+    return response.data as TripData;
+  },
+
   addActivity: async (tripId: string, dayIndex: number, activity: any) => {
     const response = await api.post(`/trips/${tripId}/activities`, {
       dayIndex,
@@ -55,7 +66,9 @@ export const tripService = {
   ) => {
     const response = await api.delete(
       `/trips/${tripId}/activities/${activityId}`,
-      { data: { dayIndex } },
+      {
+        data: { dayIndex },
+      },
     );
     return response.data as TripData;
   },

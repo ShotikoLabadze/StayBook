@@ -8,19 +8,20 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogOut,
-  Map,
   Menu,
-  Plus,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import CreateTripModal from "./CreateTripModal";
 
 export default function Sidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const menuItems = [
     {
@@ -30,7 +31,6 @@ export default function Sidebar() {
       href: "/dashboard",
     },
     { id: "planner", label: "Planner", icon: Calendar, href: "/planner" },
-    { id: "trips", label: "Trips", icon: Map, href: "/trips" },
     { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
     { id: "saved", label: "Saved", icon: Bookmark, href: "/saved" },
   ];
@@ -82,15 +82,32 @@ export default function Sidebar() {
             </button>
           </div>
 
-          <button className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group">
-            <Plus className="w-4 h-4 text-secondary stroke-[2.5] group-hover:scale-110 transition-transform" />{" "}
+          <button
+            onClick={() => {
+              closeMobile();
+              setIsModalOpen(true);
+            }}
+            className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group"
+          >
+            <svg
+              className="w-4 h-4 text-secondary stroke-[2.5]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             New Trip
           </button>
 
           <nav className="space-y-1.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
-
               const isActive =
                 item.id === "planner"
                   ? pathname.startsWith("/planner")
@@ -136,6 +153,11 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
+
+      <CreateTripModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </>
   );
 }
