@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { DestinationsModule } from './destinations/destinations.module';
+import { TestimonialsModule } from './testimonials/testimonials.module';
 import { TripsModule } from './trips/trips.module';
 import { UsersModule } from './users/users.module';
-import { TestimonialsModule } from './testimonials/testimonials.module';
-import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { AdminModule } from './admin/admin.module';
     AuthModule,
     TripsModule,
     DestinationsModule,
-    AdminModule
+    AdminModule,
     TestimonialsModule,
   ],
   controllers: [],

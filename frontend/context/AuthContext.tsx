@@ -43,7 +43,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(userData);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
-    router.push("/dashboard");
+
+    if (userData?.role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const register = async (name: string, email: string, password: string) => {
