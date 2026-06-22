@@ -111,4 +111,14 @@ export const destinationService = {
     const response = await api.post("/destinations/hotels", data);
     return response.data as Hotel;
   },
+
+  deleteHotel: async (hotelId: string) => {
+    const response = await api.delete(`/destinations/hotels/${hotelId}`);
+    return response.data;
+  },
+
+  updateHotel: async (hotelId: string, data: Partial<Hotel>) => {
+    const response = await api.put(`/destinations/hotels/${hotelId}`, data);
+    return response.data as Hotel;
+  },
 };
