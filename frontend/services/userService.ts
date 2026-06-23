@@ -11,4 +11,19 @@ export const userService = {
     const response = await api.patch("/users/profile", data);
     return response.data;
   },
+
+  getAllUsers: async () => {
+    const response = await api.get("/admin/users");
+    return response.data;
+  },
+
+  updateUserRole: async (userId: string, role: string) => {
+    const response = await api.put(`/admin/users/${userId}/role`, { role });
+    return response.data;
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/admin/users/${userId}`);
+    return response.data;
+  },
 };

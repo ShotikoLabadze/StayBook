@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import api from "@/services/api";
 import { destinationService, Hotel } from "@/services/destinationService";
+import { userService } from "@/services/userService";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Building2,
@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import HotelsTab from "./components/HotelsTab";
+import UsersTab from "./components/UsersTab";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -41,11 +42,11 @@ export default function AdminDashboard() {
     } else {
       Promise.all([
         destinationService.getHotelsByDestination("all"),
-        api.get("/admin/users").catch(() => ({ data: [] })),
+        userService.getAllUsers().catch(() => []),
       ])
-        .then(([hotelsData, usersResponse]) => {
+        .then(([hotelsData, usersData]) => {
           setHotels(hotelsData);
-          setRegisteredUsers(usersResponse.data || []);
+          setRegisteredUsers(usersData || []);
           setLoadingData(false);
         })
         .catch((err) => {
@@ -139,19 +140,17 @@ export default function AdminDashboard() {
           <AnimatePresence mode="wait">
             {activeTab === "hotels" ? (
               <HotelsTab
+                key="hotels"
                 hotels={hotels}
                 setHotels={setHotels}
                 triggerCreateHotel={triggerCreateHotel}
               />
             ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-white p-12 text-center text-sm text-slate-400 rounded-2xl border border-slate-100"
-              >
-                Registered Users count is {registeredUsers.length}. Module is
-                ready.
-              </motion.div>
+              <UsersTab
+                key="users"
+                users={registeredUsers}
+                setUsers={setRegisteredUsers}
+              />
             )}
           </AnimatePresence>
         </motion.div>
