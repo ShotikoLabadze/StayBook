@@ -11,7 +11,7 @@ export function TimelineView({ trips }: TimelineViewProps) {
   const safeTrips = trips || [];
 
   return (
-    <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 md:p-8 shadow-xl flex-1 flex flex-col gap-6 w-full transition-colors duration-300">
+    <div className="w-full max-w-3xl mx-auto bg-card-bg border border-border-subtle rounded-3xl p-6 md:p-8 shadow-xl flex-1 flex flex-col gap-6 transition-colors duration-300">
       <div className="text-left border-b border-border-subtle pb-4">
         <h2 className="font-headline text-lg font-bold text-primary tracking-tight flex items-center gap-2">
           <Briefcase className="w-5 h-5 text-text-muted" /> Global Workspace

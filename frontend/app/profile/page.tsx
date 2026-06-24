@@ -88,7 +88,6 @@ export default function ProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    boxModelReset();
     setLoading(true);
     setMessage(null);
 
@@ -112,8 +111,6 @@ export default function ProfilePage() {
     }
   };
 
-  const boxModelReset = () => {};
-
   if (!user) {
     return (
       <div className="min-h-screen bg-neutral-bg flex items-center justify-center">
@@ -133,14 +130,14 @@ export default function ProfilePage() {
         <motion.div variants={itemVariants}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-card-bg text-xs font-semibold text-text-muted rounded-xl border border-border-subtle hover:bg-neutral-bg transition duration-200 shadow-xs group"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-card-bg text-xs font-semibold text-text-muted rounded-xl border border-border-subtle hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-200 shadow-3xs group decoration-none"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
             Back to Dashboard
           </Link>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="pt-2">
+        <motion.div variants={itemVariants} className="pt-2 text-left">
           <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
             Account
           </span>
@@ -174,7 +171,7 @@ export default function ProfilePage() {
         <form onSubmit={handleSave} className="space-y-6">
           <motion.div
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm flex items-center space-x-6"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs flex items-center space-x-6"
           >
             <input
               type="file"
@@ -189,22 +186,20 @@ export default function ProfilePage() {
               className="relative group cursor-pointer shrink-0"
             >
               <img
-                src={
-                  avatar ||
-                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
-                }
+                src={avatar}
                 alt="User Avatar"
                 className="w-20 h-20 rounded-full object-cover ring-4 ring-secondary/20 transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-primary/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute inset-0 bg-slate-900/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <Camera className="w-5 h-5 text-white" />
               </div>
             </div>
-            <div>
+
+            <div className="text-left">
               <button
                 type="button"
                 onClick={handleAvatarClick}
-                className="px-4 py-2 bg-primary text-white dark:text-neutral-bg text-sm font-medium rounded-xl hover:bg-opacity-90 transition duration-200 active:scale-95 cursor-pointer"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-medium rounded-xl transition duration-200 active:scale-95 cursor-pointer border-none"
               >
                 Change avatar
               </button>
@@ -214,7 +209,7 @@ export default function ProfilePage() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm space-y-4"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs space-y-4"
           >
             <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
               <User className="w-4 h-4 text-secondary" />
@@ -223,7 +218,7 @@ export default function ProfilePage() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
               <div>
                 <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                   Full Name
@@ -245,7 +240,7 @@ export default function ProfilePage() {
                   type="email"
                   value={email}
                   disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg/60 text-text-muted text-sm cursor-not-allowed opacity-70"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg/40 text-text-muted text-sm cursor-not-allowed opacity-60"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Email cannot be modified.
@@ -256,7 +251,7 @@ export default function ProfilePage() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm space-y-4"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs space-y-4"
           >
             <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
               <Shield className="w-4 h-4 text-tertiary" />
@@ -265,7 +260,7 @@ export default function ProfilePage() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
               <div>
                 <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                   Current Password
@@ -310,7 +305,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 bg-tertiary text-white text-sm font-semibold rounded-xl hover:bg-opacity-95 shadow-md shadow-tertiary/10 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-6 py-2.5 bg-tertiary text-white text-sm font-semibold rounded-xl hover:bg-opacity-95 shadow-md shadow-tertiary/10 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
             >
               {loading ? "Saving changes..." : "Save changes"}
             </button>

@@ -165,15 +165,15 @@ export function MapView({ trips }: MapViewProps) {
                   onClick={() => handleTripClick(trip)}
                   className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left ${
                     isSelected
-                      ? "bg-primary text-white dark:text-neutral-bg border-primary shadow-xs"
-                      : "bg-neutral-bg text-primary border-border-subtle hover:bg-slate-100/50 dark:hover:bg-slate-800/40"
+                      ? "bg-secondary text-primary border-secondary shadow-sm font-bold"
+                      : "bg-[var(--color-neutral-bg)] text-primary border-[var(--color-border-subtle)] hover:bg-slate-100/50 dark:hover:bg-slate-800/40"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                         isSelected
-                          ? "bg-card-bg text-primary"
+                          ? "bg-primary text-white dark:bg-slate-950"
                           : "bg-primary dark:bg-secondary text-white dark:text-neutral-bg"
                       }`}
                     >
@@ -237,7 +237,7 @@ export function MapView({ trips }: MapViewProps) {
               >
                 <Popup className="custom-map-popup">
                   <div className="text-xs font-body text-left p-1 text-slate-900 dark:text-slate-100">
-                    <p className="font-bold text-slate-900 dark:text-slate-50">
+                    <p className="font-bold text-slate-900 dark:text-slate-550">
                       {act.title}
                     </p>
                     {act.time && (
