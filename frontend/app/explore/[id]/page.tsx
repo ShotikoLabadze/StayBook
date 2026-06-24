@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Sidebar from "@/components/Sidebar";
+
 import {
   Destination,
   destinationService,
@@ -104,8 +104,6 @@ export default function HotelDetailsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body flex antialiased transition-colors duration-300">
-      <Sidebar />
-
       <main className="flex-1 flex flex-col min-w-0 p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         <HotelHero hotel={hotel} />
 

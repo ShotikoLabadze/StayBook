@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
 
 import Footer from "@/components/Footer";
-import Sidebar from "@/components/Sidebar";
 import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
@@ -175,137 +174,128 @@ export default function PlannerPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-text-muted font-medium text-sm transition-colors duration-300">
+      <div className="flex items-center justify-center flex-1 h-[calc(100vh-4rem)] text-text-muted font-medium text-sm transition-colors duration-300">
         <div className="animate-pulse">Loading Planner Workspace...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
-      <Sidebar />
+    <div className="p-10 space-y-5 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle pb-5">
+        <div className="text-left">
+          <span className="text-xs font-bold text-secondary uppercase tracking-widest font-headline block mb-1">
+            StayBook
+          </span>
+          <h1 className="font-headline text-3xl font-bold text-primary tracking-tight">
+            Premium Planner Workspace
+          </h1>
+          <p className="mt-1 text-xs font-medium text-text-muted">
+            Manage hand-picked luxury itineraries and dynamically sync travel
+            steps.
+          </p>
+        </div>
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <div className="p-10 space-y-5 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle pb-5">
-            <div className="text-left">
-              <span className="text-xs font-bold text-secondary uppercase tracking-widest font-headline block mb-1">
-                StayBook
-              </span>
-              <h1 className="font-headline text-3xl font-bold text-primary tracking-tight">
-                Premium Planner Workspace
-              </h1>
-              <p className="mt-1 text-xs font-medium text-text-muted">
-                Manage hand-picked luxury itineraries and dynamically sync
-                travel steps.
-              </p>
+        <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs self-start sm:self-center">
+          {WORKSPACE_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                if (searchParams.has("tab")) {
+                  router.replace(window.location.pathname);
+                }
+                setActiveTab(tab.id);
+              }}
+              className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
+                activeTab === tab.id
+                  ? "bg-card-bg text-primary shadow-2xs font-semibold"
+                  : "text-text-muted hover:text-primary"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === "trips" && <TripsView onTripSelect={handleTripSwitch} />}
+
+      {activeTab === "board" || activeTab === "timeline" ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleGlobalDragStart}
+          onDragEnd={handleGlobalDragEnd}
+        >
+          {activeTab === "board" && (
+            <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
+              <div className="mb-6 text-left border-b border-border-subtle pb-4">
+                <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                  Global Trip Master Board
+                </h2>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Drag and drop activities across your different travel packages
+                  smoothly.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
+                {allWorkspaceTrips.map((trip, idx) => {
+                  const flatActivities =
+                    trip.itinerary?.flatMap((d: any) => d.activities || []) ||
+                    [];
+                  return (
+                    <DaySchedule
+                      key={trip._id}
+                      dayNumber={idx + 1}
+                      title={trip.title || "Curated Sanctuary Package"}
+                      date={`${trip.itinerary?.length || 0} Days Plan`}
+                      activities={flatActivities}
+                      dayIndex={idx}
+                      id={`trip-${trip._id}`}
+                      onAddActivity={() => {}}
+                      onDeleteActivity={() => {}}
+                    />
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs self-start sm:self-center">
-              {WORKSPACE_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    if (searchParams.has("tab")) {
-                      router.replace(window.location.pathname);
-                    }
-                    setActiveTab(tab.id);
-                  }}
-                  className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    activeTab === tab.id
-                      ? "bg-card-bg text-primary shadow-2xs font-semibold"
-                      : "text-text-muted hover:text-primary"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {activeTab === "trips" && (
-            <TripsView onTripSelect={handleTripSwitch} />
           )}
 
-          {activeTab === "board" || activeTab === "timeline" ? (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCorners}
-              onDragStart={handleGlobalDragStart}
-              onDragEnd={handleGlobalDragEnd}
-            >
-              {activeTab === "board" && (
-                <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
-                  <div className="mb-6 text-left border-b border-border-subtle pb-4">
-                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                      Global Trip Master Board
-                    </h2>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      Drag and drop activities across your different travel
-                      packages smoothly.
-                    </p>
-                  </div>
+          {activeTab === "timeline" && (
+            <TimelineView trips={allWorkspaceTrips} />
+          )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
-                    {allWorkspaceTrips.map((trip, idx) => {
-                      const flatActivities =
-                        trip.itinerary?.flatMap(
-                          (d: any) => d.activities || [],
-                        ) || [];
-                      return (
-                        <DaySchedule
-                          key={trip._id}
-                          dayNumber={idx + 1}
-                          title={trip.title || "Curated Sanctuary Package"}
-                          date={`${trip.itinerary?.length || 0} Days Plan`}
-                          activities={flatActivities}
-                          dayIndex={idx}
-                          id={`trip-${trip._id}`}
-                          onAddActivity={() => {}}
-                          onDeleteActivity={() => {}}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+          <DragOverlay dropAnimation={null}>
+            {activeItem ? (
+              <div className="shadow-2xl opacity-95 scale-102 rotate-1 transition-transform w-[300px] pointer-events-none z-50">
+                <PlanItem item={activeItem} dayIndex={-1} isClone />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      ) : null}
 
-              {activeTab === "timeline" && (
-                <TimelineView trips={allWorkspaceTrips} />
-              )}
+      {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
+      {activeTab === "budget" &&
+        (() => {
+          const currentTrip = allWorkspaceTrips.find(
+            (t) => t._id === currentTripId,
+          );
 
-              <DragOverlay dropAnimation={null}>
-                {activeItem ? (
-                  <div className="shadow-2xl opacity-95 scale-102 rotate-1 transition-transform w-[300px] pointer-events-none z-50">
-                    <PlanItem item={activeItem} dayIndex={-1} isClone />
-                  </div>
-                ) : null}
-              </DragOverlay>
-            </DndContext>
-          ) : null}
+          return (
+            <BudgetView
+              tripId={String(currentTripId)}
+              itinerary={itinerary}
+              budgetLimit={currentTrip?.budget?.totalLimit || 4000}
+              currency={currentTrip?.budget?.currency || "USD"}
+              onTripRefresh={fetchGlobalWorkspace}
+            />
+          );
+        })()}
 
-          {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
-          {activeTab === "budget" &&
-            (() => {
-              const currentTrip = allWorkspaceTrips.find(
-                (t) => t._id === currentTripId,
-              );
-
-              return (
-                <BudgetView
-                  tripId={String(currentTripId)}
-                  itinerary={itinerary}
-                  budgetLimit={currentTrip?.budget?.totalLimit || 4000}
-                  currency={currentTrip?.budget?.currency || "USD"}
-                  onTripRefresh={fetchGlobalWorkspace}
-                />
-              );
-            })()}
-
-          <Footer variant="dashboard" />
-        </div>
-      </main>
+      <Footer variant="dashboard" />
     </div>
   );
 }

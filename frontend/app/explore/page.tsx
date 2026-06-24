@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Sidebar from "@/components/Sidebar";
 import { destinationService, Hotel } from "@/services/destinationService";
 import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -265,30 +264,14 @@ function ExplorePageContent() {
 
 export default function ExplorePage() {
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
-      <Sidebar />
-
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="bg-card-bg border-b border-border-subtle px-6 md:px-10 py-5 flex items-center justify-end sticky top-0 z-40 h-[65px] transition-colors duration-300">
-          <div className="w-8 h-8 rounded-full bg-neutral-bg overflow-hidden border border-border-subtle shadow-sm cursor-pointer">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop"
-              alt="User Avatar"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </header>
-
-        <Suspense
-          fallback={
-            <div className="p-10 text-center text-xs font-bold text-text-muted animate-pulse">
-              Syncing workspace query filters...
-            </div>
-          }
-        >
-          <ExplorePageContent />
-        </Suspense>
-      </main>
-    </div>
+    <Suspense
+      fallback={
+        <div className="p-10 text-center text-xs font-bold text-text-muted animate-pulse">
+          Syncing workspace query filters...
+        </div>
+      }
+    >
+      <ExplorePageContent />
+    </Suspense>
   );
 }

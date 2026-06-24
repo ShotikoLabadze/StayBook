@@ -2,13 +2,14 @@
 
 import { useAuth } from "@/context/AuthContext";
 import {
-  Bookmark,
   Calendar,
   Compass,
+  DollarSign,
   HelpCircle,
   LayoutDashboard,
   LogOut,
   Menu,
+  MessageSquareQuote,
   Moon,
   Plus,
   Sun,
@@ -42,7 +43,18 @@ export default function Sidebar() {
     },
     { id: "planner", label: "Planner", icon: Calendar, href: "/planner" },
     { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
-    { id: "saved", label: "Saved", icon: Bookmark, href: "/saved" },
+    {
+      id: "budget",
+      label: "Budget",
+      icon: DollarSign,
+      href: "/planner?tab=budget",
+    },
+    {
+      id: "testimonials",
+      label: "Testimonials",
+      icon: MessageSquareQuote,
+      href: "/testimonials",
+    },
   ];
 
   const toggleMobile = () => setMobileOpen((prev) => !prev);
@@ -72,22 +84,15 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-card-bg border-r border-border-subtle flex flex-col justify-between p-6 shrink-0 h-screen transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 transition-colors duration-300 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-card-bg border-r border-border-subtle flex flex-col justify-between p-6 shrink-0 transition-transform duration-300 ease-in-out md:sticky md:top-20 md:translate-x-0 h-[calc(100vh-5rem)] transition-colors duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="space-y-8">
-          <div className="flex items-center justify-between font-headline font-bold text-lg text-primary tracking-tight">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary dark:text-neutral-bg shadow-md shadow-secondary/10">
-                <Compass className="w-4 h-4 stroke-[2.5]" />
-              </div>
-              StayBook
-            </div>
-
+        <div className="space-y-6 overflow-y-auto flex-1 pr-1">
+          <div className="flex items-center justify-between font-headline font-bold text-lg text-primary tracking-tight md:hidden">
             <button
               onClick={closeMobile}
-              className="rounded-md p-1 hover:bg-neutral-bg text-text-muted hover:text-primary md:hidden cursor-pointer"
+              className="rounded-md p-1 hover:bg-neutral-bg text-text-muted hover:text-primary cursor-pointer border-none bg-transparent"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -99,18 +104,22 @@ export default function Sidebar() {
               closeMobile();
               setIsModalOpen(true);
             }}
-            className="w-full py-3 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group"
+            className="w-full py-3 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer border-none"
           >
             <Plus className="w-4 h-4 text-secondary dark:text-neutral-bg stroke-[2.5]" />
             New Trip
           </button>
 
-          <nav className="space-y-1.5">
+          <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive =
-                item.id === "planner"
-                  ? pathname.startsWith("/planner")
+                item.id === "planner" || item.id === "budget"
+                  ? pathname.startsWith("/planner") &&
+                    ((item.id === "budget" &&
+                      pathname.includes("tab=budget")) ||
+                      (item.id === "planner" &&
+                        !pathname.includes("tab=budget")))
                   : pathname === item.href;
 
               return (
@@ -128,7 +137,7 @@ export default function Sidebar() {
                     className={`w-4 h-4 transition-colors ${
                       isActive
                         ? "text-white dark:text-neutral-bg"
-                        : "text-text-muted group-hover:text-primary"
+                        : "text-text-muted"
                     }`}
                   />
                   {item.label}
@@ -138,11 +147,11 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        <div className="space-y-1.5 border-t border-border-subtle pt-4">
+        <div className="space-y-1 border-t border-border-subtle pt-4 mt-auto shrink-0">
           <Link
             href="/profile"
             onClick={closeMobile}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
               isProfileActive
                 ? "bg-primary text-white dark:bg-secondary dark:text-neutral-bg font-semibold shadow-2xs"
                 : "text-text-muted hover:bg-neutral-bg hover:text-primary"
@@ -158,7 +167,7 @@ export default function Sidebar() {
             <button
               type="button"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer border-none bg-transparent outline-none"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer border-none bg-transparent outline-none"
             >
               {theme === "dark" ? (
                 <>
@@ -177,7 +186,7 @@ export default function Sidebar() {
           <Link
             href="/help"
             onClick={closeMobile}
-            className="w-full flex items-center gap-3 px-4 py-3 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none"
           >
             <HelpCircle className="w-4 h-4 text-text-muted" /> Help
           </Link>
@@ -187,7 +196,7 @@ export default function Sidebar() {
               closeMobile();
               logout();
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl text-sm font-medium transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl text-sm font-medium transition-all cursor-pointer border-none bg-transparent"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>

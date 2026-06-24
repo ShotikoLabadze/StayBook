@@ -1,30 +1,46 @@
 "use client";
 
+import Link from "next/link";
+
 export default function Footer({ variant = "landing" }) {
   if (variant === "landing") {
     return (
-      <footer className="border-t border-border-subtle bg-card-bg px-6 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-text-muted w-full">
-        <div className="text-center sm:text-left space-y-0.5">
-          <p className="font-bold text-primary text-sm tracking-tight font-headline">
+      <footer className="border-t border-border-subtle bg-card-bg px-8 lg:px-20 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm font-semibold text-text-muted w-full">
+        <div className="text-center sm:text-left space-y-1">
+          <p className="font-extrabold text-primary text-base tracking-tight font-headline">
             StayBook
           </p>
-          <p className="text-[11px]">Luxury Travel Reimagined.</p>
+          <p className="text-xs text-[13px] font-medium">
+            Luxury Travel Reimagined.
+          </p>
         </div>
-        <div className="flex gap-6 text-[11px]">
-          <a href="#" className="hover:text-primary transition-colors">
+        <div className="flex gap-8 text-[13px]">
+          <Link
+            href="/explore"
+            className="hover:text-primary transition-colors decoration-none text-text-muted"
+          >
             Destinations
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
+          </Link>
+          <Link
+            href="/dashboard"
+            className="hover:text-primary transition-colors decoration-none text-text-muted"
+          >
             Pricing
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
+          </Link>
+          <Link
+            href="/profile"
+            className="hover:text-primary transition-colors decoration-none text-text-muted"
+          >
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-primary transition-colors">
+          </Link>
+          <Link
+            href="/profile"
+            className="hover:text-primary transition-colors decoration-none text-text-muted"
+          >
             Terms of Service
-          </a>
+          </Link>
         </div>
-        <p className="text-[11px]">
+        <p className="text-[13px] font-medium">
           © 2026 StayBook Luxury Travel. All rights reserved.
         </p>
       </footer>
@@ -32,26 +48,40 @@ export default function Footer({ variant = "landing" }) {
   }
 
   return (
-    <footer className="border-t border-border-subtle pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-text-muted w-full mt-auto">
-      <div className="space-y-0.5 text-center sm:text-left">
-        <p className="font-bold text-primary font-headline text-xs tracking-tight">
+    <footer className="border-t border-border-subtle pt-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-[13px] font-semibold text-text-muted w-full mt-auto mb-4">
+      <div className="space-y-1 text-center sm:text-left">
+        <p className="font-extrabold text-primary font-headline text-sm tracking-tight">
           StayBook
         </p>
-        <p>© 2026 StayBook Luxury Travel. All rights reserved.</p>
+        <p className="font-medium">
+          © 2026 StayBook Luxury Travel. All rights reserved.
+        </p>
       </div>
-      <div className="flex gap-6">
-        <a href="#" className="hover:text-primary transition-colors">
+      <div className="flex gap-8">
+        <Link
+          href="/explore"
+          className="hover:text-primary transition-colors decoration-none text-text-muted"
+        >
           Destinations
-        </a>
-        <a href="#" className="hover:text-primary transition-colors">
+        </Link>
+        <Link
+          href="/dashboard"
+          className="hover:text-primary transition-colors decoration-none text-text-muted"
+        >
           Pricing
-        </a>
-        <a href="#" className="hover:text-primary transition-colors">
+        </Link>
+        <Link
+          href="/profile"
+          className="hover:text-primary transition-colors decoration-none text-text-muted"
+        >
           Privacy Policy
-        </a>
-        <a href="#" className="hover:text-primary transition-colors">
+        </Link>
+        <Link
+          href="/profile"
+          className="hover:text-primary transition-colors decoration-none text-text-muted"
+        >
           Terms of Service
-        </a>
+        </Link>
       </div>
     </footer>
   );

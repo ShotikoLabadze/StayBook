@@ -51,6 +51,28 @@ export default function ProfilePage() {
   } | null>(null);
 
   useEffect(() => {
+    const navbar = document.querySelector("nav");
+    const sidebar = document.querySelector("aside");
+    const mainArea = document.querySelector("main");
+
+    if (navbar) navbar.style.display = "none";
+    if (sidebar) sidebar.style.display = "none";
+    if (mainArea) {
+      mainArea.style.height = "100vh";
+      mainArea.style.width = "100vw";
+    }
+
+    return () => {
+      if (navbar) navbar.style.display = "";
+      if (sidebar) sidebar.style.display = "";
+      if (mainArea) {
+        mainArea.style.height = "";
+        mainArea.style.width = "";
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (user) {
       setName(user.name || "");
       setEmail(user.email || "");
@@ -94,7 +116,6 @@ export default function ProfilePage() {
     try {
       await userService.updateProfile({
         name,
-
         avatar: avatar || undefined,
         ...(newPassword ? { password: newPassword } : {}),
       });
@@ -131,7 +152,7 @@ export default function ProfilePage() {
         <motion.div variants={itemVariants}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-card-bg text-xs font-semibold text-text-muted rounded-xl border border-border-subtle hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-200 shadow-3xs group decoration-none"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-card-bg border border-border-subtle text-xs font-semibold text-text-muted rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-200 shadow-3xs group decoration-none"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
             Back to Dashboard
@@ -232,7 +253,7 @@ export default function ProfilePage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
                   required
                 />
               </div>
@@ -275,7 +296,7 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
                 />
               </div>
 
@@ -288,7 +309,7 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-transparent transition"
                 />
               </div>
             </div>
