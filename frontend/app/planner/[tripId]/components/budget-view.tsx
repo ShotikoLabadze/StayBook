@@ -1,5 +1,6 @@
 "use client";
 
+import { TripItineraryDay, tripService } from "@/services/tripService";
 import {
   Car,
   Hotel,
@@ -11,31 +12,16 @@ import {
   Utensils,
   Wallet,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AddExpenseModal } from "./add-expense-modal";
 
-interface Activity {
-  id: string;
-  title: string;
-  time?: string;
-  note?: string;
-  category: "flight" | "hotel" | "food" | "activity" | "transport" | string;
-  cost?: number;
-  date?: string;
-}
-
-interface Day {
-  dayNumber: number;
-  title: string;
-  date: string;
-  activities: Activity[];
-}
-
 interface BudgetViewProps {
-  itinerary: Day[];
-  budgetLimit?: number;
+  tripId: string;
+  itinerary: TripItineraryDay[];
+  budgetLimit: number;
   currency?: string;
-  onDeleteExpense?: (dayIndex: number, activityId: string) => void;
+  onTripRefresh?: () => void;
 }
 
 const CATEGORY_CONFIG: Record<
@@ -75,14 +61,19 @@ const CATEGORY_CONFIG: Record<
 };
 
 export function BudgetView({
-  itinerary,
-  budgetLimit = 12450,
+  tripId,
+  itinerary = [],
+  budgetLimit = 0,
   currency = "USD",
-  onDeleteExpense,
+  onTripRefresh,
 }: BudgetViewProps) {
-  const allExpenses = itinerary
+  const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const allExpenses = (itinerary || [])
     .flatMap((day, dayIndex) =>
-      day.activities.map((act) => ({
+      (day.activities || []).map((act) => ({
         ...act,
         dayIndex,
         dayDate: day.date,
@@ -90,8 +81,6 @@ export function BudgetView({
       })),
     )
     .filter((act) => act.cost > 0);
-
-  const [modalOpen, setModalOpen] = useState(false);
 
   const totalSpent = allExpenses.reduce((sum, item) => sum + item.cost, 0);
   const remainingBudget = Math.max(0, budgetLimit - totalSpent);
@@ -111,7 +100,7 @@ export function BudgetView({
 
   const categoryTotals = allExpenses.reduce(
     (acc, item) => {
-      const cat = item.category === "dining" ? "food" : item.category;
+      const cat = item.category;
       if (acc[cat] !== undefined) {
         acc[cat] += item.cost;
       } else {
@@ -122,6 +111,50 @@ export function BudgetView({
     { ...initialBreakdown },
   );
 
+  const handleAddExpense = async (dayIndex: number, newActivity: any) => {
+    try {
+      setIsUpdating(true);
+
+      const activityWithId = {
+        ...newActivity,
+        id:
+          newActivity.id ||
+          crypto.randomUUID() ||
+          Math.random().toString(36).substring(2, 9),
+      };
+
+      await tripService.addActivity(tripId, dayIndex, activityWithId);
+
+      if (onTripRefresh) {
+        onTripRefresh();
+      } else {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to add expense to DB:", err);
+    } finally {
+      setIsUpdating(false);
+      setModalOpen(false);
+    }
+  };
+
+  const handleDeleteExpense = async (dayIndex: number, activityId: string) => {
+    try {
+      setIsUpdating(true);
+      await tripService.deleteActivity(tripId, dayIndex, activityId);
+
+      if (onTripRefresh) {
+        onTripRefresh();
+      } else {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to delete expense from DB:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -131,7 +164,9 @@ export function BudgetView({
   };
 
   return (
-    <div className="space-y-6 w-full text-left">
+    <div
+      className={`space-y-6 w-full text-left ${isUpdating ? "opacity-60 pointer-events-none transition-opacity" : ""}`}
+    >
       <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-xl shadow-slate-100/50">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -149,6 +184,7 @@ export function BudgetView({
             </p>
           </div>
           <button
+            type="button"
             onClick={() => setModalOpen(true)}
             className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all border border-slate-100 cursor-pointer flex items-center gap-1.5"
           >
@@ -173,18 +209,16 @@ export function BudgetView({
             <PieChart className="h-4 w-4 text-primary" /> Where it goes
           </h3>
         </div>
-
         <div className="space-y-4">
           {Object.entries(categoryTotals).map(([key, value]) => {
             const config = CATEGORY_CONFIG[key] || CATEGORY_CONFIG.other;
             const percent =
               totalSpent > 0 ? Math.round((value / totalSpent) * 100) : 0;
-
             return (
               <div key={key} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs">
+                    <span className="w-5 h-5 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100">
                       {config.icon}
                     </span>
                     <span>{config.label}</span>
@@ -214,32 +248,34 @@ export function BudgetView({
             <Wallet className="h-4 w-4 text-primary" /> Expense log
           </h3>
         </div>
-
         <div className="divide-y divide-slate-50 max-h-[350px] overflow-y-auto pr-1 no-scrollbar">
           {allExpenses.map((expense) => {
             const config =
-              CATEGORY_CONFIG[
-                expense.category === "dining" ? "food" : expense.category
-              ] || CATEGORY_CONFIG.other;
+              CATEGORY_CONFIG[expense.category] || CATEGORY_CONFIG.other;
             return (
               <div
                 key={expense.id}
                 className="flex items-center justify-between py-3 group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-3xs shrink-0">
+                  <span className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
                     {config.icon}
                   </span>
                   <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-slate-800 truncate tracking-tight">
+                    <h4 className="text-xs font-bold text-slate-800 truncate">
                       {expense.title}
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-0.5 font-medium">
-                      {new Date(expense.dayDate).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })}
+                      {expense.dayDate
+                        ? new Date(expense.dayDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                            },
+                          )
+                        : "Unscheduled"}
                     </p>
                   </div>
                 </div>
@@ -247,16 +283,15 @@ export function BudgetView({
                   <span className="text-xs font-extrabold text-slate-800">
                     {formatMoney(expense.cost)}
                   </span>
-                  {onDeleteExpense && (
-                    <button
-                      onClick={() =>
-                        onDeleteExpense(expense.dayIndex, expense.id)
-                      }
-                      className="text-slate-300 hover:text-rose-500 p-1.5 rounded-xl hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all border-none bg-transparent cursor-pointer outline-none"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDeleteExpense(expense.dayIndex, expense.id)
+                    }
+                    className="text-slate-300 hover:text-rose-500 p-1.5 rounded-xl hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all border-none bg-transparent cursor-pointer"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             );
@@ -264,19 +299,14 @@ export function BudgetView({
 
           {allExpenses.length === 0 && (
             <div className="text-center py-8 text-xs text-slate-400 italic">
-              No expenses tracked yet. Add costs to your activities to populate
-              the log.
+              No expenses tracked yet.
             </div>
           )}
 
           <AddExpenseModal
             isOpen={modalOpen}
             onClose={() => setModalOpen(false)}
-            onSave={
-              onDeleteExpense
-                ? (dayIdx, newExp) => onDeleteExpense(dayIdx, newExp)
-                : () => {}
-            }
+            onSave={handleAddExpense}
             totalDays={itinerary.length}
           />
         </div>

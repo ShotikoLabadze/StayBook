@@ -46,20 +46,7 @@ export default function PlannerPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const {
-    itinerary,
-    loading: plannerLoading,
-    mounted: plannerMounted,
-    sensors: plannerSensors,
-    activeItem: plannerActiveItem,
-    totalDays,
-    totalEvents,
-    tripProgress,
-    handleDeleteActivity,
-    handleAddActivity,
-    handleDragStart: defaultDragStart,
-    handleDragEnd: defaultDragEnd,
-  } = usePlanner();
+  const { itinerary, handleDeleteActivity } = usePlanner();
 
   const fetchGlobalWorkspace = () => {
     tripService
@@ -177,7 +164,7 @@ export default function PlannerPage() {
     router.push(`/planner/${tripId}`);
   };
 
-  if (!mounted || !plannerMounted || loading) {
+  if (!mounted) {
     return (
       <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-slate-500 font-medium text-sm">
         <div className="animate-pulse">Loading Planner Workspace...</div>
@@ -285,15 +272,22 @@ export default function PlannerPage() {
           ) : null}
 
           {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
+          {activeTab === "budget" &&
+            (() => {
+              const currentTrip = allWorkspaceTrips.find(
+                (t) => t._id === currentTripId,
+              );
 
-          {activeTab === "budget" && (
-            <BudgetView
-              itinerary={itinerary}
-              budgetLimit={12450}
-              currency="USD"
-              onDeleteExpense={handleDeleteActivity}
-            />
-          )}
+              return (
+                <BudgetView
+                  tripId={String(currentTripId)}
+                  itinerary={itinerary}
+                  budgetLimit={currentTrip?.budget?.totalLimit || 4000}
+                  currency={currentTrip?.budget?.currency || "USD"}
+                  onTripRefresh={fetchGlobalWorkspace}
+                />
+              );
+            })()}
 
           <Footer variant="dashboard" />
         </div>
