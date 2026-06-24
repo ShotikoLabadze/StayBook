@@ -20,7 +20,6 @@ export default function Navbar() {
     { id: "dashboard", label: "Dashboard", href: "/dashboard" },
     { id: "planner", label: "Planner", href: "/planner" },
     { id: "explore", label: "Explore", href: "/explore" },
-    { id: "saved", label: "Saved", href: "/saved" },
   ];
 
   useEffect(() => {
@@ -54,10 +53,10 @@ export default function Navbar() {
   }, [trips, params, pathname]);
 
   return (
-    <nav className="w-full h-20 bg-[var(--color-card-bg)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-8 sticky top-0 z-40 transition-colors duration-300">
+    <nav className="w-full h-20 bg-[var(--color-card-bg)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-8 sticky top-0 z-50 transition-colors duration-300">
       <div className="flex items-center gap-6 text-base font-semibold">
         <Link
-          href="/dashboard"
+          href="/"
           className="flex items-center gap-3 font-headline font-bold text-lg text-primary tracking-tight decoration-none"
         >
           <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-xs">
@@ -65,17 +64,19 @@ export default function Navbar() {
           </div>
           StayBook
         </Link>
-        <div className="h-5 h-[20px] w-px bg-[var(--color-border-subtle)]" />
+        <div className="h-5 w-px bg-[var(--color-border-subtle)]" />
         <span className="text-[var(--color-text-muted)] text-sm font-bold tracking-wide">
           {dynamicLocation}
         </span>
       </div>
 
-      <div className="hidden md:flex items-center gap-8 text-base font-semibold">
+      <div className="hidden lg:flex items-center gap-8 text-base font-semibold">
         {navItems.map((item) => {
           const isActive =
-            item.id === "planner"
-              ? pathname.startsWith("/planner")
+            item.id === "planner" || item.id === "budget"
+              ? pathname.startsWith("/planner") &&
+                ((item.id === "budget" && pathname.includes("tab=budget")) ||
+                  (item.id === "planner" && !pathname.includes("tab=budget")))
               : pathname === item.href;
 
           return (

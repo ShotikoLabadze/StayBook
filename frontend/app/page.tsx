@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import { Destination, destinationService } from "@/services/destinationService";
 import { Testimonial, testimonialService } from "@/services/testimonialService";
 import { useEffect, useState } from "react";
@@ -19,6 +18,28 @@ export default function LandingPage() {
   const [isTestimonialsLoading, setIsTestimonialsLoading] =
     useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+    const sidebar = document.querySelector("aside");
+    const mainArea = document.querySelector("main");
+
+    if (navbar) navbar.style.display = "none";
+    if (sidebar) sidebar.style.display = "none";
+    if (mainArea) {
+      mainArea.style.height = "100vh";
+      mainArea.style.width = "100vw";
+    }
+
+    return () => {
+      if (navbar) navbar.style.display = "";
+      if (sidebar) sidebar.style.display = "";
+      if (mainArea) {
+        mainArea.style.height = "";
+        mainArea.style.width = "";
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const fetchLandingData = async () => {
@@ -49,8 +70,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-neutral-bg font-body selection:bg-secondary/20 antialiased">
-      <Navbar />
-
       <HeroSection />
 
       <StatsSection />
