@@ -5,7 +5,7 @@ import { AdminModule } from './admin/admin.module';
 import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { DestinationsModule } from './destinations/destinations.module';
-import { NotificationsController } from './notifications/notifications.controller';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { TripsModule } from './trips/trips.module';
@@ -16,7 +16,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_URI || ''),
     AiModule,
-    NotificationsController,
+    NotificationsModule,
     ReviewsModule,
     UsersModule,
     AuthModule,
