@@ -1,6 +1,7 @@
 "use client";
 
 import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface BudgetCategory {
   cat: string;
@@ -9,21 +10,31 @@ interface BudgetCategory {
 }
 
 interface BudgetOverviewProps {
+  tripId: string;
   data: BudgetCategory[];
   totalLimit: number;
   totalSpent: number;
 }
 
 export default function BudgetOverview({
+  tripId,
   data,
   totalLimit,
   totalSpent,
 }: BudgetOverviewProps) {
+  const router = useRouter();
+
   const percentage =
     totalLimit > 0
       ? Math.min(Math.round((totalSpent / totalLimit) * 100), 100)
       : 0;
   const strokeDash = `${percentage} 100`;
+
+  const handleGoToBudget = () => {
+    if (tripId) {
+      router.push(`/planner/${tripId}?tab=budget`);
+    }
+  };
 
   return (
     <div className="bg-card-bg border border-border-subtle rounded-2xl p-6 space-y-6 shadow-sm transition-colors duration-300">
@@ -31,7 +42,12 @@ export default function BudgetOverview({
         <h3 className="font-headline font-bold text-sm text-primary">
           Budget Overview
         </h3>
-        <button className="text-text-muted hover:text-primary transition-colors cursor-pointer">
+
+        <button
+          onClick={handleGoToBudget}
+          className="text-text-muted hover:text-primary p-1 rounded-lg hover:bg-neutral-bg transition-colors cursor-pointer"
+          aria-label="View detailed budget"
+        >
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>

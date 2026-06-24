@@ -189,6 +189,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-6">
               <BudgetOverview
+                tripId={trips[0]?._id || ""}
                 data={dynamicBudgetData}
                 totalLimit={totalLimit}
                 totalSpent={totalSpent}

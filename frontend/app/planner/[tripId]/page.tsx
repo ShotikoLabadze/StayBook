@@ -11,7 +11,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
 
@@ -35,11 +35,14 @@ const WORKSPACE_TABS = [
 export default function PlannerPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const currentTripId = params?.tripId;
+
+  const activeTabFromUrl = searchParams.get("tab") as any;
 
   const [activeTab, setActiveTab] = useState<
     "trips" | "board" | "timeline" | "map" | "budget"
-  >("board");
+  >(activeTabFromUrl || "board");
 
   const [allWorkspaceTrips, setAllWorkspaceTrips] = useState<any[]>([]);
   const [activeItem, setActiveItem] = useState<any>(null);
@@ -55,6 +58,12 @@ export default function PlannerPage() {
       .catch((err) => console.error("Workspace Board fetch failed:", err))
       .finally(() => setLoading(false));
   };
+
+  useEffect(() => {
+    if (activeTabFromUrl) {
+      setActiveTab(activeTabFromUrl);
+    }
+  }, [activeTabFromUrl]);
 
   useEffect(() => {
     setMounted(true);
@@ -197,7 +206,12 @@ export default function PlannerPage() {
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    if (searchParams.has("tab")) {
+                      router.replace(window.location.pathname);
+                    }
+                    setActiveTab(tab.id);
+                  }}
                   className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
                     activeTab === tab.id
                       ? "bg-card-bg text-primary shadow-2xs font-semibold"
