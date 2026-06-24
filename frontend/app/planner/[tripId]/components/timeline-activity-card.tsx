@@ -2,7 +2,15 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Clock, GripVertical, MessageSquare, Paperclip } from "lucide-react";
+import {
+  Clock,
+  GripVertical,
+  Hotel,
+  MapPin,
+  MessageSquare,
+  Paperclip,
+  Plane,
+} from "lucide-react";
 
 interface Activity {
   id: string;
@@ -38,6 +46,29 @@ export function TimelineActivityCard({ activity }: TimelineActivityCardProps) {
   const isConfirmed =
     activity.category === "flight" || activity.category === "hotel";
 
+  const renderCategoryIcon = () => {
+    switch (activity.category) {
+      case "flight":
+        return (
+          <div className="h-7 w-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-500">
+            <Plane className="h-3.5 w-3.5 stroke-[2.5]" />
+          </div>
+        );
+      case "hotel":
+        return (
+          <div className="h-7 w-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+            <Hotel className="h-3.5 w-3.5 stroke-[2.5]" />
+          </div>
+        );
+      default:
+        return (
+          <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+            <MapPin className="h-3.5 w-3.5 stroke-[2.5]" />
+          </div>
+        );
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -50,13 +81,8 @@ export function TimelineActivityCard({ activity }: TimelineActivityCardProps) {
         className="flex items-center gap-1.5 mt-1 shrink-0 text-text-muted opacity-60 hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
       >
         <GripVertical className="h-3.5 w-3.5" />
-        <div className="h-7 w-7 rounded-lg bg-neutral-bg border border-border-subtle flex items-center justify-center text-xs pointer-events-none">
-          {activity.category === "flight"
-            ? "✈️"
-            : activity.category === "hotel"
-              ? "🏨"
-              : "📍"}
-        </div>
+
+        {renderCategoryIcon()}
       </div>
 
       <div className="flex-1 min-w-0 space-y-1 text-left">
