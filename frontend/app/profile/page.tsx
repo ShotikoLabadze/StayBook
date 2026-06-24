@@ -40,7 +40,7 @@ export default function ProfilePage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [avatar, setAvatar] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
@@ -94,7 +94,8 @@ export default function ProfilePage() {
     try {
       await userService.updateProfile({
         name,
-        avatar,
+
+        avatar: avatar || undefined,
         ...(newPassword ? { password: newPassword } : {}),
       });
 
@@ -186,7 +187,11 @@ export default function ProfilePage() {
               className="relative group cursor-pointer shrink-0"
             >
               <img
-                src={avatar}
+                src={
+                  avatar ||
+                  user?.avatar ||
+                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
+                }
                 alt="User Avatar"
                 className="w-20 h-20 rounded-full object-cover ring-4 ring-secondary/20 transition-transform duration-300 group-hover:scale-105"
               />
