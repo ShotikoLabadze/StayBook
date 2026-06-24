@@ -1,13 +1,9 @@
 "use client";
 
-interface FooterProps {
-  variant?: "landing" | "dashboard";
-}
-
-export default function Footer({ variant = "landing" }: FooterProps) {
+export default function Footer({ variant = "landing" }) {
   if (variant === "landing") {
     return (
-      <footer className="border-t border-slate-100 bg-white px-6 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400 w-full">
+      <footer className="border-t border-border-subtle bg-card-bg px-6 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-text-muted w-full">
         <div className="text-center sm:text-left space-y-0.5">
           <p className="font-bold text-primary text-sm tracking-tight font-headline">
             StayBook
@@ -36,7 +32,7 @@ export default function Footer({ variant = "landing" }: FooterProps) {
   }
 
   return (
-    <footer className="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-slate-400 w-full mt-auto">
+    <footer className="border-t border-border-subtle pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-medium text-text-muted w-full mt-auto">
       <div className="space-y-0.5 text-center sm:text-left">
         <p className="font-bold text-primary font-headline text-xs tracking-tight">
           StayBook

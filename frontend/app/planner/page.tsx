@@ -33,10 +33,10 @@ export default function PlannerRootRedirect() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-body">
+      <div className="min-h-screen bg-neutral-bg flex items-center justify-center font-body transition-colors duration-300">
         <div className="flex flex-col items-center gap-2">
-          <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs text-slate-400 font-medium tracking-wide">
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs text-text-muted font-medium tracking-wide">
             Opening Premium Workspace...
           </p>
         </div>
@@ -45,19 +45,19 @@ export default function PlannerRootRedirect() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex">
+    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 flex flex-col items-center justify-center p-10 text-center space-y-5">
-        <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-3xs">
-          <Calendar className="w-6 h-6 stroke-[1.5] text-slate-500" />
+        <div className="w-16 h-16 rounded-2xl bg-card-bg border border-border-subtle flex items-center justify-center text-text-muted shadow-3xs">
+          <Calendar className="w-6 h-6 stroke-[1.5] text-text-muted opacity-90" />
         </div>
 
         <div className="space-y-1 max-w-sm">
           <h2 className="font-headline text-base font-bold text-primary">
             No travel blueprint found
           </h2>
-          <p className="text-xs text-slate-400 font-medium">
+          <p className="text-xs text-text-muted font-medium">
             Your travel timeline is currently empty. Design your first sanctuary
             itinerary to activate the workspace planner.
           </p>
@@ -66,9 +66,9 @@ export default function PlannerRootRedirect() {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="px-5 py-2.5 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+          className="px-5 py-2.5 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-[0.98]"
         >
-          <Plus className="w-4 h-4 text-secondary stroke-[2.5]" />
+          <Plus className="w-4 h-4 text-secondary dark:text-neutral-bg stroke-[2.5]" />
           <span>Plan a new trip</span>
         </button>
 

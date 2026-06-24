@@ -88,6 +88,7 @@ export default function ProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    boxModelReset();
     setLoading(true);
     setMessage(null);
 
@@ -111,16 +112,18 @@ export default function ProfilePage() {
     }
   };
 
+  const boxModelReset = () => {};
+
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#38bdf8] animate-spin" />
+      <div className="min-h-screen bg-neutral-bg flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-secondary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#0f172a] font-sans antialiased py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-bg text-primary font-sans antialiased py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <motion.div
         className="max-w-2xl mx-auto space-y-6"
         initial="hidden"
@@ -130,21 +133,21 @@ export default function ProfilePage() {
         <motion.div variants={itemVariants}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-xs font-semibold text-slate-600 rounded-xl border border-slate-100 hover:bg-slate-50 transition duration-200 shadow-xs group"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-card-bg text-xs font-semibold text-text-muted rounded-xl border border-border-subtle hover:bg-neutral-bg transition duration-200 shadow-xs group"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeft className="w-3.5 h-3.5 text-text-muted group-hover:-translate-x-0.5 transition-transform" />
             Back to Dashboard
           </Link>
         </motion.div>
 
         <motion.div variants={itemVariants} className="pt-2">
-          <span className="text-sm font-semibold text-[#38bdf8] uppercase tracking-wider">
+          <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
             Account
           </span>
-          <h1 className="text-4xl font-bold font-headline mt-1 text-[#0f172a]">
+          <h1 className="text-4xl font-bold font-headline mt-1 text-primary">
             Your Profile
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-text-muted">
             Personalize how StayBook shapes your dashboard layout and security.
           </p>
         </motion.div>
@@ -155,8 +158,8 @@ export default function ProfilePage() {
             animate={{ opacity: 1, scale: 1 }}
             className={`p-4 rounded-xl text-sm font-medium border flex items-center gap-3 ${
               message.type === "success"
-                ? "bg-[#10b981]/10 text-[#10b981] border-[#10b981]/20"
-                : "bg-red-50 text-red-600 border-red-100"
+                ? "bg-tertiary/10 text-tertiary border-tertiary/20"
+                : "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/30"
             }`}
           >
             {message.type === "success" ? (
@@ -171,7 +174,7 @@ export default function ProfilePage() {
         <form onSubmit={handleSave} className="space-y-6">
           <motion.div
             variants={itemVariants}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-6"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm flex items-center space-x-6"
           >
             <input
               type="file"
@@ -191,9 +194,9 @@ export default function ProfilePage() {
                   "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
                 }
                 alt="User Avatar"
-                className="w-20 h-20 rounded-full object-cover ring-4 ring-[#38bdf8]/20 transition-transform duration-300 group-hover:scale-105"
+                className="w-20 h-20 rounded-full object-cover ring-4 ring-secondary/20 transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-[#0f172a]/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute inset-0 bg-primary/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <Camera className="w-5 h-5 text-white" />
               </div>
             </div>
@@ -201,50 +204,50 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleAvatarClick}
-                className="px-4 py-2 bg-[#0f172a] text-white text-sm font-medium rounded-xl hover:bg-opacity-90 transition duration-200 active:scale-95 cursor-pointer"
+                className="px-4 py-2 bg-primary text-white dark:text-neutral-bg text-sm font-medium rounded-xl hover:bg-opacity-90 transition duration-200 active:scale-95 cursor-pointer"
               >
                 Change avatar
               </button>
-              <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 1MB</p>
+              <p className="text-xs text-text-muted mt-1">PNG, JPG up to 1MB</p>
             </div>
           </motion.div>
 
           <motion.div
             variants={itemVariants}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-              <User className="w-4 h-4 text-[#38bdf8]" />
-              <h3 className="text-base font-bold font-headline text-[#0f172a]">
+            <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
+              <User className="w-4 h-4 text-secondary" />
+              <h3 className="text-base font-bold font-headline text-primary">
                 Identity
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                   Full Name
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-text-muted opacity-80 uppercase tracking-wider mb-1">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={email}
                   disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-400 text-sm cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg/60 text-text-muted text-sm cursor-not-allowed opacity-70"
                 />
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-text-muted mt-1">
                   Email cannot be modified.
                 </p>
               </div>
@@ -253,18 +256,18 @@ export default function ProfilePage() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4"
+            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-              <Shield className="w-4 h-4 text-[#10b981]" />
-              <h3 className="text-base font-bold font-headline text-[#0f172a]">
+            <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
+              <Shield className="w-4 h-4 text-tertiary" />
+              <h3 className="text-base font-bold font-headline text-primary">
                 Security
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                   Current Password
                 </label>
                 <input
@@ -272,12 +275,12 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#38bdf8] focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                   New Password
                 </label>
                 <input
@@ -285,7 +288,7 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#10b981] focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg text-primary text-sm focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-transparent transition"
                 />
               </div>
             </div>
@@ -298,7 +301,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => logout()}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all active:scale-98 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-98 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               Sign out
@@ -307,7 +310,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 bg-[#10b981] text-white text-sm font-semibold rounded-xl hover:bg-opacity-95 shadow-md shadow-[#10b981]/10 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-6 py-2.5 bg-tertiary text-white text-sm font-semibold rounded-xl hover:bg-opacity-95 shadow-md shadow-tertiary/10 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Saving changes..." : "Save changes"}
             </button>

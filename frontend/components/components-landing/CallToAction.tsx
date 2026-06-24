@@ -21,7 +21,7 @@ export function CallToAction() {
       <h2 className="font-headline text-3xl sm:text-5xl font-bold tracking-tight text-primary">
         Ready to begin your journey?
       </h2>
-      <p className="text-sm sm:text-base text-slate-500 max-w-md mx-auto">
+      <p className="text-sm sm:text-base text-text-muted max-w-md mx-auto">
         Join our exclusive community of travelers and start planning your next
         luxury escape today.
       </p>
@@ -29,17 +29,17 @@ export function CallToAction() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
         <button
           onClick={() => handleNavigation("/explore")}
-          className="w-full sm:w-auto px-7 py-3.5 bg-primary hover:bg-primary/95 text-white text-sm font-semibold rounded-full shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide"
+          className="w-full sm:w-auto px-7 py-3.5 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg text-sm font-semibold rounded-full shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide"
         >
           Create Your First Plan{" "}
-          <ArrowRight className="w-4 h-4 text-secondary" />
+          <ArrowRight className="w-4 h-4 text-secondary dark:text-neutral-bg" />
         </button>
 
         <button
           onClick={() => handleNavigation("/dashboard")}
-          className="w-full sm:w-auto px-7 py-3.5 bg-white border border-slate-200 hover:bg-neutral-bg text-slate-700 text-sm font-semibold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide shadow-sm"
+          className="w-full sm:w-auto px-7 py-3.5 bg-card-bg border border-border-subtle hover:bg-neutral-bg text-primary text-sm font-semibold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide shadow-sm"
         >
-          Open Dashboard <LayoutDashboard className="w-4 h-4 text-primary/70" />
+          Open Dashboard <LayoutDashboard className="w-4 h-4 text-text-muted" />
         </button>
       </div>
     </section>

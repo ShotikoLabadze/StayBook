@@ -15,16 +15,16 @@ interface AnalyticsWidgetProps {
 
 export default function AnalyticsWidget({ items }: AnalyticsWidgetProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 transition-colors duration-300">
       {items.map((stat, i) => {
         const Icon = stat.icon;
         return (
           <div
             key={i}
-            className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm"
+            className="bg-card-bg border border-border-subtle rounded-2xl p-4 flex items-center justify-between shadow-sm"
           >
             <div className="space-y-0.5">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                 {stat.label}
               </p>
               <p className="font-headline text-xl font-bold text-primary">

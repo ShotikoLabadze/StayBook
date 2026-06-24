@@ -26,12 +26,12 @@ export default function BudgetOverview({
   const strokeDash = `${percentage} 100`;
 
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-6 space-y-6 shadow-sm">
+    <div className="bg-card-bg border border-border-subtle rounded-2xl p-6 space-y-6 shadow-sm transition-colors duration-300">
       <div className="flex items-center justify-between">
         <h3 className="font-headline font-bold text-sm text-primary">
           Budget Overview
         </h3>
-        <button className="text-slate-400 hover:text-primary transition-colors cursor-pointer">
+        <button className="text-text-muted hover:text-primary transition-colors cursor-pointer">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
@@ -47,7 +47,7 @@ export default function BudgetOverview({
               cy="18"
               r="15.915"
               fill="transparent"
-              stroke="#f1f5f9"
+              className="stroke-neutral-bg"
               strokeWidth="3.5"
             />
             <circle
@@ -55,7 +55,7 @@ export default function BudgetOverview({
               cy="18"
               r="15.915"
               fill="transparent"
-              stroke="#0f172a"
+              className="stroke-primary"
               strokeWidth="3.5"
               strokeDasharray={strokeDash}
             />
@@ -69,14 +69,14 @@ export default function BudgetOverview({
 
         <div className="space-y-3 w-full sm:w-auto min-w-[150px]">
           {data.length === 0 ? (
-            <p className="text-xs text-slate-400">No expenses recorded.</p>
+            <p className="text-xs text-text-muted">No expenses recorded.</p>
           ) : (
             data.map((b, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between gap-8 text-xs font-medium"
               >
-                <div className="flex items-center gap-2 text-slate-500">
+                <div className="flex items-center gap-2 text-text-muted">
                   <span className={`w-2 h-2 rounded-full ${b.color}`} />
                   {b.cat}
                 </div>

@@ -31,26 +31,26 @@ export function TimelineDayBlock({ day, dayIndex }: TimelineDayBlockProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`border rounded-2xl p-5 space-y-4 shadow-2xs transition-colors text-left ${
+      className={`border rounded-2xl p-5 space-y-4 shadow-2xs transition-colors text-left transition-colors duration-300 ${
         isOver
-          ? "bg-sky-50/40 border-sky-200"
-          : "bg-slate-50/50 border-slate-100"
+          ? "bg-slate-500/10 border-secondary/40"
+          : "bg-neutral-bg border-border-subtle"
       }`}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <header className="flex items-center justify-between gap-3 border-b border-border-subtle pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-extrabold text-xs shrink-0">
+          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary dark:text-secondary dark:bg-secondary/10 flex items-center justify-center font-extrabold text-xs shrink-0">
             {day.dayNumber}
           </div>
           <div className="text-left">
-            <h3 className="text-xs font-bold text-slate-800 tracking-tight">
+            <h3 className="text-xs font-bold text-primary tracking-tight">
               {day.title}
             </h3>
-            <p className="text-[10px] text-slate-400 mt-0.5">{day.date}</p>
+            <p className="text-[10px] text-text-muted mt-0.5">{day.date}</p>
           </div>
         </div>
 
-        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-3xs">
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-text-muted bg-card-bg px-2 py-1 rounded-lg border border-border-subtle shadow-3xs">
           <CalendarDays className="h-3 w-3" />
           {day.activities.length}{" "}
           {day.activities.length === 1 ? "item" : "items"}
@@ -70,7 +70,7 @@ export function TimelineDayBlock({ day, dayIndex }: TimelineDayBlockProps) {
           ))}
 
           {day.activities.length === 0 && (
-            <div className="text-center py-8 text-xs text-slate-400 italic bg-white border border-dashed border-slate-100 rounded-xl">
+            <div className="text-center py-8 text-xs text-text-muted italic bg-card-bg border border-dashed border-border-subtle rounded-xl">
               Drop activities here
             </div>
           )}

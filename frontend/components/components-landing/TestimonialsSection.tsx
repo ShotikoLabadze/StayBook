@@ -13,12 +13,12 @@ export function TestimonialsSection({
   isLoading,
 }: TestimonialsSectionProps) {
   return (
-    <section className="py-20 bg-slate-50 border-y border-slate-100 px-6 lg:px-16 text-center space-y-12">
+    <section className="py-20 bg-neutral-bg border-y border-border-subtle px-6 lg:px-16 text-center space-y-12 transition-colors duration-300">
       <div className="space-y-2">
         <h2 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-primary">
           Testimonials
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-text-muted">
           Experiences shared by our community of global explorers.
         </p>
       </div>
@@ -28,35 +28,35 @@ export function TestimonialsSection({
           ? [...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm animate-pulse space-y-4"
+                className="bg-card-bg border border-border-subtle p-6 rounded-2xl shadow-sm animate-pulse space-y-4"
               >
-                <div className="h-4 bg-slate-200 rounded w-1/3" />
-                <div className="h-3 bg-slate-200 rounded w-full" />
-                <div className="pt-4 border-t border-slate-50 space-y-2">
-                  <div className="h-4 bg-slate-200 rounded w-1/2" />
+                <div className="h-4 bg-border-subtle rounded w-1/3" />
+                <div className="h-3 bg-border-subtle rounded w-full" />
+                <div className="pt-4 border-t border-border-subtle space-y-2">
+                  <div className="h-4 bg-border-subtle rounded w-1/2" />
                 </div>
               </div>
             ))
           : testimonials.map((t) => (
               <div
                 key={t._id}
-                className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6"
+                className="bg-card-bg border border-border-subtle p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6"
               >
                 <div className="space-y-4">
-                  <div className="flex gap-0.5 text-secondary">
+                  <div className="flex gap-0.5 text-secondary dark:text-secondary">
                     {[...Array(t.rating || 5)].map((_, idx) => (
                       <Star key={idx} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
-                  <p className="text-sm leading-relaxed text-slate-600 font-medium italic">
+                  <p className="text-sm leading-relaxed text-primary font-medium italic">
                     "{t.quote}"
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-50">
+                <div className="pt-4 border-t border-border-subtle">
                   <p className="text-sm font-semibold text-primary">
                     {t.author}
                   </p>
-                  <p className="text-xs text-slate-400 font-medium">
+                  <p className="text-xs text-text-muted font-medium">
                     {t.role}{" "}
                     {t.destinationTitle && `• Trip to ${t.destinationTitle}`}
                   </p>

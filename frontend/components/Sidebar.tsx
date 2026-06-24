@@ -9,19 +9,29 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
+  Plus,
+  Sun,
   User,
   X,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateTripModal from "./CreateTripModal";
 
 export default function Sidebar() {
   const { logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const menuItems = [
     {
@@ -44,7 +54,7 @@ export default function Sidebar() {
     <>
       <button
         onClick={toggleMobile}
-        className="fixed top-4 left-4 z-50 rounded-lg border border-slate-100 bg-white p-2 shadow-md md:hidden cursor-pointer"
+        className="fixed top-4 left-4 z-50 rounded-lg border border-border-subtle bg-card-bg p-2 shadow-md md:hidden cursor-pointer"
         aria-label="Toggle menu"
       >
         {mobileOpen ? (
@@ -62,14 +72,14 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-100 flex flex-col justify-between p-6 shrink-0 h-screen transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-card-bg border-r border-border-subtle flex flex-col justify-between p-6 shrink-0 h-screen transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 transition-colors duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="space-y-8">
           <div className="flex items-center justify-between font-headline font-bold text-lg text-primary tracking-tight">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary shadow-md shadow-secondary/10">
+              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary dark:text-neutral-bg shadow-md shadow-secondary/10">
                 <Compass className="w-4 h-4 stroke-[2.5]" />
               </div>
               StayBook
@@ -77,10 +87,10 @@ export default function Sidebar() {
 
             <button
               onClick={closeMobile}
-              className="rounded-md p-1 hover:bg-slate-50 md:hidden cursor-pointer"
+              className="rounded-md p-1 hover:bg-neutral-bg text-text-muted hover:text-primary md:hidden cursor-pointer"
               aria-label="Close menu"
             >
-              <X className="h-5 w-5 text-slate-500" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
@@ -89,21 +99,9 @@ export default function Sidebar() {
               closeMobile();
               setIsModalOpen(true);
             }}
-            className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group"
+            className="w-full py-3 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group"
           >
-            <svg
-              className="w-4 h-4 text-secondary stroke-[2.5]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
+            <Plus className="w-4 h-4 text-secondary dark:text-neutral-bg stroke-[2.5]" />
             New Trip
           </button>
 
@@ -122,12 +120,16 @@ export default function Sidebar() {
                   onClick={closeMobile}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
                     isActive
-                      ? "bg-slate-100 text-primary font-semibold"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+                      ? "bg-primary text-white dark:bg-secondary dark:text-neutral-bg font-semibold shadow-2xs"
+                      : "text-text-muted hover:bg-neutral-bg hover:text-primary"
                   }`}
                 >
                   <Icon
-                    className={`w-4 h-4 ${isActive ? "text-primary" : "text-slate-400"}`}
+                    className={`w-4 h-4 transition-colors ${
+                      isActive
+                        ? "text-white dark:text-neutral-bg"
+                        : "text-text-muted group-hover:text-primary"
+                    }`}
                   />
                   {item.label}
                 </Link>
@@ -136,28 +138,48 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        <div className="space-y-1.5 border-t border-slate-100 pt-4">
+        <div className="space-y-1.5 border-t border-border-subtle pt-4">
           <Link
             href="/profile"
             onClick={closeMobile}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none ${
               isProfileActive
-                ? "bg-slate-100 text-primary font-semibold"
-                : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+                ? "bg-primary text-white dark:bg-secondary dark:text-neutral-bg font-semibold shadow-2xs"
+                : "text-text-muted hover:bg-neutral-bg hover:text-primary"
             }`}
           >
             <User
-              className={`w-4 h-4 ${isProfileActive ? "text-primary" : "text-slate-400"}`}
+              className={`w-4 h-4 ${isProfileActive ? "text-white dark:text-neutral-bg" : "text-text-muted"}`}
             />
             Profile
           </Link>
 
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-full flex items-center gap-3 px-4 py-3 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer border-none bg-transparent outline-none"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-text-muted" />
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
+          )}
+
           <Link
             href="/help"
             onClick={closeMobile}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none"
+            className="w-full flex items-center gap-3 px-4 py-3 text-text-muted hover:bg-neutral-bg hover:text-primary rounded-xl text-sm font-medium transition-all cursor-pointer decoration-none"
           >
-            <HelpCircle className="w-4 h-4 text-slate-400" /> Help
+            <HelpCircle className="w-4 h-4 text-text-muted" /> Help
           </Link>
 
           <button
@@ -165,7 +187,7 @@ export default function Sidebar() {
               closeMobile();
               logout();
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50/50 rounded-xl text-sm font-medium transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl text-sm font-medium transition-all cursor-pointer"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>

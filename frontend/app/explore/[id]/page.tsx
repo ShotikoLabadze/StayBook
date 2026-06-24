@@ -19,29 +19,18 @@ import HotelReviews from "./components/HotelReviews";
 const HotelMap = dynamic(() => import("./components/HotelMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[350px] bg-white border border-slate-100 rounded-3xl animate-pulse flex items-center justify-center text-xs text-slate-400 font-bold">
+    <div className="w-full h-[350px] bg-card-bg border border-border-subtle rounded-3xl animate-pulse flex items-center justify-center text-xs text-text-muted font-bold">
       Opening sanctuary gates...
     </div>
   ),
 });
-
-interface ActiveFilters {
-  categories: string[];
-  minPrice: number;
-  maxPrice: number;
-  rating: number | null;
-  weather: string[];
-  durations: string[];
-  activities: string[];
-  propertyTypes: string[];
-}
 
 export default function HotelDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
-  const [destination, setDestination] = useState<Destination | null>(null);
+  const [, setDestination] = useState<Destination | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,8 +80,8 @@ export default function HotelDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-bg flex items-center justify-center font-body">
-        <div className="text-sm font-bold text-slate-400 animate-pulse">
+      <div className="min-h-screen bg-neutral-bg flex items-center justify-center font-body transition-colors duration-300">
+        <div className="text-sm font-bold text-text-muted animate-pulse">
           Opening sanctuary doors...
         </div>
       </div>
@@ -101,11 +90,11 @@ export default function HotelDetailsPage() {
 
   if (error || !hotel) {
     return (
-      <div className="min-h-screen bg-neutral-bg flex flex-col items-center justify-center font-body space-y-4">
+      <div className="min-h-screen bg-neutral-bg flex flex-col items-center justify-center font-body space-y-4 transition-colors duration-300">
         <div className="text-sm font-semibold text-red-500">{error}</div>
         <button
           onClick={() => router.push("/explore")}
-          className="text-xs font-bold text-primary bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-xs cursor-pointer hover:bg-slate-50 transition-all"
+          className="text-xs font-bold text-primary bg-card-bg border border-border-subtle px-4 py-2 rounded-xl shadow-xs cursor-pointer hover:bg-neutral-bg transition-all"
         >
           Back to Explore
         </button>
@@ -114,7 +103,7 @@ export default function HotelDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex antialiased">
+    <div className="min-h-screen bg-neutral-bg font-body flex antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0 p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">

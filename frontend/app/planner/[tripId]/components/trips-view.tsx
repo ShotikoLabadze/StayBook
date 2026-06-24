@@ -24,8 +24,8 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
 
   if (tripsLoading) {
     return (
-      <div className="bg-white/70 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-xl flex-1 flex items-center justify-center">
-        <div className="text-xs text-slate-400 animate-pulse py-10">
+      <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex items-center justify-center">
+        <div className="text-xs text-text-muted animate-pulse py-10">
           Loading itineraries...
         </div>
       </div>
@@ -33,12 +33,12 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
   }
 
   return (
-    <div className="bg-white/70 backdrop-blur-xl border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col text-left">
-      <div className="mb-6 border-b border-slate-100 pb-4">
+    <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col text-left transition-colors duration-300">
+      <div className="mb-6 border-b border-border-subtle pb-4">
         <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
           Your Travel Workspace
         </h2>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-text-muted mt-0.5">
           Select an active itinerary to switch between your curated plans.
         </p>
       </div>
@@ -48,13 +48,13 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
           <div
             key={trip._id}
             onClick={() => onTripSelect(trip._id)}
-            className="p-5 bg-white border border-slate-100 rounded-2xl shadow-xs hover:shadow-md transition-all flex items-center justify-between group cursor-pointer"
+            className="p-5 bg-card-bg border border-border-subtle rounded-2xl shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-between group cursor-pointer"
           >
             <div className="space-y-1.5 max-w-[80%]">
-              <h3 className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors truncate">
+              <h3 className="text-sm font-bold text-primary transition-colors truncate">
                 {trip.title}
               </h3>
-              <div className="flex items-center gap-3 text-[11px] text-slate-400">
+              <div className="flex items-center gap-3 text-[11px] text-text-muted">
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3 h-3" />{" "}
                   {trip.destination || "Luxury Sanctuary"}
@@ -65,7 +65,7 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
                 </span>
               </div>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-primary dark:group-hover:text-secondary group-hover:translate-x-1 transition-all" />
           </div>
         ))}
       </div>

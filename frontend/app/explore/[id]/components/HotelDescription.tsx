@@ -9,12 +9,12 @@ interface HotelDescriptionProps {
 
 export default function HotelDescription({ hotel }: HotelDescriptionProps) {
   return (
-    <div className="space-y-8 text-left">
-      <div className="bg-white border border-slate-100 p-7 rounded-3xl shadow-2xs space-y-4">
+    <div className="space-y-8 text-left transition-colors duration-300">
+      <div className="bg-card-bg border border-border-subtle p-7 rounded-3xl shadow-2xs space-y-4">
         <h3 className="font-headline text-lg font-bold text-primary tracking-tight">
           About this sanctuary
         </h3>
-        <p className="text-sm text-slate-500 leading-relaxed font-medium">
+        <p className="text-sm text-text-muted leading-relaxed font-medium">
           {hotel.description ||
             "Experience unprecedented luxury and bespoke art de vivre in this hand-picked sanctuary, where every detail is meticulously tailored to elevate your travel experience."}
         </p>
@@ -33,25 +33,25 @@ export default function HotelDescription({ hotel }: HotelDescriptionProps) {
             hotel.highlights.map((highlight, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-slate-100 p-4 rounded-2xl shadow-2xs flex items-start gap-3 hover:border-slate-200 transition-all duration-200"
+                className="bg-card-bg border border-border-subtle p-4 rounded-2xl shadow-2xs flex items-start gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200"
               >
                 <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                <p className="text-xs font-semibold text-primary leading-relaxed">
                   {highlight}
                 </p>
               </div>
             ))
           ) : (
             <>
-              <div className="bg-white border border-slate-100 p-5 rounded-2xl shadow-2xs flex items-start gap-3">
+              <div className="bg-card-bg border border-border-subtle p-5 rounded-2xl shadow-2xs flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                <p className="text-xs font-semibold text-primary leading-relaxed">
                   Bespoke curated expert itineraries tailored to your rhythm.
                 </p>
               </div>
-              <div className="bg-white border border-slate-100 p-5 rounded-2xl shadow-2xs flex items-start gap-3">
+              <div className="bg-card-bg border border-border-subtle p-5 rounded-2xl shadow-2xs flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                <p className="text-xs font-semibold text-primary leading-relaxed">
                   Unmatched privacy with signature sanctuary butler services.
                 </p>
               </div>

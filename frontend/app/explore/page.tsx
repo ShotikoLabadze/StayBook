@@ -14,7 +14,7 @@ import SearchHeader from "./components/SearchHeader";
 const ExploreMap = dynamic(() => import("./components/ExploreMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[650px] bg-slate-100 animate-pulse rounded-3xl flex items-center justify-center text-xs font-bold text-slate-400">
+    <div className="w-full h-[650px] bg-neutral-bg border border-border-subtle animate-pulse rounded-3xl flex items-center justify-center text-xs font-bold text-text-muted">
       Loading luxury interactive map...
     </div>
   ),
@@ -73,7 +73,7 @@ function ExplorePageContent() {
   }, [searchTerm, sortBy, currentFilters]);
 
   useEffect(() => {
-    const fetchFilteredData = async () => {
+    const fetchFilteredData = () => {
       try {
         setIsLoading(true);
 
@@ -98,15 +98,21 @@ function ExplorePageContent() {
           queryParams.propertyTypes = currentFilters.propertyTypes.join(",");
         }
 
-        const data = await destinationService.getHotelsByDestination(
-          "all",
-          queryParams,
-        );
-        setHotels(data);
+        destinationService
+          .getHotelsByDestination("all", queryParams)
+          .then((data) => {
+            setHotels(data);
+          })
+          .catch((err) => {
+            console.error("Failed to load filtered hotels:", err);
+            setError("Unable to sync with luxury database right now.");
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
       } catch (err) {
         console.error("Failed to load filtered hotels:", err);
         setError("Unable to sync with luxury database right now.");
-      } finally {
         setIsLoading(false);
       }
     };
@@ -126,7 +132,7 @@ function ExplorePageContent() {
   const currentHotels = hotels.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="p-6 md:p-10 space-y-6 md:space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+    <div className="p-6 md:p-10 space-y-6 md:space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col transition-colors duration-300">
       <SearchHeader
         resultsCount={hotels.length}
         searchTerm={searchTerm}
@@ -140,9 +146,9 @@ function ExplorePageContent() {
       <div className="flex xl:hidden justify-start">
         <button
           onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-neutral-bg text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs"
+          className="flex items-center gap-2 px-4 py-2.5 bg-card-bg border border-border-subtle hover:bg-neutral-bg text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-text-muted" />
           <span>Filters</span>
         </button>
       </div>
@@ -168,12 +174,12 @@ function ExplorePageContent() {
               {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
                 <div
                   key={i}
-                  className="animate-pulse bg-white border border-slate-100 rounded-3xl h-[420px] w-full"
+                  className="animate-pulse bg-card-bg border border-border-subtle rounded-3xl h-[420px] w-full"
                 />
               ))}
             </div>
           ) : hotels.length === 0 ? (
-            <div className="text-center py-20 text-slate-400 font-medium text-sm">
+            <div className="text-center py-20 text-text-muted font-medium text-sm">
               No luxury properties found matching these parameters.
             </div>
           ) : viewMode === "grid" ? (
@@ -195,13 +201,13 @@ function ExplorePageContent() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-6 pt-10 mt-6 border-t border-slate-100 w-full select-none">
+                <div className="flex items-center justify-center gap-6 pt-10 mt-6 border-t border-border-subtle w-full select-none">
                   <button
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 transition-all cursor-pointer shadow-3xs"
+                    className="flex items-center justify-center w-10 h-10 rounded-full border border-border-subtle bg-card-bg text-text-muted hover:bg-neutral-bg hover:text-primary disabled:opacity-30 disabled:hover:bg-card-bg disabled:hover:text-text-muted transition-all cursor-pointer shadow-3xs"
                     aria-label="Previous page"
                   >
                     <svg
@@ -227,7 +233,7 @@ function ExplorePageContent() {
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
                     disabled={currentPage === totalPages}
-                    className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 transition-all cursor-pointer shadow-3xs"
+                    className="flex items-center justify-center w-10 h-10 rounded-full border border-border-subtle bg-card-bg text-text-muted hover:bg-neutral-bg hover:text-primary disabled:opacity-30 disabled:hover:bg-card-bg disabled:hover:text-text-muted transition-all cursor-pointer shadow-3xs"
                     aria-label="Next page"
                   >
                     <svg
@@ -259,12 +265,12 @@ function ExplorePageContent() {
 
 export default function ExplorePage() {
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex">
+    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white border-b border-slate-100 px-6 md:px-10 py-5 flex items-center justify-end sticky top-0 z-40 h-[65px]">
-          <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100 shadow-sm cursor-pointer">
+        <header className="bg-card-bg border-b border-border-subtle px-6 md:px-10 py-5 flex items-center justify-end sticky top-0 z-40 h-[65px] transition-colors duration-300">
+          <div className="w-8 h-8 rounded-full bg-neutral-bg overflow-hidden border border-border-subtle shadow-sm cursor-pointer">
             <img
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop"
               alt="User Avatar"
@@ -275,7 +281,7 @@ export default function ExplorePage() {
 
         <Suspense
           fallback={
-            <div className="p-10 text-center text-xs font-bold text-slate-400 animate-pulse">
+            <div className="p-10 text-center text-xs font-bold text-text-muted animate-pulse">
               Syncing workspace query filters...
             </div>
           }

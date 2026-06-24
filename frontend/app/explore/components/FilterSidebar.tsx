@@ -156,30 +156,30 @@ export default function FilterSidebar({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
-        className={`w-74 shrink-0 overflow-y-auto space-y-7 text-left font-body text-primary bg-white border border-slate-100 p-5 rounded-3xl shadow-sm transition-transform duration-300 ease-in-out fixed lg:sticky top-0 bottom-0 lg:top-24 z-50 lg:z-0 right-0 h-full lg:h-fit ${
+        className={`w-74 shrink-0 overflow-y-auto space-y-7 text-left font-body text-primary bg-card-bg border border-border-subtle p-5 rounded-3xl shadow-sm transition-transform duration-300 ease-in-out fixed lg:sticky top-0 bottom-0 lg:top-24 z-50 lg:z-0 right-0 h-full lg:h-fit ${
           isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-slate-50 pb-2 lg:border-none lg:pb-0">
+        <div className="flex items-center justify-between border-b border-border-subtle pb-2 lg:border-none lg:pb-0">
           <h3 className="text-xs font-bold uppercase tracking-wider text-primary font-headline">
             Filters
           </h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-primary transition-colors lg:hidden p-1 rounded-lg hover:bg-slate-50"
+            className="text-text-muted hover:text-primary transition-colors lg:hidden p-1 rounded-lg hover:bg-neutral-bg"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-semibold text-slate-700">Category</p>
+          <p className="text-xs font-semibold text-primary">Category</p>
           <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => {
               const active = selectedCategories.includes(cat);
@@ -193,7 +193,7 @@ export default function FilterSidebar({
                   className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   {cat}
@@ -203,28 +203,28 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">
             Price Range (per night)
           </p>
           <div ref={sliderRef} className="relative px-1 pt-2 h-5 select-none">
-            <div className="h-1 w-full rounded-full bg-slate-100" />
+            <div className="h-1 w-full rounded-full bg-neutral-bg" />
             <div
               className="absolute h-1 rounded-full bg-secondary top-2"
               style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
             />
             <div
               onMouseDown={handleMinMouseDown}
-              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
+              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-card-bg shadow-xs -ml-2"
               style={{ left: `${minPercent}%` }}
             />
             <div
               onMouseDown={handleMaxMouseDown}
-              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-white shadow-xs -ml-2"
+              className="absolute top-0.5 h-4 w-4 cursor-pointer rounded-full border-2 border-secondary bg-card-bg shadow-xs -ml-2"
               style={{ left: `${maxPercent}%` }}
             />
           </div>
-          <div className="flex justify-between pt-1 text-[11px] font-bold text-slate-500 font-headline">
+          <div className="flex justify-between pt-1 text-[11px] font-bold text-text-muted font-headline">
             <span>${minPrice.toLocaleString()}</span>
             <span>
               $
@@ -235,10 +235,8 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">
-            Property Rating
-          </p>
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">Property Rating</p>
           <div className="flex flex-wrap gap-1.5">
             {RATING_OPTIONS.map((num) => {
               const active = selectedRating === num;
@@ -250,12 +248,12 @@ export default function FilterSidebar({
                   className={`flex h-10 w-11 cursor-pointer flex-col items-center justify-center rounded-xl border text-xs font-bold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   <span>{num.toFixed(1)}+</span>
                   <Star
-                    className={`h-2.5 w-2.5 ${active ? "fill-secondary text-secondary" : "fill-slate-300 text-slate-300"}`}
+                    className={`h-2.5 w-2.5 ${active ? "fill-secondary text-secondary" : "fill-slate-300 dark:fill-slate-600 text-slate-300 dark:text-slate-600"}`}
                   />
                 </button>
               );
@@ -263,8 +261,8 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">Weather</p>
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">Weather</p>
           <div className="flex flex-wrap gap-1.5">
             {weatherConditions.map((cond) => {
               const active = selectedWeather.includes(cond);
@@ -278,7 +276,7 @@ export default function FilterSidebar({
                   className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   {cond}
@@ -288,8 +286,8 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">Duration</p>
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">Duration</p>
           <div className="flex flex-wrap gap-1.5">
             {durations.map((dur) => {
               const active = selectedDurations.includes(dur);
@@ -303,7 +301,7 @@ export default function FilterSidebar({
                   className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   {dur}
@@ -313,8 +311,8 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">Activities</p>
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">Activities</p>
           <div className="flex flex-wrap gap-1.5">
             {activities.map((act) => {
               const active = selectedActivities.includes(act);
@@ -328,7 +326,7 @@ export default function FilterSidebar({
                   className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary font-bold"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   {act}
@@ -338,8 +336,8 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-slate-100 pt-5">
-          <p className="text-xs font-semibold text-slate-700">Property Type</p>
+        <div className="space-y-3 border-t border-border-subtle pt-5">
+          <p className="text-xs font-semibold text-primary">Property Type</p>
           <div className="flex flex-wrap gap-1.5 w-full">
             {propertyTypes.map((type) => {
               const active = selectedTypes.includes(type);
@@ -353,7 +351,7 @@ export default function FilterSidebar({
                   className={`px-3 py-1.5 cursor-pointer rounded-xl border text-xs font-semibold transition-all duration-200 ${
                     active
                       ? "border-secondary/60 bg-secondary/10 text-primary font-bold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-primary"
+                      : "border-border-subtle bg-neutral-bg text-text-muted hover:border-slate-300 dark:hover:border-slate-600 hover:text-primary"
                   }`}
                 >
                   {type}
@@ -363,11 +361,11 @@ export default function FilterSidebar({
           </div>
         </div>
 
-        <div className="border-t border-slate-100 pt-4">
+        <div className="border-t border-border-subtle pt-4">
           <button
             type="button"
             onClick={handleReset}
-            className="w-full flex items-center justify-center gap-2 py-2.5 border border-red-100 bg-red-50/30 hover:bg-red-50 text-red-500 font-semibold text-xs rounded-xl transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-500 font-semibold text-xs rounded-xl transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Clear All Filters

@@ -21,7 +21,7 @@ export function CuratedDestinations({
         <h2 className="font-headline text-2xl sm:text-3xl font-bold tracking-tight text-primary">
           Curated Destinations
         </h2>
-        <p className="text-sm text-slate-500 max-w-md">
+        <p className="text-sm text-text-muted max-w-md">
           Our team of travel experts handselects every luxury experience to
           ensure your journey is perfect.
         </p>
@@ -37,9 +37,9 @@ export function CuratedDestinations({
         {isLoading
           ? [...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse space-y-4">
-                <div className="aspect-[4/5] w-full rounded-2xl bg-slate-200" />
-                <div className="h-4 bg-slate-200 rounded w-2/3" />
-                <div className="h-3 bg-slate-200 rounded w-1/3" />
+                <div className="aspect-[4/5] w-full rounded-2xl bg-border-subtle" />
+                <div className="h-4 bg-border-subtle rounded w-2/3" />
+                <div className="h-3 bg-border-subtle rounded w-1/3" />
               </div>
             ))
           : destinations.map((dest) => {
@@ -51,13 +51,13 @@ export function CuratedDestinations({
                   href={`/explore/${destinationId}`}
                   className="group cursor-pointer space-y-4 text-left block"
                 >
-                  <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-sm group-hover:shadow-md transition-all">
+                  <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-neutral-bg shadow-sm group-hover:shadow-md transition-all">
                     <img
                       src={dest.image}
                       alt={dest.name}
                       className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[11px] font-bold tracking-wide text-primary shadow-sm">
+                    <div className="absolute top-4 right-4 bg-card-bg/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[11px] font-bold tracking-wide text-primary shadow-sm">
                       ${dest.pricePerNight}/night
                     </div>
                   </div>
@@ -66,7 +66,7 @@ export function CuratedDestinations({
                       {dest.name}
                     </h3>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <p className="text-xs font-medium text-text-muted flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {dest.region},{" "}
                         {dest.country}
                       </p>

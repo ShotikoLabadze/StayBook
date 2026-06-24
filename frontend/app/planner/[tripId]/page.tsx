@@ -44,9 +44,9 @@ export default function PlannerPage() {
   const [allWorkspaceTrips, setAllWorkspaceTrips] = useState<any[]>([]);
   const [activeItem, setActiveItem] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
-  const { itinerary, handleDeleteActivity } = usePlanner();
+  const { itinerary } = usePlanner();
 
   const fetchGlobalWorkspace = () => {
     tripService
@@ -166,19 +166,19 @@ export default function PlannerPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-slate-500 font-medium text-sm">
+      <div className="min-h-screen bg-neutral-bg font-body flex items-center justify-center text-text-muted font-medium text-sm transition-colors duration-300">
         <div className="animate-pulse">Loading Planner Workspace...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex">
+    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
         <div className="p-10 space-y-5 max-w-7xl w-full mx-auto flex-1 flex flex-col">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle pb-5">
             <div className="text-left">
               <span className="text-xs font-bold text-secondary uppercase tracking-widest font-headline block mb-1">
                 StayBook
@@ -186,13 +186,13 @@ export default function PlannerPage() {
               <h1 className="font-headline text-3xl font-bold text-primary tracking-tight">
                 Premium Planner Workspace
               </h1>
-              <p className="mt-1 text-xs font-medium text-slate-400">
+              <p className="mt-1 text-xs font-medium text-text-muted">
                 Manage hand-picked luxury itineraries and dynamically sync
                 travel steps.
               </p>
             </div>
 
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-500 border border-slate-200/20 shadow-2xs self-start sm:self-center">
+            <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs self-start sm:self-center">
               {WORKSPACE_TABS.map((tab) => (
                 <button
                   key={tab.id}
@@ -200,8 +200,8 @@ export default function PlannerPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
                     activeTab === tab.id
-                      ? "bg-white text-primary shadow-2xs font-semibold"
-                      : "text-slate-400 hover:text-primary"
+                      ? "bg-card-bg text-primary shadow-2xs font-semibold"
+                      : "text-text-muted hover:text-primary"
                   }`}
                 >
                   {tab.label}
@@ -222,12 +222,12 @@ export default function PlannerPage() {
               onDragEnd={handleGlobalDragEnd}
             >
               {activeTab === "board" && (
-                <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-8 shadow-xl shadow-slate-100/50 flex-1 flex flex-col">
-                  <div className="mb-6 text-left border-b border-slate-100 pb-4">
+                <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
+                  <div className="mb-6 text-left border-b border-border-subtle pb-4">
                     <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
                       Global Trip Master Board
                     </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-text-muted mt-0.5">
                       Drag and drop activities across your different travel
                       packages smoothly.
                     </p>

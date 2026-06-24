@@ -43,23 +43,23 @@ export function DaySchedule({
   return (
     <section
       ref={setNodeRef}
-      className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-xs transition-colors h-full min-h-[500px] ${
+      className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-xs transition-colors h-full min-h-[500px] transition-colors duration-300 ${
         isOver
-          ? "bg-slate-50/80 border-primary/30"
-          : "bg-white border-slate-100"
+          ? "bg-slate-500/10 border-secondary/40"
+          : "bg-card-bg border-border-subtle"
       }`}
     >
-      <header className="flex items-center justify-between border-b border-slate-50 pb-3">
+      <header className="flex items-center justify-between border-b border-border-subtle pb-3">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-sm shrink-0">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary dark:bg-secondary text-sm font-bold text-white dark:text-neutral-bg shadow-sm shrink-0">
             {String(dayNumber).padStart(2, "0")}
           </span>
           <div className="text-left min-w-0">
-            <p className="text-sm font-bold text-slate-800 truncate">{title}</p>
-            <p className="text-xs text-slate-400 truncate">{date}</p>
+            <p className="text-sm font-bold text-primary truncate">{title}</p>
+            <p className="text-xs text-text-muted truncate">{date}</p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-400 shrink-0">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-text-muted shrink-0">
           <CalendarDays className="h-3.5 w-3.5" />
           {activities.length} {activities.length === 1 ? "item" : "items"}
         </span>
@@ -79,7 +79,7 @@ export function DaySchedule({
             />
           ))}
           {activities.length === 0 && (
-            <div className="text-center py-10 text-xs text-slate-400 italic border border-dashed border-slate-100 rounded-xl bg-slate-50/30">
+            <div className="text-center py-10 text-xs text-text-muted italic border border-dashed border-border-subtle rounded-xl bg-neutral-bg/30">
               No active tasks
             </div>
           )}
@@ -89,7 +89,7 @@ export function DaySchedule({
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className="mt-2 border border-dashed border-slate-200 hover:border-primary/40 w-full py-2.5 rounded-xl text-slate-400 hover:text-primary hover:bg-slate-50/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold bg-transparent outline-none"
+        className="mt-2 border border-dashed border-border-subtle hover:border-secondary/50 w-full py-2.5 rounded-xl text-text-muted hover:text-primary hover:bg-neutral-bg/50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold bg-transparent outline-none"
       >
         <Plus className="h-4 w-4" />
         Add Activity

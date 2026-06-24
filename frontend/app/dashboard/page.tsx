@@ -74,7 +74,7 @@ export default function DashboardPage() {
       label: "Total Spent",
       val: `$${totalSpent.toLocaleString()}`,
       icon: DollarSign,
-      bg: "bg-blue-50/50 text-blue-500",
+      bg: "bg-blue-500/10 text-blue-500",
     },
     {
       label: "Miles Flown",
@@ -83,14 +83,14 @@ export default function DashboardPage() {
           ? `${(trips.length * 3420).toLocaleString()} km`
           : "0 km",
       icon: Plane,
-      bg: "bg-cyan-50/50 text-cyan-500",
+      bg: "bg-cyan-500/10 text-cyan-500",
     },
     {
       label: "Carbon Footprint",
       val:
         trips.length > 0 ? `${(trips.length * 0.8).toFixed(1)} tCO2` : "0 tCO2",
       icon: Leaf,
-      bg: "bg-emerald-50/50 text-emerald-500",
+      bg: "bg-emerald-500/10 text-emerald-500",
     },
   ];
 
@@ -109,7 +109,7 @@ export default function DashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex">
+    <div className="min-h-screen bg-neutral-bg font-body flex transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-w-0">
@@ -134,12 +134,12 @@ export default function DashboardPage() {
                   {[...Array(2)].map((_, i) => (
                     <div
                       key={i}
-                      className="bg-white border border-slate-100 p-4 h-64 rounded-2xl animate-pulse"
+                      className="bg-card-bg border border-border-subtle p-4 h-64 rounded-2xl animate-pulse"
                     />
                   ))}
                 </div>
               ) : trips.length === 0 ? (
-                <div className="bg-white border border-slate-100 rounded-2xl p-8 text-center text-sm text-slate-400 font-medium">
+                <div className="bg-card-bg border border-border-subtle rounded-2xl p-8 text-center text-sm text-text-muted font-medium">
                   No upcoming trips found. Start planning your next adventure!
                 </div>
               ) : (

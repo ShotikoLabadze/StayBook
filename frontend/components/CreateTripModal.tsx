@@ -139,20 +139,20 @@ export default function CreateTripModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto font-body select-none">
-      <div className="bg-white border border-slate-100 rounded-3xl max-w-3xl w-full text-primary shadow-xl overflow-hidden my-8 transition-all">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div className="bg-card-bg border border-border-subtle rounded-3xl max-w-3xl w-full text-primary shadow-xl overflow-hidden my-8 transition-all">
+        <div className="p-6 border-b border-border-subtle flex items-center justify-between">
           <div>
             <h2 className="font-headline text-base font-bold text-primary">
               Plan a new trip
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-text-muted mt-0.5">
               Pick a sanctuary hotel, set your dates and budget limit.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer"
+            className="text-text-muted hover:text-primary transition-colors p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -160,7 +160,7 @@ export default function CreateTripModal({
 
         <form onSubmit={handleCreateTrip} className="p-6 space-y-6 text-left">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">
               Available Sanctuaries
             </label>
             <div className="flex gap-4 overflow-x-auto pb-3 pt-1 scrollbar-thin scrollbar-thumb-slate-200 snap-x">
@@ -175,19 +175,19 @@ export default function CreateTripModal({
                       setSelectedHotel(hotel);
                       setTitle(`Escape to ${hotel.name}`);
                     }}
-                    className={`min-w-[200px] max-w-[200px] snap-start rounded-2xl overflow-hidden cursor-pointer border-2 transition-all bg-white shadow-3xs ${
+                    className={`min-w-[200px] max-w-[200px] snap-start rounded-2xl overflow-hidden cursor-pointer border-2 transition-all bg-card-bg shadow-3xs ${
                       isSelected
                         ? "border-primary scale-[0.98] ring-4 ring-primary/5"
-                        : "border-slate-100 opacity-75 hover:opacity-100"
+                        : "border-border-subtle opacity-75 hover:opacity-100"
                     }`}
                   >
-                    <div className="relative aspect-[4/3] w-full bg-slate-50">
+                    <div className="relative aspect-[4/3] w-full bg-neutral-bg">
                       <img
                         src={hotel.image}
                         alt={hotel.name}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] font-bold text-primary shadow-3xs">
+                      <div className="absolute top-2 right-2 bg-card-bg/90 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] font-bold text-primary shadow-3xs">
                         ${hotel.pricePerNight}/n
                       </div>
                     </div>
@@ -195,7 +195,7 @@ export default function CreateTripModal({
                       <p className="text-xs font-bold text-primary truncate">
                         {hotel.name}
                       </p>
-                      <p className="text-[10px] text-slate-400 font-medium truncate">
+                      <p className="text-[10px] text-text-muted font-medium truncate">
                         {hotel.neighborhood}
                       </p>
                     </div>
@@ -207,7 +207,7 @@ export default function CreateTripModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">
                 Trip title
               </label>
               <input
@@ -216,22 +216,22 @@ export default function CreateTripModal({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Luxury Honeymoon in Kyoto"
-                className="w-full px-4 py-2.5 bg-neutral-bg border border-slate-200/60 rounded-xl text-xs font-medium focus:outline-none focus:border-primary transition-all text-primary placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 bg-neutral-bg border border-border-subtle rounded-xl text-xs font-medium focus:outline-none focus:border-primary transition-all text-primary placeholder:text-text-muted"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">
                 Budget (USD)
               </label>
               <div className="relative">
-                <DollarSign className="w-3.5 h-3.5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <DollarSign className="w-3.5 h-3.5 text-text-muted absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="number"
                   required
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 bg-neutral-bg border border-slate-200/60 rounded-xl text-xs font-medium focus:outline-none focus:border-primary transition-all text-primary"
+                  className="w-full pl-9 pr-4 py-2.5 bg-neutral-bg border border-border-subtle rounded-xl text-xs font-medium focus:outline-none focus:border-primary transition-all text-primary"
                 />
               </div>
             </div>
@@ -239,16 +239,16 @@ export default function CreateTripModal({
 
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+              <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                <CalendarIcon className="w-3.5 h-3.5 text-text-muted" />
                 <span>Dates</span>
               </div>
-              <span className="text-[11px] font-bold text-primary bg-slate-100 px-2.5 py-1 rounded-md transition-all">
+              <span className="text-[11px] font-bold text-primary bg-neutral-bg border border-border-subtle px-2.5 py-1 rounded-md transition-all">
                 {formatDisplayDate(rangeStart)} → {formatDisplayDate(rangeEnd)}
               </span>
             </div>
 
-            <div className="border border-slate-100 rounded-2xl p-4 bg-neutral-bg grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+            <div className="border border-border-subtle rounded-2xl p-4 bg-neutral-bg grid grid-cols-1 md:grid-cols-2 gap-8 relative">
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <span className="text-xs font-bold text-primary">
@@ -260,12 +260,12 @@ export default function CreateTripModal({
                   <button
                     type="button"
                     onClick={() => changeMonth(-1)}
-                    className="text-slate-400 hover:text-primary cursor-pointer"
+                    className="text-text-muted hover:text-primary cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-7 gap-y-1 text-center text-[10px] font-semibold text-slate-400">
+                <div className="grid grid-cols-7 gap-y-1 text-center text-[10px] font-semibold text-text-muted">
                   {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                     <span key={d} className="py-1">
                       {d}
@@ -297,12 +297,12 @@ export default function CreateTripModal({
                         onClick={() => handleDayClick(currentDayDate)}
                         className={`py-1.5 text-xs transition-all relative cursor-pointer outline-none ${
                           isStart || isEnd
-                            ? "bg-primary text-white font-bold rounded-md z-10 shadow-3xs"
+                            ? "bg-primary text-white dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs"
                             : inRange
                               ? "bg-primary/10 text-primary font-semibold rounded-none"
                               : isPast
-                                ? "text-slate-300 opacity-40 pointer-events-none"
-                                : "text-primary hover:bg-slate-200/50 rounded-md"
+                                ? "text-text-muted opacity-30 pointer-events-none"
+                                : "text-primary hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-md"
                         }`}
                       >
                         {day}
@@ -323,12 +323,12 @@ export default function CreateTripModal({
                   <button
                     type="button"
                     onClick={() => changeMonth(1)}
-                    className="text-slate-400 hover:text-primary cursor-pointer"
+                    className="text-text-muted hover:text-primary cursor-pointer"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-7 gap-y-1 text-center text-[10px] font-semibold text-slate-400">
+                <div className="grid grid-cols-7 gap-y-1 text-center text-[10px] font-semibold text-text-muted">
                   {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                     <span key={d} className="py-1">
                       {d}
@@ -360,12 +360,12 @@ export default function CreateTripModal({
                         onClick={() => handleDayClick(currentDayDate)}
                         className={`py-1.5 text-xs transition-all relative cursor-pointer outline-none ${
                           isStart || isEnd
-                            ? "bg-primary text-white font-bold rounded-md z-10 shadow-3xs"
+                            ? "bg-primary text-white dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs"
                             : inRange
                               ? "bg-primary/10 text-primary font-semibold rounded-none"
                               : isPast
-                                ? "text-slate-300 opacity-40 pointer-events-none"
-                                : "text-primary hover:bg-slate-200/50 rounded-md"
+                                ? "text-text-muted opacity-30 pointer-events-none"
+                                : "text-primary hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-md"
                         }`}
                       >
                         {day}
@@ -377,11 +377,11 @@ export default function CreateTripModal({
             </div>
           </div>
 
-          <div className="border-t border-slate-100 pt-4 flex items-center justify-end gap-3">
+          <div className="border-t border-border-subtle pt-4 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer"
+              className="px-4 py-2 bg-neutral-bg hover:bg-slate-100 dark:hover:bg-slate-800 text-text-muted hover:text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -390,7 +390,7 @@ export default function CreateTripModal({
               disabled={
                 isSubmitting || !selectedHotel || !rangeStart || !rangeEnd
               }
-              className="px-5 py-2 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-40 cursor-pointer"
+              className="px-5 py-2 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg text-xs font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-40 cursor-pointer"
             >
               {isSubmitting ? "Creating space..." : "Create trip"}
             </button>
