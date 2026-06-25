@@ -162,9 +162,11 @@ export default function FilterSidebar({
       )}
 
       <aside
-        className={`w-74 shrink-0 overflow-y-auto space-y-7 text-left font-body text-primary bg-card-bg border border-border-subtle p-5 rounded-3xl shadow-sm transition-transform duration-300 ease-in-out fixed lg:sticky top-0 bottom-0 lg:top-24 z-50 lg:z-0 right-0 h-full lg:h-fit ${
-          isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
-        }`}
+        className={`w-full lg:w-full shrink-0 p-5 rounded-3xl border border-border-subtle bg-card-bg shadow-sm text-left font-body text-primary transition-transform duration-300 ease-in-out space-y-7 overflow-y-auto
+          fixed inset-y-0 right-0 h-full z-50 max-w-xs
+          lg:static lg:h-fit lg:z-0 lg:max-w-none lg:translate-x-0 ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between border-b border-border-subtle pb-2 lg:border-none lg:pb-0">
           <h3 className="text-xs font-bold uppercase tracking-wider text-primary font-headline">

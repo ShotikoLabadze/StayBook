@@ -66,7 +66,7 @@ export default function Sidebar() {
     <>
       <button
         onClick={toggleMobile}
-        className="fixed top-4 left-4 z-50 rounded-lg border border-border-subtle bg-card-bg p-2 shadow-md md:hidden cursor-pointer"
+        className="fixed top-4 left-4 z-50 rounded-lg border border-border-subtle bg-card-bg p-2 shadow-md lg:hidden cursor-pointer"
         aria-label="Toggle menu"
       >
         {mobileOpen ? (
@@ -78,18 +78,18 @@ export default function Sidebar() {
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs md:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs lg:hidden"
           onClick={closeMobile}
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-card-bg border-r border-border-subtle flex flex-col justify-between p-6 shrink-0 transition-transform duration-300 ease-in-out md:sticky md:top-20 md:translate-x-0 h-[calc(100vh-5rem)] transition-colors duration-300 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-card-bg border-r border-border-subtle flex flex-col justify-between p-6 shrink-0 transition-transform duration-300 ease-in-out lg:sticky lg:top-20 lg:translate-x-0 h-[calc(100vh-5rem)] transition-colors duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="space-y-6 overflow-y-auto flex-1 pr-1">
-          <div className="flex items-center justify-between font-headline font-bold text-lg text-primary tracking-tight md:hidden">
+          <div className="flex items-center justify-between font-headline font-bold text-lg text-primary tracking-tight lg:hidden">
             <button
               onClick={closeMobile}
               className="rounded-md p-1 hover:bg-neutral-bg text-text-muted hover:text-primary cursor-pointer border-none bg-transparent"

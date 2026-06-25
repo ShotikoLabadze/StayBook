@@ -143,7 +143,7 @@ function ExplorePageContent() {
         onViewModeChange={setViewMode}
       />
 
-      <div className="flex xl:hidden justify-start">
+      <div className="flex lg:hidden justify-start">
         <button
           onClick={() => setIsFilterOpen(true)}
           className="flex items-center gap-2 px-4 py-2.5 bg-card-bg border border-border-subtle hover:bg-neutral-bg text-primary text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs"
@@ -159,8 +159,8 @@ function ExplorePageContent() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-10 items-start flex-1 w-full">
-        <div className="xl:col-span-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-10 items-start flex-1 w-full">
+        <div className="lg:col-span-4 w-full">
           <FilterSidebar
             isOpen={isFilterOpen}
             onClose={() => setIsFilterOpen(false)}
@@ -168,9 +168,9 @@ function ExplorePageContent() {
           />
         </div>
 
-        <div className="xl:col-span-8 w-full flex flex-col gap-8">
+        <div className="lg:col-span-8 w-full flex flex-col gap-8">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6 w-full">
               {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
                 <div
                   key={i}
@@ -184,7 +184,7 @@ function ExplorePageContent() {
             </div>
           ) : viewMode === "grid" ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6 w-full">
                 {currentHotels.map((hotel) => {
                   const targetHotelId = hotel._id || hotel.id;
                   const isFavorited =
