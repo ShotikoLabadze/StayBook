@@ -47,7 +47,7 @@ export default function Sidebar() {
       id: "budget",
       label: "Budget",
       icon: DollarSign,
-      href: "/planner?tab=budget",
+      href: "/budget",
     },
     {
       id: "testimonials",
