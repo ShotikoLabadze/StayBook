@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Compass, Loader2, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function RegisterPage() {
@@ -13,6 +13,28 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+    const sidebar = document.querySelector("aside");
+    const mainArea = document.querySelector("main");
+
+    if (navbar) navbar.style.display = "none";
+    if (sidebar) sidebar.style.display = "none";
+    if (mainArea) {
+      mainArea.style.minHeight = "100vh";
+      mainArea.style.height = "100vh";
+    }
+
+    return () => {
+      if (navbar) navbar.style.display = "";
+      if (sidebar) sidebar.style.display = "";
+      if (mainArea) {
+        mainArea.style.minHeight = "";
+        mainArea.style.height = "";
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +55,12 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 font-body bg-neutral-bg selection:bg-secondary/20 transition-colors duration-300">
-      <div className="hidden lg:flex lg:col-span-5 bg-primary relative overflow-hidden flex-col justify-between p-12 text-white dark:text-neutral-bg">
+      <div className="hidden lg:flex lg:col-span-5 bg-[#0f172a] relative overflow-hidden flex-col justify-between p-12 text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.12),transparent_60%)]" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-tertiary/10 rounded-full blur-[100px]" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-sky-500/10 rounded-full blur-[100px]" />
 
-        <div className="relative z-10 flex items-center gap-2.5 font-headline font-bold text-xl tracking-tight">
-          <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-lg shadow-secondary/20">
+        <div className="relative z-10 flex items-center gap-2.5 font-headline font-bold text-xl tracking-tight text-white">
+          <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-[#0f172a] shadow-lg shadow-secondary/20">
             <Compass className="w-5 h-5 stroke-[2.5]" />
           </div>
           StayBook
@@ -49,7 +71,7 @@ export default function RegisterPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="font-headline text-4xl font-semibold leading-tight tracking-tight text-white dark:text-neutral-bg"
+            className="font-headline text-4xl font-semibold leading-tight tracking-tight text-white"
           >
             Start your journey with us today.
           </motion.h1>
@@ -57,14 +79,14 @@ export default function RegisterPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-sm leading-relaxed text-slate-300 dark:text-text-muted"
+            className="text-sm leading-relaxed text-slate-300"
           >
             Create an account to explore global destinations, map collaborative
             itineraries, and keep budgets under control.
           </motion.p>
         </div>
 
-        <div className="relative z-10 text-xs text-slate-400 dark:text-text-muted font-medium">
+        <div className="relative z-10 text-xs text-slate-400 font-medium">
           © 2026 StayBook Technologies Inc.
         </div>
       </div>
