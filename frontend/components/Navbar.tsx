@@ -2,10 +2,11 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { TripData, tripService } from "@/services/tripService";
-import { Bell, Compass, Settings, Share2 } from "lucide-react";
+import { Compass, Settings, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -110,12 +111,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <button className="relative p-2.5 text-[var(--color-text-muted)] hover:text-primary transition-colors cursor-pointer rounded-xl hover:bg-[var(--color-neutral-bg)] border-none bg-transparent">
-          <Bell className="w-5 h-5 stroke-[2]" />
-          <span className="absolute top-2 right-2 w-4 h-4 bg-rose-500 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center ring-2 ring-[var(--color-card-bg)]">
-            9+
-          </span>
-        </button>
+        <NotificationBell />
 
         <button
           onClick={() => router.push("/profile")}
