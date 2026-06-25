@@ -26,4 +26,14 @@ export const userService = {
     const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
   },
+
+  toggleFavorite: async (userId: string, hotelId: string) => {
+    const response = await api.post(`/users/favorites/${hotelId}`, { userId });
+    return response.data;
+  },
+
+  getFavorites: async (userId: string) => {
+    const response = await api.post("/users/get-favorites", { userId });
+    return response.data;
+  },
 };

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model, Types } from 'mongoose';
@@ -29,6 +33,9 @@ export class UsersService {
   }
 
   async findById(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid User ID format');
+    }
     return await this.userModel.findById(id).exec();
   }
 
@@ -36,6 +43,10 @@ export class UsersService {
     id: string,
     updateData: { name?: string; avatar?: string; password?: string },
   ) {
+    if (!id || !Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid User ID format for update');
+    }
+
     const user = await this.userModel.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -56,6 +67,10 @@ export class UsersService {
   }
 
   async updateRole(userId: string, newRole: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('Invalid User ID format');
+    }
+
     const user = await this.userModel
       .findByIdAndUpdate(userId, { role: newRole }, { new: true })
       .select('-password')
@@ -68,6 +83,10 @@ export class UsersService {
   }
 
   async removeUser(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('Invalid User ID format');
+    }
+
     const result = await this.userModel.findByIdAndDelete(userId).exec();
     if (!result) {
       throw new NotFoundException('User not found');
@@ -76,17 +95,25 @@ export class UsersService {
   }
 
   async toggleFavorite(userId: string, hotelId: string) {
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('Invalid User ID format');
+    }
+    if (!hotelId || !Types.ObjectId.isValid(hotelId)) {
+      throw new BadRequestException('Invalid Hotel ID format');
+    }
+
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
+    const hotelObjectId = new Types.ObjectId(hotelId);
     const isFavorite = user.favorites.some((id) => id.toString() === hotelId);
 
     if (isFavorite) {
       user.favorites = user.favorites.filter((id) => id.toString() !== hotelId);
     } else {
-      user.favorites.push(new Types.ObjectId(hotelId) as any);
+      user.favorites.push(hotelObjectId);
     }
 
     await user.save();
@@ -94,6 +121,10 @@ export class UsersService {
   }
 
   async getFavorites(userId: string) {
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('Invalid User ID format');
+    }
+
     const user = await this.userModel
       .findById(userId)
       .populate('favorites')

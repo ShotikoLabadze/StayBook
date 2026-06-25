@@ -1,8 +1,12 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
+import { userService } from "@/services/userService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart, MapPin, Star } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export interface HotelCardProps {
   id: string;
@@ -29,7 +33,53 @@ export default function HotelCard({
   features = [],
   initiallyFavorited = false,
 }: HotelCardProps) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [favorited, setFavorited] = useState(initiallyFavorited);
+
+  useEffect(() => {
+    setFavorited(initiallyFavorited);
+  }, [initiallyFavorited]);
+
+  const favoriteMutation = useMutation({
+    mutationFn: () => {
+      if (!user) throw new Error("Authentication required");
+
+      const userId = user.id || user._id;
+      if (!userId) throw new Error("Authentication required");
+      if (!id || id === "undefined") throw new Error("Missing hotel ID");
+
+      return userService.toggleFavorite(userId, id);
+    },
+    onMutate: async () => {
+      setFavorited((prev) => !prev);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["user-favorites", user?.id || user?._id],
+      });
+
+      if (data.isFavorite) {
+        toast.success(`Added ${title} to your luxury wishlist! ❤️`);
+      } else {
+        toast.info(`Removed ${title} from your wishlist.`);
+      }
+    },
+    onError: (err: any) => {
+      setFavorited((prev) => !prev);
+      if (err.message === "Authentication required") {
+        toast.error("Please log in to save properties.");
+      } else {
+        toast.error("Failed to update wishlist.");
+      }
+    },
+  });
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    favoriteMutation.mutate();
+  };
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-3xl border border-border-subtle bg-card-bg text-left shadow-xs transition-all hover:-translate-y-1 hover:shadow-md w-full duration-300">
@@ -43,8 +93,9 @@ export default function HotelCard({
         <button
           type="button"
           aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-          onClick={() => setFavorited((v) => !v)}
-          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-card-bg/95 shadow-sm backdrop-blur-xs transition hover:scale-105 cursor-pointer z-10"
+          onClick={handleFavoriteClick}
+          disabled={favoriteMutation.isPending}
+          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-card-bg/95 shadow-sm backdrop-blur-xs transition hover:scale-105 cursor-pointer z-10 border-none outline-none"
         >
           <Heart
             className={
@@ -109,7 +160,7 @@ export default function HotelCard({
 
           <Link
             href={`/explore/${id}`}
-            className="rounded-xl border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold text-primary transition hover:bg-secondary/20 cursor-pointer tracking-wide flex items-center justify-center dark:bg-secondary dark:text-neutral-bg dark:hover:bg-secondary/90"
+            className="rounded-xl border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold text-primary transition hover:bg-secondary/20 cursor-pointer tracking-wide flex items-center justify-center dark:bg-secondary dark:text-neutral-bg dark:hover:bg-secondary/90 decoration-none"
           >
             View Details
           </Link>

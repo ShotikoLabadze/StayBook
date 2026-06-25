@@ -4,24 +4,31 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 
-@Controller()
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Put('users/profile/:id')
+  @Patch('profile')
   async updateProfile(
-    @Param('id') id: string,
-    @Body() updateData: { name?: string; avatar?: string; password?: string },
+    @Body()
+    updateData: {
+      userId: string;
+      name?: string;
+      avatar?: string;
+      password?: string;
+    },
   ) {
-    return this.usersService.updateProfile(id, updateData);
+    const { userId, ...data } = updateData;
+    return this.usersService.updateProfile(userId, data);
   }
 
-  @Post('users/favorites/:hotelId')
+  @Post('favorites/:hotelId')
   async toggleFavorite(
     @Param('hotelId') hotelId: string,
     @Body('userId') userId: string,
@@ -29,22 +36,22 @@ export class UsersController {
     return this.usersService.toggleFavorite(userId, hotelId);
   }
 
-  @Post('users/get-favorites')
+  @Post('get-favorites')
   async getFavorites(@Body('userId') userId: string) {
     return this.usersService.getFavorites(userId);
   }
 
-  @Get('admin/users')
+  @Get('admin/all')
   async getAllUsers() {
     return this.usersService.findAllUsers();
   }
 
-  @Put('admin/users/:id/role')
+  @Put('admin/:id/role')
   async updateUserRole(@Param('id') id: string, @Body('role') role: string) {
     return this.usersService.updateRole(id, role);
   }
 
-  @Delete('admin/users/:id')
+  @Delete('admin/:id')
   async deleteUser(@Param('id') id: string) {
     return this.usersService.removeUser(id);
   }

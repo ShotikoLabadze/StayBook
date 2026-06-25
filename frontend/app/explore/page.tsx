@@ -1,7 +1,10 @@
 "use client";
 
 import Footer from "@/components/Footer";
+import { useAuth } from "@/context/AuthContext";
 import { destinationService, Hotel } from "@/services/destinationService";
+import { userService } from "@/services/userService";
+import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -33,18 +36,24 @@ interface ActiveFilters {
 const ITEMS_PER_PAGE = 6;
 
 function ExplorePageContent() {
+  const { user } = useAuth();
   const searchParams = useSearchParams();
+
+  const userId = user?.id || user?._id;
+
+  const { data: favoriteHotels = [] } = useQuery({
+    queryKey: ["user-favorites", userId],
+    queryFn: () => userService.getFavorites(userId),
+    enabled: !!userId,
+  });
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-
-  const [searchTerm, setSearchTerm] = useState<string>(() => {
-    return searchParams?.get("search") || "";
-  });
-
+  const [searchTerm, setSearchTerm] = useState<string>(
+    () => searchParams?.get("search") || "",
+  );
   const [sortBy, setSortBy] = useState<string>("popular");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -75,7 +84,6 @@ function ExplorePageContent() {
     const fetchFilteredData = () => {
       try {
         setIsLoading(true);
-
         const queryParams: any = {
           search: searchTerm,
           sortBy: sortBy,
@@ -84,7 +92,6 @@ function ExplorePageContent() {
         };
 
         if (currentFilters.rating) queryParams.rating = currentFilters.rating;
-
         if (currentFilters.categories.length > 0)
           queryParams.categories = currentFilters.categories.join(",");
         if (currentFilters.weather.length > 0)
@@ -93,22 +100,17 @@ function ExplorePageContent() {
           queryParams.durations = currentFilters.durations.join(",");
         if (currentFilters.activities.length > 0)
           queryParams.activities = currentFilters.activities.join(",");
-        if (currentFilters.propertyTypes.length > 0) {
+        if (currentFilters.propertyTypes.length > 0)
           queryParams.propertyTypes = currentFilters.propertyTypes.join(",");
-        }
 
         destinationService
           .getHotelsByDestination("all", queryParams)
-          .then((data) => {
-            setHotels(data);
-          })
+          .then((data) => setHotels(data))
           .catch((err) => {
             console.error("Failed to load filtered hotels:", err);
             setError("Unable to sync with luxury database right now.");
           })
-          .finally(() => {
-            setIsLoading(false);
-          });
+          .finally(() => setIsLoading(false));
       } catch (err) {
         console.error("Failed to load filtered hotels:", err);
         setError("Unable to sync with luxury database right now.");
@@ -127,7 +129,6 @@ function ExplorePageContent() {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-
   const currentHotels = hotels.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
@@ -184,19 +185,31 @@ function ExplorePageContent() {
           ) : viewMode === "grid" ? (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-                {currentHotels.map((hotel) => (
-                  <HotelCard
-                    key={hotel._id}
-                    id={hotel.id || hotel._id}
-                    title={hotel.name}
-                    location={hotel.neighborhood}
-                    rating={hotel.rating}
-                    reviews={hotel.reviewCount}
-                    price={hotel.pricePerNight}
-                    image={hotel.image}
-                    features={hotel.tags}
-                  />
-                ))}
+                {currentHotels.map((hotel) => {
+                  const targetHotelId = hotel._id || hotel.id;
+                  const isFavorited =
+                    Array.isArray(favoriteHotels) &&
+                    favoriteHotels.some(
+                      (fav: any) =>
+                        (fav._id || fav.id || fav).toString() ===
+                        targetHotelId?.toString(),
+                    );
+
+                  return (
+                    <HotelCard
+                      key={targetHotelId}
+                      id={targetHotelId}
+                      title={hotel.name}
+                      location={hotel.neighborhood}
+                      rating={hotel.rating}
+                      reviews={hotel.reviewCount}
+                      price={hotel.pricePerNight}
+                      image={hotel.image}
+                      features={hotel.tags}
+                      initiallyFavorited={isFavorited}
+                    />
+                  );
+                })}
               </div>
 
               {totalPages > 1 && (
