@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller()
@@ -11,6 +19,19 @@ export class UsersController {
     @Body() updateData: { name?: string; avatar?: string; password?: string },
   ) {
     return this.usersService.updateProfile(id, updateData);
+  }
+
+  @Post('users/favorites/:hotelId')
+  async toggleFavorite(
+    @Param('hotelId') hotelId: string,
+    @Body('userId') userId: string,
+  ) {
+    return this.usersService.toggleFavorite(userId, hotelId);
+  }
+
+  @Post('users/get-favorites')
+  async getFavorites(@Body('userId') userId: string) {
+    return this.usersService.getFavorites(userId);
   }
 
   @Get('admin/users')

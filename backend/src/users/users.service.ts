@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 
 @Injectable()
@@ -73,5 +73,35 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return { success: true, message: 'User permanently deleted successfully' };
+  }
+
+  async toggleFavorite(userId: string, hotelId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isFavorite = user.favorites.some((id) => id.toString() === hotelId);
+
+    if (isFavorite) {
+      user.favorites = user.favorites.filter((id) => id.toString() !== hotelId);
+    } else {
+      user.favorites.push(new Types.ObjectId(hotelId) as any);
+    }
+
+    await user.save();
+    return { favorites: user.favorites, isFavorite: !isFavorite };
+  }
+
+  async getFavorites(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .populate('favorites')
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user.favorites;
   }
 }
