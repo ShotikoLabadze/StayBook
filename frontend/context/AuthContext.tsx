@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/api";
+import { useNotificationStore } from "../store/useNotificationStore";
 
 interface AuthContextType {
   user: any;
@@ -26,8 +27,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const savedUser = localStorage.getItem("user");
 
     if (savedToken && savedUser) {
+      const parsedUser = JSON.parse(savedUser);
       setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      setUser(parsedUser);
+
+      useNotificationStore
+        .getState()
+        .initSocket(parsedUser.id || parsedUser._id);
+      useNotificationStore.getState().fetchNotifications();
     }
     setLoading(false);
   }, []);
@@ -41,6 +48,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     setToken(accessToken);
     setUser(userData);
+
+    useNotificationStore.getState().initSocket(userData.id || userData._id);
+    useNotificationStore.getState().fetchNotifications();
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -57,6 +67,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
+    useNotificationStore.getState().disconnectSocket();
+
     setToken(null);
     setUser(null);
     localStorage.removeItem("token");
