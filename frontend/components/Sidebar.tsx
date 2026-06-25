@@ -113,13 +113,10 @@ export default function Sidebar() {
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
+
               const isActive =
-                item.id === "planner" || item.id === "budget"
-                  ? pathname.startsWith("/planner") &&
-                    ((item.id === "budget" &&
-                      pathname.includes("tab=budget")) ||
-                      (item.id === "planner" &&
-                        !pathname.includes("tab=budget")))
+                item.id === "planner"
+                  ? pathname.startsWith("/planner")
                   : pathname === item.href;
 
               return (
