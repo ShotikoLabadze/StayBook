@@ -1,15 +1,14 @@
 "use client";
 
 import Footer from "@/components/Footer";
-
 import {
   Destination,
   destinationService,
   Hotel,
 } from "@/services/destinationService";
 import dynamic from "next/dynamic";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import BookingCard from "./components/BookingCard";
 import HotelAmenities from "./components/HotelAmenities";
 import HotelDescription from "./components/HotelDescription";
@@ -25,8 +24,16 @@ const HotelMap = dynamic(() => import("./components/HotelMap"), {
   ),
 });
 
-export default function HotelDetailsPage() {
-  const { id } = useParams();
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default function HotelDetailsPage({ params }: PageProps) {
+  const unwrappedParams = React.use(params);
+  const id = unwrappedParams?.id;
+
   const router = useRouter();
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
@@ -80,7 +87,7 @@ export default function HotelDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-bg flex items-center justify-center font-body transition-colors duration-300">
+      <div className="flex items-center justify-center flex-1 h-[calc(100vh-4rem)] transition-colors duration-300">
         <div className="text-sm font-bold text-text-muted animate-pulse">
           Opening sanctuary doors...
         </div>
@@ -90,7 +97,7 @@ export default function HotelDetailsPage() {
 
   if (error || !hotel) {
     return (
-      <div className="min-h-screen bg-neutral-bg flex flex-col items-center justify-center font-body space-y-4 transition-colors duration-300">
+      <div className="flex flex-col items-center justify-center flex-1 h-[calc(100vh-4rem)] space-y-4 transition-colors duration-300">
         <div className="text-sm font-semibold text-red-500">{error}</div>
         <button
           onClick={() => router.push("/explore")}
@@ -103,27 +110,25 @@ export default function HotelDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-bg font-body flex antialiased transition-colors duration-300">
-      <main className="flex-1 flex flex-col min-w-0 p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
-        <HotelHero hotel={hotel} />
+    <main className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full text-left">
+      <HotelHero hotel={hotel} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
-          <div className="lg:col-span-8 space-y-8">
-            <HotelDescription hotel={hotel} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
+        <div className="lg:col-span-8 space-y-8">
+          <HotelDescription hotel={hotel} />
 
-            <HotelAmenities hotel={hotel} />
+          <HotelAmenities hotel={hotel} />
 
-            <HotelMap hotel={hotel} />
+          <HotelMap hotel={hotel} />
 
-            <HotelReviews hotel={hotel} />
-          </div>
-
-          <div className="lg:col-span-4 lg:sticky lg:top-[30px] z-20">
-            <BookingCard hotel={hotel} />
-          </div>
+          <HotelReviews hotel={hotel} />
         </div>
-        <Footer variant="dashboard" />
-      </main>
-    </div>
+
+        <div className="lg:col-span-4 lg:sticky lg:top-24 z-20">
+          <BookingCard hotel={hotel} />
+        </div>
+      </div>
+      <Footer variant="dashboard" />
+    </main>
   );
 }
