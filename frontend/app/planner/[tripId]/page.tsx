@@ -35,7 +35,8 @@ export default function PlannerPage() {
   const [mounted, setMounted] = useState(false);
   const [, setLoading] = useState(true);
 
-  const { itinerary, handleAddActivity, handleDeleteActivity } = usePlanner();
+  const { itinerary, handleAddActivity, handleDeleteActivity, triggerRefresh } =
+    usePlanner();
 
   const fetchGlobalWorkspace = () => {
     tripService
@@ -90,7 +91,10 @@ export default function PlannerPage() {
             <AiFillButton
               currentTripId={String(currentTripId)}
               currentTripData={targetTripData}
-              onGenerationSuccess={fetchGlobalWorkspace}
+              onGenerationSuccess={() => {
+                fetchGlobalWorkspace();
+                triggerRefresh();
+              }}
             />
           )}
 
@@ -122,7 +126,10 @@ export default function PlannerPage() {
           itinerary={itinerary}
           handleAddActivity={handleAddActivity}
           handleDeleteActivity={handleDeleteActivity}
-          onRefresh={fetchGlobalWorkspace}
+          onRefresh={() => {
+            fetchGlobalWorkspace();
+            triggerRefresh();
+          }}
           setAllWorkspaceTrips={setAllWorkspaceTrips}
         />
       )}
@@ -134,7 +141,10 @@ export default function PlannerPage() {
           itinerary={itinerary}
           budgetLimit={4000}
           currency="USD"
-          onTripRefresh={fetchGlobalWorkspace}
+          onTripRefresh={() => {
+            fetchGlobalWorkspace();
+            triggerRefresh();
+          }}
           allWorkspaceTrips={allWorkspaceTrips}
         />
       )}

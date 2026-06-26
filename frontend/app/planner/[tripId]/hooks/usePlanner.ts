@@ -19,6 +19,10 @@ export function usePlanner() {
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [currentTrip, setCurrentTrip] = useState<any>(null);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+  const triggerRefresh = () => setRefreshKey((prev) => prev + 1);
 
   useEffect(() => {
     if (!TRIP_ID || TRIP_ID === "undefined") return;
@@ -26,10 +30,13 @@ export function usePlanner() {
     setMounted(true);
     const loadTripData = async () => {
       try {
+        setLoading(true);
         const data = await tripService.getById(TRIP_ID);
-        const formattedItinerary = data.itinerary.map((day) => ({
+        setCurrentTrip(data);
+
+        const formattedItinerary = data.itinerary.map((day: any) => ({
           ...day,
-          title: (day as any).title || `Day ${day.dayNumber} Schedule`,
+          title: day.title || `Day ${day.dayNumber} Schedule`,
           activities: (day.activities || []).map((act: any) => ({
             ...act,
             id: act.id || act._id,
@@ -46,7 +53,7 @@ export function usePlanner() {
       }
     };
     loadTripData();
-  }, [TRIP_ID]);
+  }, [TRIP_ID, refreshKey]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -195,27 +202,12 @@ export function usePlanner() {
   const tripProgress =
     totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
 
-  const [currentTrip, setCurrentTrip] = useState<any>(null);
-
-  const loadTripData = async () => {
-    try {
-      const data = await tripService.getById(TRIP_ID);
-      setCurrentTrip(data);
-
-      const formattedItinerary = data.itinerary.map((day) => ({}));
-      setItinerary(formattedItinerary);
-    } catch (error) {
-      console.error("Failed to fetch trip data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
     itinerary,
     currentTrip,
     loading,
     mounted,
+    triggerRefresh,
 
     sensors,
     activeItem,
