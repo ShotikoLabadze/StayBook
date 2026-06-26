@@ -2,9 +2,16 @@
 
 import api from "@/services/api";
 import { Hotel } from "@/services/destinationService";
-import { Calendar, Loader2, ShieldCheck, Sparkles, Users } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CalendarModal } from "./CalendarModal";
 
 interface BookingCardProps {
   hotel: Hotel;
@@ -13,15 +20,25 @@ interface BookingCardProps {
 export default function BookingCard({ hotel }: BookingCardProps) {
   const router = useRouter();
   const [guests, setGuests] = useState("1");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [rangeStart, setRangeStart] = useState<Date | null>(new Date());
+  const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
+
+  const formatDisplayDate = (date: Date | null) => {
+    if (!date) return "...";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!checkIn || !checkOut) {
+    if (!rangeStart || !rangeEnd) {
       setErrorMessage("Please select both Check-In and Check-Out dates.");
       return;
     }
@@ -30,50 +47,37 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       setIsSubmitting(true);
       setErrorMessage(null);
 
-      const start = new Date(checkIn);
-      const end = new Date(checkOut);
-      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffTime = Math.abs(rangeEnd.getTime() - rangeStart.getTime());
       const nightsCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
-      const tripPayload = {
+      const response = await api.post("/trips", {
         title: `Escape to ${hotel.name}`,
         destination: hotel.neighborhood || "Luxury Sanctuary",
-        startDate: start.toISOString(),
-        endDate: end.toISOString(),
-
-        checkIn: start.toISOString(),
-        checkOut: end.toISOString(),
+        startDate: rangeStart.toISOString().split("T")[0],
+        endDate: rangeEnd.toISOString().split("T")[0],
+        checkIn: rangeStart.toISOString(),
+        checkOut: rangeEnd.toISOString(),
         guests: Number(guests),
         totalPrice: hotel.pricePerNight * nightsCount,
         hotelId: String(hotel._id || hotel.id),
-
         latitude: hotel.coordinates?.lat,
         longitude: hotel.coordinates?.lng,
-
         budget: {
           totalLimit: hotel.pricePerNight * nightsCount + 1000,
           currency: "USD",
         },
-      };
+      });
 
-      const response = await api.post("/trips", tripPayload);
-      const savedTrip = response.data;
-
-      if (savedTrip && savedTrip._id) {
-        router.push(`/planner/${savedTrip._id}`);
-      }
+      if (response.data?._id) router.push(`/planner/${response.data._id}`);
     } catch (err: any) {
-      console.error("Booking failed:", err);
-      setErrorMessage(
-        err.response?.data?.message || "Booking failed. Connection error.",
-      );
+      setErrorMessage(err.response?.data?.message || "Booking failed.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 shadow-2xs space-y-6 text-left transition-colors duration-300">
+    <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 shadow-2xs space-y-6 text-left relative">
       <div className="flex items-baseline justify-between border-b border-border-subtle pb-4">
         <div>
           <span className="font-headline text-2xl font-extrabold text-primary">
@@ -84,52 +88,35 @@ export default function BookingCard({ hotel }: BookingCardProps) {
             / night
           </span>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-md border border-emerald-100/50 dark:border-emerald-900/30">
-            Available
-          </span>
-        </div>
       </div>
 
       <form onSubmit={handleBooking} className="space-y-4">
         {errorMessage && (
-          <div className="text-[11px] font-semibold text-red-500 bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 p-2.5 rounded-xl text-center">
+          <div className="text-[11px] font-semibold text-red-500 bg-red-50/50 p-2.5 rounded-xl text-center">
             {errorMessage}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold tracking-wider text-text-muted uppercase block pl-1">
-              Check-In
-            </label>
-            <div className="relative">
-              <Calendar className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="date"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                required
-                className="w-full bg-neutral-bg border border-border-subtle rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-primary focus:outline-none focus:border-secondary transition-colors"
-              />
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold tracking-wider text-text-muted uppercase block pl-1">
+            Sanctuary Dates
+          </label>
+          <button
+            type="button"
+            onClick={() => setIsCalendarOpen(true)}
+            className="w-full bg-neutral-bg border border-border-subtle hover:border-primary rounded-xl px-4 py-3 text-xs font-bold text-primary flex items-center justify-between transition-all text-left cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <CalendarIcon className="w-4 h-4 text-text-muted" />
+              <span>
+                {rangeStart && rangeEnd
+                  ? `${formatDisplayDate(rangeStart)} — ${formatDisplayDate(rangeEnd)}`
+                  : rangeStart
+                    ? `${formatDisplayDate(rangeStart)} — Select Check-Out`
+                    : "Select Travel Dates"}
+              </span>
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold tracking-wider text-text-muted uppercase block pl-1">
-              Check-Out
-            </label>
-            <div className="relative">
-              <Calendar className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="date"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                required
-                className="w-full bg-neutral-bg border border-border-subtle rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-primary focus:outline-none focus:border-secondary transition-colors"
-              />
-            </div>
-          </div>
+          </button>
         </div>
 
         <div className="space-y-1.5">
@@ -153,24 +140,35 @@ export default function BookingCard({ hotel }: BookingCardProps) {
 
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="w-full py-3.5 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg text-xs font-bold rounded-xl transition-all shadow-xs tracking-wider uppercase cursor-pointer flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          disabled={isSubmitting || !rangeStart || !rangeEnd}
+          className="w-full py-3.5 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition-all shadow-xs tracking-wider uppercase cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] border-none"
         >
           {isSubmitting ? (
-            <Loader2 className="w-4 h-4 animate-spin text-secondary dark:text-neutral-bg" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <>
-              <Sparkles className="w-3.5 h-3.5 text-secondary dark:text-neutral-bg fill-current" />
-              Book This Sanctuary
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Book This Sanctuary</span>
             </>
           )}
         </button>
       </form>
 
       <div className="pt-2 flex items-center gap-2.5 justify-center text-[11px] font-medium text-text-muted border-t border-border-subtle">
-        <ShieldCheck className="w-4 h-4 text-text-muted opacity-80 shrink-0" />
+        <ShieldCheck className="w-4 h-4 text-text-muted opacity-80" />
         <span>Bespoke Concierge Protection Included</span>
       </div>
+
+      <CalendarModal
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        onDatesSelect={(start, end) => {
+          setRangeStart(start);
+          setRangeEnd(end);
+        }}
+      />
     </div>
   );
 }
