@@ -142,8 +142,8 @@ export function MapView({ trips }: MapViewProps) {
       : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
 
   return (
-    <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 shadow-xl flex-1 flex flex-col lg:flex-row gap-6 min-h-[550px] w-full transition-colors duration-300">
-      <div className="w-full lg:w-80 flex flex-col gap-4 border-r border-border-subtle pr-0 lg:pr-6">
+    <div className="bg-card-bg border border-border-subtle rounded-3xl p-4 lg:p-6 shadow-xl flex-1 flex flex-col lg:flex-row gap-6 min-h-[550px] w-full transition-colors duration-300">
+      <div className="w-full lg:w-80 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r border-border-subtle pb-4 lg:pb-0 pr-0 lg:pr-6">
         <div className="text-left">
           <h3 className="text-sm font-bold text-primary tracking-tight flex items-center gap-2">
             <Navigation className="h-4 w-4 text-secondary" /> Workspace Explorer
@@ -153,7 +153,7 @@ export function MapView({ trips }: MapViewProps) {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 overflow-y-auto max-h-[420px] pr-1 no-scrollbar">
+        <div className="flex flex-col gap-3 overflow-y-auto max-h-[300px] lg:max-h-[420px] pr-1 no-scrollbar">
           {safeTrips.map((trip, idx) => {
             const isSelected = trip._id === activeTripId;
             const tripActivities =
@@ -198,11 +198,6 @@ export function MapView({ trips }: MapViewProps) {
                         </span>
                       </div>
                     ))}
-                    {tripActivities.length === 0 && (
-                      <p className="text-[10px] text-text-muted italic pl-5">
-                        No locations pinned here.
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
@@ -211,14 +206,21 @@ export function MapView({ trips }: MapViewProps) {
         </div>
       </div>
 
-      <div className="flex-1 bg-neutral-bg border border-border-subtle rounded-2xl relative overflow-hidden min-h-[400px] z-0">
+      <div className="w-full h-[400px] lg:h-auto lg:flex-1 bg-neutral-bg border border-border-subtle rounded-2xl relative overflow-hidden z-0">
         {!L ? (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-text-muted animate-pulse">
             Initializing workspace map...
           </div>
         ) : (
           <MapContainer
-            ref={mapRef}
+            ref={(e) => {
+              if (e) {
+                mapRef.current = e;
+                setTimeout(() => {
+                  e.invalidateSize();
+                }, 100);
+              }
+            }}
             center={initialCenter}
             zoom={4}
             scrollWheelZoom={true}
@@ -237,40 +239,19 @@ export function MapView({ trips }: MapViewProps) {
               >
                 <Popup className="custom-map-popup">
                   <div className="text-xs font-body text-left p-1 text-slate-900 dark:text-slate-100">
-                    <p className="font-bold text-slate-900 dark:text-slate-550">
-                      {act.title}
-                    </p>
+                    <p className="font-bold text-slate-900">{act.title}</p>
                     {act.time && (
                       <p className="text-sky-600 dark:text-amber-400 font-bold mt-0.5">
                         🕒 {act.time}
                       </p>
                     )}
-                    <p className="text-slate-400 dark:text-slate-400 text-[10px] mt-1 border-t border-slate-100 dark:border-slate-800 pt-1">
+                    <p className="text-slate-400 text-[10px] mt-1 border-t pt-1">
                       {act.location!.name}
                     </p>
                   </div>
                 </Popup>
               </Marker>
             ))}
-
-            {validLocations.length === 0 &&
-              selectedTrip &&
-              typeof selectedTrip.latitude === "number" && (
-                <Marker
-                  position={[selectedTrip.latitude, selectedTrip.longitude!]}
-                >
-                  <Popup className="custom-map-popup">
-                    <div className="text-xs font-body text-left p-1 text-slate-900 dark:text-slate-100">
-                      <p className="font-bold text-slate-900 dark:text-slate-50">
-                        {selectedTrip.title}
-                      </p>
-                      <p className="text-slate-400 dark:text-slate-400 text-[10px] mt-1">
-                        {selectedTrip.destination}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              )}
 
             {polylinePositions.length > 1 && (
               <Polyline
