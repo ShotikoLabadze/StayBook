@@ -21,7 +21,6 @@ import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
-import { TimelineView } from "./components/timeline-view";
 import { TripsView } from "./components/trips-view";
 
 const WORKSPACE_TABS = [
@@ -50,7 +49,7 @@ export default function PlannerPage() {
   const [, setLoading] = useState(true);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
-  const { itinerary } = usePlanner();
+  const { itinerary, handleAddActivity, handleDeleteActivity } = usePlanner();
 
   const fetchGlobalWorkspace = () => {
     tripService
@@ -268,27 +267,66 @@ export default function PlannerPage() {
 
       {activeTab === "trips" && <TripsView onTripSelect={handleTripSwitch} />}
 
-      {activeTab === "board" || activeTab === "timeline" ? (
+      {activeTab === "board" && (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
           onDragStart={handleGlobalDragStart}
           onDragEnd={handleGlobalDragEnd}
         >
-          {activeTab === "board" && (
-            <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
-              <div className="mb-6 text-left border-b border-border-subtle pb-4">
-                <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                  Global Trip Master Board
-                </h2>
-                <p className="text-xs text-text-muted mt-0.5">
-                  Drag and drop activities across your different travel packages
-                  smoothly.
-                </p>
-              </div>
+          <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
+            <div className="mb-6 text-left border-b border-border-subtle pb-4">
+              {(() => {
+                const currentTrip = allWorkspaceTrips.find(
+                  (t) => t._id === currentTripId,
+                );
+                return (
+                  <>
+                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                      {currentTrip
+                        ? `${currentTrip.title} - Daily Timeline`
+                        : "Global Trip Master Board"}
+                    </h2>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      {currentTrip
+                        ? `Organized roadmap for ${currentTrip.destination}. Drag and drop items to reschedule.`
+                        : "Select a trip to view its direct daily blueprint."}
+                    </p>
+                  </>
+                );
+              })()}
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
-                {allWorkspaceTrips.map((trip, idx) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
+              {(() => {
+                const currentTrip = allWorkspaceTrips.find(
+                  (t) => t._id === currentTripId,
+                );
+
+                if (currentTrip && itinerary && itinerary.length > 0) {
+                  return itinerary.map((day: any, idx: number) => (
+                    <DaySchedule
+                      key={day._id || `day-${idx}`}
+                      dayNumber={day.dayNumber || idx + 1}
+                      title={day.title || `Day ${idx + 1} Schedule`}
+                      date={
+                        day.date
+                          ? new Date(day.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : `Day ${idx + 1}`
+                      }
+                      activities={day.activities || []}
+                      dayIndex={idx}
+                      id={`day-${idx}`}
+                      onAddActivity={handleAddActivity}
+                      onDeleteActivity={handleDeleteActivity}
+                    />
+                  ));
+                }
+
+                return allWorkspaceTrips.map((trip, idx) => {
                   const flatActivities =
                     trip.itinerary?.flatMap((d: any) => d.activities || []) ||
                     [];
@@ -305,14 +343,10 @@ export default function PlannerPage() {
                       onDeleteActivity={() => {}}
                     />
                   );
-                })}
-              </div>
+                });
+              })()}
             </div>
-          )}
-
-          {activeTab === "timeline" && (
-            <TimelineView trips={allWorkspaceTrips} />
-          )}
+          </div>
 
           <DragOverlay dropAnimation={null}>
             {activeItem ? (
@@ -322,7 +356,7 @@ export default function PlannerPage() {
             ) : null}
           </DragOverlay>
         </DndContext>
-      ) : null}
+      )}
 
       {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
       {activeTab === "budget" &&
