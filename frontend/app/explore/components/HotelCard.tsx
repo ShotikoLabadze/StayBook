@@ -19,6 +19,7 @@ export interface HotelCardProps {
   image: string;
   features?: string[];
   initiallyFavorited?: boolean;
+  onFavoriteToggle?: () => void;
 }
 
 export default function HotelCard({
@@ -32,6 +33,7 @@ export default function HotelCard({
   image,
   features = [],
   initiallyFavorited = false,
+  onFavoriteToggle,
 }: HotelCardProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -63,6 +65,12 @@ export default function HotelCard({
         toast.success(`Added ${title} to your luxury wishlist! ❤️`);
       } else {
         toast.info(`Removed ${title} from your wishlist.`);
+      }
+
+      {
+      }
+      if (onFavoriteToggle) {
+        onFavoriteToggle();
       }
     },
     onError: (err: any) => {

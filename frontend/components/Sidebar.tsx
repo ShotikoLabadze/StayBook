@@ -5,6 +5,7 @@ import {
   Calendar,
   Compass,
   DollarSign,
+  Heart,
   HelpCircle,
   LayoutDashboard,
   LogOut,
@@ -48,6 +49,12 @@ export default function Sidebar() {
       label: "Budget",
       icon: DollarSign,
       href: "/budget",
+    },
+    {
+      id: "favorites",
+      label: "Favorites",
+      icon: Heart,
+      href: "/favorites",
     },
     {
       id: "testimonials",
