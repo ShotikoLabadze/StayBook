@@ -195,10 +195,28 @@ export function usePlanner() {
   const tripProgress =
     totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
 
+  const [currentTrip, setCurrentTrip] = useState<any>(null);
+
+  const loadTripData = async () => {
+    try {
+      const data = await tripService.getById(TRIP_ID);
+      setCurrentTrip(data);
+
+      const formattedItinerary = data.itinerary.map((day) => ({}));
+      setItinerary(formattedItinerary);
+    } catch (error) {
+      console.error("Failed to fetch trip data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     itinerary,
+    currentTrip,
     loading,
     mounted,
+
     sensors,
     activeItem,
     totalDays,

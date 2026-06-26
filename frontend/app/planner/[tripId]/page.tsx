@@ -49,7 +49,8 @@ export default function PlannerPage() {
   const [, setLoading] = useState(true);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
-  const { itinerary, handleAddActivity, handleDeleteActivity } = usePlanner();
+  const { itinerary, currentTrip, handleAddActivity, handleDeleteActivity } =
+    usePlanner();
 
   const fetchGlobalWorkspace = () => {
     tripService
@@ -359,22 +360,16 @@ export default function PlannerPage() {
       )}
 
       {activeTab === "map" && <MapView trips={allWorkspaceTrips} />}
-      {activeTab === "budget" &&
-        (() => {
-          const currentTrip = allWorkspaceTrips.find(
-            (t) => t._id === currentTripId,
-          );
-
-          return (
-            <BudgetView
-              tripId={String(currentTripId)}
-              itinerary={itinerary}
-              budgetLimit={currentTrip?.budget?.totalLimit || 4000}
-              currency={currentTrip?.budget?.currency || "USD"}
-              onTripRefresh={fetchGlobalWorkspace}
-            />
-          );
-        })()}
+      {activeTab === "budget" && (
+        <BudgetView
+          tripId={String(currentTripId)}
+          itinerary={itinerary}
+          budgetLimit={4000}
+          currency="USD"
+          onTripRefresh={fetchGlobalWorkspace}
+          allWorkspaceTrips={allWorkspaceTrips}
+        />
+      )}
 
       <Footer variant="dashboard" />
     </div>

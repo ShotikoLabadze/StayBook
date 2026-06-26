@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AddExpenseModal } from "./add-expense-modal";
+import { FinancialSwitcher } from "./financial-switcher";
 
 interface BudgetViewProps {
   tripId: string;
@@ -22,6 +23,7 @@ interface BudgetViewProps {
   budgetLimit: number;
   currency?: string;
   onTripRefresh?: () => void;
+  allWorkspaceTrips?: any[];
 }
 
 const CATEGORY_CONFIG: Record<
@@ -60,33 +62,57 @@ const CATEGORY_CONFIG: Record<
   },
 };
 
+interface ExpenseItem {
+  id: string;
+  title: string;
+  category: string;
+  cost: number;
+  time?: string;
+  note?: string;
+  dayIndex: number;
+  dayDate: string;
+}
+
 export function BudgetView({
   tripId,
   itinerary = [],
   budgetLimit = 0,
   currency = "USD",
   onTripRefresh,
+  allWorkspaceTrips = [],
 }: BudgetViewProps) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const allExpenses = (itinerary || [])
-    .flatMap((day, dayIndex) =>
-      (day.activities || []).map((act) => ({
+  const activeTripId =
+    tripId && tripId !== "undefined" ? tripId : allWorkspaceTrips[0]?._id;
+  const currentTripData = allWorkspaceTrips.find((t) => t._id === activeTripId);
+
+  const activeItinerary = currentTripData?.itinerary || itinerary || [];
+  const activeBudgetLimit =
+    currentTripData?.budget?.totalLimit || budgetLimit || 4000;
+  const activeCurrency = currentTripData?.budget?.currency || currency || "USD";
+
+  const allExpenses: ExpenseItem[] = (activeItinerary || [])
+    .flatMap((day: any, dayIndex: number) =>
+      (day.activities || []).map((act: any) => ({
         ...act,
         dayIndex,
         dayDate: day.date,
         cost: act.cost || 0,
       })),
     )
-    .filter((act) => act.cost > 0);
+    .filter((act: ExpenseItem) => act.cost > 0);
 
-  const totalSpent = allExpenses.reduce((sum, item) => sum + item.cost, 0);
-  const remainingBudget = Math.max(0, budgetLimit - totalSpent);
+  const totalSpent = allExpenses.reduce(
+    (sum: number, item: ExpenseItem) => sum + item.cost,
+    0,
+  );
+  const remainingBudget = Math.max(0, activeBudgetLimit - totalSpent);
   const budgetUsedPercent =
-    budgetLimit > 0
-      ? Math.min(100, Math.round((totalSpent / budgetLimit) * 100))
+    activeBudgetLimit > 0
+      ? Math.min(100, Math.round((totalSpent / activeBudgetLimit) * 100))
       : 0;
 
   const initialBreakdown: Record<string, number> = {
@@ -99,7 +125,7 @@ export function BudgetView({
   };
 
   const categoryTotals = allExpenses.reduce(
-    (acc, item) => {
+    (acc: Record<string, number>, item: ExpenseItem) => {
       const cat = item.category;
       if (acc[cat] !== undefined) {
         acc[cat] += item.cost;
@@ -112,24 +138,15 @@ export function BudgetView({
   );
 
   const handleAddExpense = async (dayIndex: number, newActivity: any) => {
+    if (!activeTripId) return;
     try {
       setIsUpdating(true);
-
       const activityWithId = {
         ...newActivity,
-        id:
-          newActivity.id ||
-          crypto.randomUUID() ||
-          Math.random().toString(36).substring(2, 9),
+        id: newActivity.id || crypto.randomUUID(),
       };
-
-      await tripService.addActivity(tripId, dayIndex, activityWithId);
-
-      if (onTripRefresh) {
-        onTripRefresh();
-      } else {
-        router.refresh();
-      }
+      await tripService.addActivity(activeTripId, dayIndex, activityWithId);
+      if (onTripRefresh) onTripRefresh();
     } catch (err) {
       console.error("Failed to add expense to DB:", err);
     } finally {
@@ -139,15 +156,11 @@ export function BudgetView({
   };
 
   const handleDeleteExpense = async (dayIndex: number, activityId: string) => {
+    if (!activeTripId) return;
     try {
       setIsUpdating(true);
-      await tripService.deleteActivity(tripId, dayIndex, activityId);
-
-      if (onTripRefresh) {
-        onTripRefresh();
-      } else {
-        router.refresh();
-      }
+      await tripService.deleteActivity(activeTripId, dayIndex, activityId);
+      if (onTripRefresh) onTripRefresh();
     } catch (err) {
       console.error("Failed to delete expense from DB:", err);
     } finally {
@@ -158,15 +171,20 @@ export function BudgetView({
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency,
+      currency: activeCurrency,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   return (
     <div
-      className={`space-y-6 w-full text-left transition-colors duration-300 ${isUpdating ? "opacity-60 pointer-events-none transition-opacity" : ""}`}
+      className={`space-y-5 w-full text-left transition-colors duration-300 ${isUpdating ? "opacity-60 pointer-events-none transition-opacity" : ""}`}
     >
+      <FinancialSwitcher
+        activeTripId={activeTripId}
+        allWorkspaceTrips={allWorkspaceTrips}
+      />
+
       <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -174,7 +192,7 @@ export function BudgetView({
               Total Budget
             </p>
             <h2 className="text-3xl font-black text-primary tracking-tight mt-1">
-              {formatMoney(budgetLimit)}
+              {formatMoney(activeBudgetLimit)}
             </h2>
             <p className="text-xs text-text-muted mt-1 font-medium">
               <span className="text-primary font-bold">
@@ -249,7 +267,7 @@ export function BudgetView({
           </h3>
         </div>
         <div className="divide-y divide-border-subtle max-h-[350px] overflow-y-auto pr-1 no-scrollbar">
-          {allExpenses.map((expense) => {
+          {allExpenses.map((expense: ExpenseItem) => {
             const config =
               CATEGORY_CONFIG[expense.category] || CATEGORY_CONFIG.other;
             return (
@@ -307,7 +325,7 @@ export function BudgetView({
             isOpen={modalOpen}
             onClose={() => setModalOpen(false)}
             onSave={handleAddExpense}
-            totalDays={itinerary.length}
+            totalDays={activeItinerary.length || 1}
           />
         </div>
       </div>
