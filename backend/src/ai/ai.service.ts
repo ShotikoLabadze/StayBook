@@ -17,43 +17,53 @@ export class AiService {
   ) {
     try {
       const model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
       });
 
       const prompt = `
-        You are an expert travel planner. Generate a highly detailed and optimized travel itinerary.
+        You are a premium luxury travel planner. Generate a highly detailed travel itinerary.
         Destination: ${destination}
         Duration: ${durationDays} days
         Budget level: ${budget}
 
-        CRITICAL: You must return ONLY a raw JSON array that matches the following structure exactly. Do not wrap the response in markdown blocks like \`\`\`json. Do not include any text outside the JSON.
+        CRITICAL REQUIREMENT: You must return ONLY a raw JSON array. Do not include markdown blocks like \`\`\`json. Do not include any conversational text.
 
-        The structure should be an array of days, matching this TypeScript type:
-        Array<{
-          dayNumber: number;
-          date: string; // Use formatting like "Day 1", "Day 2" or let it be populated dynamically
-          activities: Array<{
-            id: string; // Unique string identifier like "ai-act-1"
-            title: string;
-            note: string;
-            time: string; // e.g., "10:00 AM"
-            cost: number;
-            category: 'hotel' | 'flight' | 'food' | 'activity' | 'transport';
-            location: {
-              name: string;
-              lat: number;
-              lng: number;
-            }
-          }>
-        }>
+        The response must be a JSON array of days matching this structure exactly:
+        [
+          {
+            "dayNumber": 1,
+            "title": "Arrival & Initial Exploration",
+            "date": "Day 1 Schedule",
+            "activities": [
+              {
+                "id": "ai-act-unique-1",
+                "title": "Luxury Private Jet Arrival or Check-in",
+                "note": "Smooth transition to the luxury suite with welcoming drinks.",
+                "time": "10:00 AM",
+                "cost": 450,
+                "category": "hotel", 
+                "location": {
+                  "name": "Exact Premium Hotel Name in ${destination}",
+                  "lat": 36.4166,
+                  "lng": 25.4324
+                }
+              }
+            ]
+          }
+        ]
 
-        Ensure the coordinates (lat, lng) are real and accurate for ${destination}.
+        Guidelines for categories and values:
+        - Allowed categories: 'hotel' | 'flight' | 'food' | 'activity' | 'transport'.
+        - Make sure "cost" is a realistic number based on the "${budget}" budget level.
+        - Ensure that coordinates (lat, lng) are real, highly accurate, and located strictly within ${destination} so they render correctly on a map.
+        - Generate exactly ${durationDays} items in the main days array.
       `;
 
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: 'application/json',
+          temperature: 0.7,
         },
       });
 

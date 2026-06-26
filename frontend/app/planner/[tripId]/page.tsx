@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
 
 import Footer from "@/components/Footer";
+import { Sparkles } from "lucide-react";
 import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
@@ -47,6 +48,7 @@ export default function PlannerPage() {
   const [activeItem, setActiveItem] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [, setLoading] = useState(true);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   const { itinerary } = usePlanner();
 
@@ -68,6 +70,28 @@ export default function PlannerPage() {
     setMounted(true);
     fetchGlobalWorkspace();
   }, [currentTripId, activeTab]);
+
+  const handleAiFill = async () => {
+    const currentTrip = allWorkspaceTrips.find((t) => t._id === currentTripId);
+    if (!currentTrip) return;
+
+    try {
+      setIsAiGenerating(true);
+
+      await tripService.generateAiItinerary(currentTrip._id, {
+        destination:
+          currentTrip.destination || currentTrip.title || "Luxury Destination",
+        durationDays: currentTrip.itinerary?.length || 3,
+        budget: currentTrip.budget?.totalLimit > 7000 ? "luxury" : "medium",
+      });
+
+      fetchGlobalWorkspace();
+    } catch (err) {
+      console.error("AI Generation failed:", err);
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -196,26 +220,49 @@ export default function PlannerPage() {
           </p>
         </div>
 
-        <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs self-start sm:self-center">
-          {WORKSPACE_TABS.map((tab) => (
+        <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
+          {currentTripId && (
             <button
-              key={tab.id}
               type="button"
-              onClick={() => {
-                if (searchParams.has("tab")) {
-                  router.replace(window.location.pathname);
-                }
-                setActiveTab(tab.id);
-              }}
-              className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                activeTab === tab.id
-                  ? "bg-card-bg text-primary shadow-2xs font-semibold"
-                  : "text-text-muted hover:text-primary"
-              }`}
+              disabled={isAiGenerating}
+              onClick={handleAiFill}
+              className="flex items-center gap-2 px-4 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white font-semibold text-xs rounded-xl transition-all shadow-xs border-none outline-none cursor-pointer disabled:cursor-not-allowed select-none"
             >
-              {tab.label}
+              {isAiGenerating ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>AI fill itinerary</span>
+                </>
+              )}
             </button>
-          ))}
+          )}
+
+          <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs">
+            {WORKSPACE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  if (searchParams.has("tab")) {
+                    router.replace(window.location.pathname);
+                  }
+                  setActiveTab(tab.id);
+                }}
+                className={`flex items-center px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-card-bg text-primary shadow-2xs font-semibold"
+                    : "text-text-muted hover:text-primary"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
