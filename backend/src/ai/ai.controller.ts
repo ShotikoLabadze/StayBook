@@ -22,4 +22,9 @@ export class AiController {
       itinerary,
     };
   }
+
+  @Post('chat')
+  async handleChat(@Body('message') message: string) {
+    return this.aiService.chatReply(message);
+  }
 }

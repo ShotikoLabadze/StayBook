@@ -1,6 +1,6 @@
 "use client";
 
-import api from "@/services/api";
+import { aiService } from "@/services/aiService";
 import { MessageSquare, Send, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -44,15 +44,10 @@ export function AiChatWidget() {
     setIsTyping(true);
 
     try {
-      const response = await api.post("/ai/generate", {
-        destination: userMessage.text,
-        durationDays: 3,
-        budget: "luxury",
-      });
+      const data = await aiService.chatReply(userMessage.text);
 
       const aiText =
-        response.data?.message ||
-        "I have processed your request. Let me know if you want to apply these custom updates to your live roadmap!";
+        data.response || "How else can I assist your luxury journey?";
 
       setMessages((prev) => [
         ...prev,
@@ -137,7 +132,6 @@ export function AiChatWidget() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* ინპუტის ფორმა */}
           <form
             onSubmit={handleSendMessage}
             className="p-3 border-t border-border-subtle bg-card-bg flex items-center gap-2"

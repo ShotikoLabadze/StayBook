@@ -93,6 +93,31 @@ export class AiService {
     }
   }
 
+  async chatReply(message: string): Promise<{ response: string }> {
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash',
+      });
+
+      const prompt = `
+        You are StayBook AI Concierge, a bespoke premium luxury travel assistant. 
+        Provide a highly intelligent, professional, and elegant response to the user's inquiry.
+        Keep the response brief, engaging, and premium (maximum 2-4 sentences).
+
+        User Query: "${message}"
+      `;
+
+      const result = await model.generateContent(prompt);
+      return { response: result.response.text() };
+    } catch (error) {
+      console.error('Gemini Chat Error:', error);
+      return {
+        response:
+          'I am experiencing a brief connection issue, but I am ready to assist you shortly.',
+      };
+    }
+  }
+
   private async executeGeneration(model: any, prompt: string) {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
