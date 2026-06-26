@@ -21,6 +21,7 @@ import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
 import { PlanItem } from "./components/plan-item";
+import { TimelineView } from "./components/timeline-view";
 import { TripsView } from "./components/trips-view";
 
 const WORKSPACE_TABS = [
@@ -370,6 +371,8 @@ export default function PlannerPage() {
           allWorkspaceTrips={allWorkspaceTrips}
         />
       )}
+
+      {activeTab === "timeline" && <TimelineView trips={allWorkspaceTrips} />}
 
       <Footer variant="dashboard" />
     </div>

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { GlobalChatWrapper } from "../components/GlobalChatWrapper";
 import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 
@@ -39,6 +40,8 @@ export default function RootLayout({
               </div>
 
               <Toaster position="top-right" richColors />
+
+              <GlobalChatWrapper />
             </ThemeProvider>
           </AuthProvider>
         </QueryProvider>
