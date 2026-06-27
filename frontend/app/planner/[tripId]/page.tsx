@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { usePlanner } from "./hooks/usePlanner";
 
 import Footer from "@/components/Footer";
-import { Sparkles } from "lucide-react";
+import { AiFillButton } from "./components/ai-fill-button";
 import { BudgetView } from "./components/budget-view";
 import { DaySchedule } from "./components/day-schedule";
 import { MapView } from "./components/map-view";
@@ -48,7 +48,6 @@ export default function PlannerPage() {
   const [activeItem, setActiveItem] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [, setLoading] = useState(true);
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   const { itinerary, currentTrip, handleAddActivity, handleDeleteActivity } =
     usePlanner();
@@ -72,27 +71,7 @@ export default function PlannerPage() {
     fetchGlobalWorkspace();
   }, [currentTripId, activeTab]);
 
-  const handleAiFill = async () => {
-    const currentTrip = allWorkspaceTrips.find((t) => t._id === currentTripId);
-    if (!currentTrip) return;
-
-    try {
-      setIsAiGenerating(true);
-
-      await tripService.generateAiItinerary(currentTrip._id, {
-        destination:
-          currentTrip.destination || currentTrip.title || "Luxury Destination",
-        durationDays: currentTrip.itinerary?.length || 3,
-        budget: currentTrip.budget?.totalLimit > 7000 ? "luxury" : "medium",
-      });
-
-      fetchGlobalWorkspace();
-    } catch (err) {
-      console.error("AI Generation failed:", err);
-    } finally {
-      setIsAiGenerating(false);
-    }
-  };
+  const targetTripData = allWorkspaceTrips.find((t) => t._id === currentTripId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -223,24 +202,11 @@ export default function PlannerPage() {
 
         <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
           {currentTripId && (
-            <button
-              type="button"
-              disabled={isAiGenerating}
-              onClick={handleAiFill}
-              className="flex items-center gap-2 px-4 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white font-semibold text-xs rounded-xl transition-all shadow-xs border-none outline-none cursor-pointer disabled:cursor-not-allowed select-none"
-            >
-              {isAiGenerating ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5 stroke-[2.5]" />
-                  <span>AI fill itinerary</span>
-                </>
-              )}
-            </button>
+            <AiFillButton
+              currentTripId={String(currentTripId)}
+              currentTripData={targetTripData}
+              onGenerationSuccess={fetchGlobalWorkspace}
+            />
           )}
 
           <div className="flex items-center bg-neutral-bg p-1 rounded-xl text-xs font-bold text-text-muted border border-border-subtle shadow-2xs">
@@ -278,35 +244,21 @@ export default function PlannerPage() {
         >
           <div className="bg-card-bg/70 backdrop-blur-xl border border-border-subtle rounded-3xl p-8 shadow-xl flex-1 flex flex-col">
             <div className="mb-6 text-left border-b border-border-subtle pb-4">
-              {(() => {
-                const currentTrip = allWorkspaceTrips.find(
-                  (t) => t._id === currentTripId,
-                );
-                return (
-                  <>
-                    <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
-                      {currentTrip
-                        ? `${currentTrip.title} - Daily Timeline`
-                        : "Global Trip Master Board"}
-                    </h2>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      {currentTrip
-                        ? `Organized roadmap for ${currentTrip.destination}. Drag and drop items to reschedule.`
-                        : "Select a trip to view its direct daily blueprint."}
-                    </p>
-                  </>
-                );
-              })()}
+              <h2 className="font-headline text-lg font-bold text-primary tracking-tight">
+                {targetTripData
+                  ? `${targetTripData.title} - Daily Timeline`
+                  : "Global Trip Master Board"}
+              </h2>
+              <p className="text-xs text-text-muted mt-0.5">
+                {targetTripData
+                  ? `Organized roadmap for ${targetTripData.destination}. Drag and drop items to reschedule.`
+                  : "Select a trip to view its direct daily blueprint."}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start flex-1 overflow-x-auto pb-2">
-              {(() => {
-                const currentTrip = allWorkspaceTrips.find(
-                  (t) => t._id === currentTripId,
-                );
-
-                if (currentTrip && itinerary && itinerary.length > 0) {
-                  return itinerary.map((day: any, idx: number) => (
+              {targetTripData && itinerary && itinerary.length > 0
+                ? itinerary.map((day: any, idx: number) => (
                     <DaySchedule
                       key={day._id || `day-${idx}`}
                       dayNumber={day.dayNumber || idx + 1}
@@ -325,28 +277,25 @@ export default function PlannerPage() {
                       onAddActivity={handleAddActivity}
                       onDeleteActivity={handleDeleteActivity}
                     />
-                  ));
-                }
-
-                return allWorkspaceTrips.map((trip, idx) => {
-                  const flatActivities =
-                    trip.itinerary?.flatMap((d: any) => d.activities || []) ||
-                    [];
-                  return (
-                    <DaySchedule
-                      key={trip._id}
-                      dayNumber={idx + 1}
-                      title={trip.title || "Curated Sanctuary Package"}
-                      date={`${trip.itinerary?.length || 0} Days Plan`}
-                      activities={flatActivities}
-                      dayIndex={idx}
-                      id={`trip-${trip._id}`}
-                      onAddActivity={() => {}}
-                      onDeleteActivity={() => {}}
-                    />
-                  );
-                });
-              })()}
+                  ))
+                : allWorkspaceTrips.map((trip, idx) => {
+                    const flatActivities =
+                      trip.itinerary?.flatMap((d: any) => d.activities || []) ||
+                      [];
+                    return (
+                      <DaySchedule
+                        key={trip._id}
+                        dayNumber={idx + 1}
+                        title={trip.title || "Curated Sanctuary Package"}
+                        date={`${trip.itinerary?.length || 0} Days Plan`}
+                        activities={flatActivities}
+                        dayIndex={idx}
+                        id={`trip-${trip._id}`}
+                        onAddActivity={() => {}}
+                        onDeleteActivity={() => {}}
+                      />
+                    );
+                  })}
             </div>
           </div>
 
