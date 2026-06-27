@@ -1,6 +1,6 @@
 "use client";
 
-import api from "@/services/api";
+import { userService } from "@/services/userService";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, Mail, Trash2, User as UserIcon } from "lucide-react";
 import React, { useState } from "react";
@@ -31,7 +31,7 @@ export default function UsersTab({ users, setUsers }: UsersTabProps) {
     setFormLoading(true);
     setMessage(null);
     try {
-      await api.put(`/admin/users/${userId}/role`, { role: newRole });
+      await userService.updateUserRole(userId, newRole);
 
       setUsers((prev) =>
         prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u)),
@@ -56,7 +56,7 @@ export default function UsersTab({ users, setUsers }: UsersTabProps) {
       return;
 
     try {
-      await api.delete(`/admin/users/${userId}`);
+      await userService.deleteUser(userId);
       setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (err) {
       alert("Failed to delete user account.");
