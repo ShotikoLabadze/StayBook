@@ -13,17 +13,17 @@ export const userService = {
   },
 
   getAllUsers: async () => {
-    const response = await api.get("/admin/users");
+    const response = await api.get("/users/admin/all");
     return response.data;
   },
 
   updateUserRole: async (userId: string, role: string) => {
-    const response = await api.put(`/admin/users/${userId}/role`, { role });
+    const response = await api.put(`/users/admin/${userId}/role`, { role });
     return response.data;
   },
 
   deleteUser: async (userId: string) => {
-    const response = await api.delete(`/admin/users/${userId}`);
+    const response = await api.delete(`/users/admin/${userId}`);
     return response.data;
   },
 
