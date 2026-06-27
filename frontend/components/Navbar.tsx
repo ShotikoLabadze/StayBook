@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NotificationBell from "./NotificationBell";
+import ShareTripModal from "./ShareTripModal";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -16,6 +17,9 @@ export default function Navbar() {
 
   const [dynamicLocation, setDynamicLocation] = useState("Global Workspace");
   const [trips, setTrips] = useState<TripData[]>([]);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const currentTripId = params?.tripId as string;
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", href: "/dashboard" },
@@ -35,10 +39,12 @@ export default function Navbar() {
   }, [user]);
 
   useEffect(() => {
-    const currentTripId = params?.tripId;
+    const currentTripIdFromParams = params?.tripId;
 
-    if (currentTripId) {
-      const activeTrip = trips.find((t: any) => t._id === currentTripId) as any;
+    if (currentTripIdFromParams) {
+      const activeTrip = trips.find(
+        (t: any) => t._id === currentTripIdFromParams,
+      ) as any;
       if (activeTrip?.destination) {
         setDynamicLocation(activeTrip.destination);
         return;
@@ -54,78 +60,96 @@ export default function Navbar() {
   }, [trips, params, pathname]);
 
   return (
-    <nav className="w-full h-20 bg-[var(--color-card-bg)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-8 sticky top-0 z-50 transition-colors duration-300">
-      <div className="flex items-center gap-6 text-base font-semibold">
-        <Link
-          href="/"
-          className="flex items-center gap-3 font-headline font-bold text-lg text-primary tracking-tight decoration-none"
-        >
-          <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-xs">
-            <Compass className="w-5 h-5 stroke-[2.5]" />
-          </div>
-          StayBook
-        </Link>
-        <div className="h-5 w-px bg-[var(--color-border-subtle)]" />
-        <span className="text-[var(--color-text-muted)] text-sm font-bold tracking-wide">
-          {dynamicLocation}
-        </span>
-      </div>
-
-      <div className="hidden lg:flex items-center gap-8 text-base font-semibold">
-        {navItems.map((item) => {
-          const isActive =
-            item.id === "planner" || item.id === "budget"
-              ? pathname.startsWith("/planner") &&
-                ((item.id === "budget" && pathname.includes("tab=budget")) ||
-                  (item.id === "planner" && !pathname.includes("tab=budget")))
-              : pathname === item.href;
-
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`transition-colors decoration-none py-2 border-b-2 cursor-pointer tracking-wide ${
-                isActive
-                  ? "text-secondary border-secondary font-extrabold"
-                  : "text-[var(--color-text-muted)] hover:text-primary border-transparent"
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="flex items-center gap-5">
-        <div className="flex items-center -space-x-2">
-          <img
-            src={
-              user?.avatar ||
-              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=50&q=80"
-            }
-            alt="User"
-            className="w-9 h-9 rounded-full object-cover border-2 border-[var(--color-card-bg)]"
-          />
-          <div className="w-9 h-9 rounded-full bg-secondary text-primary font-extrabold text-xs flex items-center justify-center border-2 border-[var(--color-card-bg)] shadow-xs">
-            +2
-          </div>
+    <>
+      <nav className="w-full h-20 bg-[var(--color-card-bg)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-8 sticky top-0 z-50 transition-colors duration-300">
+        <div className="flex items-center gap-6 text-base font-semibold">
+          <Link
+            href="/"
+            className="flex items-center gap-3 font-headline font-bold text-lg text-primary tracking-tight decoration-none"
+          >
+            <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-xs">
+              <Compass className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            StayBook
+          </Link>
+          <div className="h-5 w-px bg-[var(--color-border-subtle)]" />
+          <span className="text-[var(--color-text-muted)] text-sm font-bold tracking-wide">
+            {dynamicLocation}
+          </span>
         </div>
 
-        <NotificationBell />
+        <div className="hidden lg:flex items-center gap-8 text-base font-semibold">
+          {navItems.map((item) => {
+            const isActive =
+              item.id === "planner" || item.id === "budget"
+                ? pathname.startsWith("/planner") &&
+                  ((item.id === "budget" && pathname.includes("tab=budget")) ||
+                    (item.id === "planner" && !pathname.includes("tab=budget")))
+                : pathname === item.href;
 
-        <button
-          onClick={() => router.push("/profile")}
-          className="p-2.5 text-[var(--color-text-muted)] hover:text-primary transition-colors cursor-pointer rounded-xl hover:bg-[var(--color-neutral-bg)] border-none bg-transparent"
-          aria-label="Settings"
-        >
-          <Settings className="w-5 h-5 stroke-[2]" />
-        </button>
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`transition-colors decoration-none py-2 border-b-2 cursor-pointer tracking-wide ${
+                  isActive
+                    ? "text-secondary border-secondary font-extrabold"
+                    : "text-[var(--color-text-muted)] hover:text-primary border-transparent"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
 
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-primary font-extrabold text-sm rounded-xl shadow-sm hover:bg-opacity-90 transition-all cursor-pointer border-none">
-          <Share2 className="w-4 h-4 stroke-[2.5]" />
-          Share
-        </button>
-      </div>
-    </nav>
+        <div className="flex items-center gap-5">
+          <div className="flex items-center -space-x-2">
+            <img
+              src={
+                user?.avatar ||
+                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=50&q=80"
+              }
+              alt="User"
+              className="w-9 h-9 rounded-full object-cover border-2 border-[var(--color-card-bg)]"
+            />
+            <div className="w-9 h-9 rounded-full bg-secondary text-primary font-extrabold text-xs flex items-center justify-center border-2 border-[var(--color-card-bg)] shadow-xs">
+              +2
+            </div>
+          </div>
+          <NotificationBell />
+          <button
+            onClick={() => router.push("/profile")}
+            className="p-2.5 text-[var(--color-text-muted)] hover:text-primary transition-colors cursor-pointer rounded-xl hover:bg-[var(--color-neutral-bg)] border-none bg-transparent"
+            aria-label="Settings"
+          >
+            <Settings className="w-5 h-5 stroke-[2]" />
+          </button>
+
+          <button
+            onClick={() => setIsShareOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-primary font-extrabold text-sm rounded-xl shadow-sm hover:bg-opacity-90 transition-all cursor-pointer border-none"
+          >
+            <Share2 className="w-4 h-4 stroke-[2.5]" />
+            Share
+          </button>
+
+          <ShareTripModal
+            isOpen={isShareOpen}
+            onClose={() => setIsShareOpen(false)}
+            tripId={currentTripId}
+            trips={trips}
+          />
+        </div>
+      </nav>
+
+      {currentTripId && (
+        <ShareTripModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          tripId={currentTripId}
+        />
+      )}
+    </>
   );
 }

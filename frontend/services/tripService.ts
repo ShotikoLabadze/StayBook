@@ -20,6 +20,7 @@ export interface TripData {
   _id: string;
   title?: string;
   startDate: string;
+  destination: string;
   endDate: string;
   owner: string;
   itinerary: TripItineraryDay[];
@@ -130,5 +131,15 @@ export const tripService = {
       itinerary: formattedItinerary,
     });
     return response.data as TripData;
+  },
+
+  shareTrip: async (tripId: string, email: string) => {
+    const response = await api.post(`/trips/${tripId}/share`, { email });
+    return response.data;
+  },
+
+  acceptInvitation: async (tripId: string) => {
+    const response = await api.patch(`/trips/${tripId}/accept`);
+    return response.data;
   },
 };

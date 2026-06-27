@@ -1,13 +1,31 @@
 "use client";
 
+import { tripService } from "@/services/tripService";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, Check, MessageSquare } from "lucide-react";
+import { Bell, Check, CheckCircle, MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+  metadata?: {
+    tripId?: string;
+    senderId?: string;
+  };
+}
 
 export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead } = useNotificationStore();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [acceptLoading, setAcceptLoading] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +40,25 @@ export default function NotificationBell() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleAccept = async (tripId: string, notificationId: string) => {
+    setAcceptLoading(notificationId);
+    try {
+      await tripService.acceptInvitation(tripId);
+      toast.success("Awesome! You joined the trip! ✈️");
+
+      await markAsRead(notificationId);
+
+      setIsOpen(false);
+
+      router.push(`/planner/${tripId}`);
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || "Could not join trip.";
+      toast.error(errorMsg);
+    } finally {
+      setAcceptLoading(null);
+    }
+  };
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -77,49 +114,77 @@ export default function NotificationBell() {
                   </p>
                 </div>
               ) : (
-                notifications.map((notif) => (
-                  <div
-                    key={notif._id}
-                    className={`p-4 flex gap-3 items-start transition-colors ${
-                      !notif.isRead
-                        ? "bg-secondary/5 dark:bg-secondary/5"
-                        : "hover:bg-neutral-bg/40"
-                    }`}
-                  >
-                    <div className="mt-0.5 p-1.5 rounded-lg bg-card-bg border border-border-subtle text-secondary shrink-0">
-                      <MessageSquare className="w-3.5 h-3.5 stroke-[2]" />
-                    </div>
+                notifications.map((notif: any) => {
+                  const isInvite =
+                    notif.type === "invite" && notif.metadata?.tripId;
 
-                    <div className="flex-1 space-y-0.5 text-left min-w-0">
-                      <h5
-                        className={`text-xs font-bold text-primary leading-tight ${!notif.isRead ? "font-semibold" : "font-medium"}`}
-                      >
-                        {notif.title}
-                      </h5>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed break-words">
-                        {notif.message}
-                      </p>
-                      <span className="text-[9px] text-text-muted font-medium block pt-1">
-                        {new Date(notif.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
+                  return (
+                    <div
+                      key={notif._id}
+                      className={`p-4 flex gap-3 items-start transition-colors ${
+                        !notif.isRead
+                          ? "bg-secondary/5 dark:bg-secondary/5"
+                          : "hover:bg-neutral-bg/40"
+                      }`}
+                    >
+                      <div className="mt-0.5 p-1.5 rounded-lg bg-card-bg border border-border-subtle text-secondary shrink-0">
+                        <MessageSquare className="w-3.5 h-3.5 stroke-[2]" />
+                      </div>
 
-                    {!notif.isRead && (
-                      <button
-                        onClick={() => markAsRead(notif._id)}
-                        className="p-1 text-text-muted hover:text-emerald-500 rounded-md hover:bg-card-bg border border-transparent hover:border-border-subtle transition-all cursor-pointer shrink-0 focus:outline-none"
-                        title="Mark as read"
-                      >
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                      </button>
-                    )}
-                  </div>
-                ))
+                      <div className="flex-1 space-y-0.5 text-left min-w-0">
+                        <h5
+                          className={`text-xs font-bold text-primary leading-tight ${
+                            !notif.isRead ? "font-semibold" : "font-medium"
+                          }`}
+                        >
+                          {notif.title}
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed break-words">
+                          {notif.message}
+                        </p>
+
+                        {isInvite && !notif.isRead && (
+                          <div className="pt-2">
+                            <button
+                              disabled={acceptLoading === notif._id}
+                              onClick={() =>
+                                handleAccept(notif.metadata.tripId, notif._id)
+                              }
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[10px] rounded-lg cursor-pointer transition-all border-none disabled:opacity-50 shadow-2xs"
+                            >
+                              <CheckCircle className="w-3 h-3" />
+                              {acceptLoading === notif._id
+                                ? "Joining..."
+                                : "Accept Invite"}
+                            </button>
+                          </div>
+                        )}
+
+                        <span className="text-[9px] text-text-muted font-medium block pt-1">
+                          {new Date(notif.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </span>
+                      </div>
+
+                      {!notif.isRead && (
+                        <button
+                          onClick={() => markAsRead(notif._id)}
+                          className="p-1 text-text-muted hover:text-emerald-500 rounded-md hover:bg-card-bg border border-transparent hover:border-border-subtle transition-all cursor-pointer shrink-0 focus:outline-none"
+                          title="Mark as read"
+                        >
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </motion.div>
