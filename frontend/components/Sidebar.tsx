@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  MessageSquareQuote,
   Moon,
   Plus,
   Sun,
@@ -55,12 +54,6 @@ export default function Sidebar() {
       label: "Favorites",
       icon: Heart,
       href: "/favorites",
-    },
-    {
-      id: "testimonials",
-      label: "Testimonials",
-      icon: MessageSquareQuote,
-      href: "/testimonials",
     },
   ];
 

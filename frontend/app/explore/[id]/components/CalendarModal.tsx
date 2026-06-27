@@ -139,9 +139,9 @@ export function CalendarModal({
                     onClick={() => handleDayClick(currentDayDate)}
                     className={`py-1.5 text-xs transition-all relative cursor-pointer outline-none ${
                       isStart || isEnd
-                        ? "bg-primary text-white dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs border-none"
+                        ? "bg-secondary text-primary dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs border-none"
                         : inRange
-                          ? "bg-primary/10 text-primary font-semibold rounded-none border-none"
+                          ? "bg-secondary/20 text-primary font-semibold rounded-none border-none"
                           : isPast
                             ? "text-text-muted opacity-30 pointer-events-none border-none"
                             : "text-primary hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-md border-none"
@@ -201,9 +201,9 @@ export function CalendarModal({
                     onClick={() => handleDayClick(currentDayDate)}
                     className={`py-1.5 text-xs transition-all relative cursor-pointer outline-none ${
                       isStart || isEnd
-                        ? "bg-primary text-white dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs border-none"
+                        ? "bg-secondary text-primary dark:text-neutral-bg font-bold rounded-md z-10 shadow-3xs border-none"
                         : inRange
-                          ? "bg-primary/10 text-primary font-semibold rounded-none border-none"
+                          ? "bg-secondary/20 text-primary font-semibold rounded-none border-none"
                           : isPast
                             ? "text-text-muted opacity-30 pointer-events-none border-none"
                             : "text-primary hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-md border-none"
@@ -222,7 +222,7 @@ export function CalendarModal({
             type="button"
             disabled={!rangeStart || !rangeEnd}
             onClick={onClose}
-            className="px-5 py-2 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-40 border-none outline-none"
+            className="px-5 py-2 bg-secondary hover:bg-secondary/90 text-primary dark:text-neutral-bg text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-40 border-none outline-none"
           >
             Apply Dates
           </button>

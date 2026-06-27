@@ -2,6 +2,7 @@
 
 import api from "@/services/api";
 import { Hotel } from "@/services/destinationService";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar as CalendarIcon,
   Loader2,
@@ -19,6 +20,7 @@ interface BookingCardProps {
 
 export default function BookingCard({ hotel }: BookingCardProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [guests, setGuests] = useState("1");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -68,7 +70,10 @@ export default function BookingCard({ hotel }: BookingCardProps) {
         },
       });
 
-      if (response.data?._id) router.push(`/planner/${response.data._id}`);
+      if (response.data?._id) {
+        await queryClient.invalidateQueries({ queryKey: ["trips"] });
+        router.push("/planner?tab=trips");
+      }
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || "Booking failed.");
     } finally {
@@ -141,13 +146,13 @@ export default function BookingCard({ hotel }: BookingCardProps) {
         <button
           type="submit"
           disabled={isSubmitting || !rangeStart || !rangeEnd}
-          className="w-full py-3.5 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition-all shadow-xs tracking-wider uppercase cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] border-none"
+          className="w-full py-3.5 bg-secondary hover:bg-secondary/90 text-primary dark:text-neutral-bg font-bold rounded-xl transition-all shadow-sm tracking-wider uppercase cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] border-none"
         >
           {isSubmitting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin text-primary dark:text-neutral-bg" />
           ) : (
             <>
-              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <Sparkles className="w-3.5 h-3.5 fill-current text-primary dark:text-neutral-bg" />
               <span>Book This Sanctuary</span>
             </>
           )}
