@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import {
+  Notification,
+  NotificationDocument,
+} from '../schemas/notification.schema';
 import { Trip, TripDocument } from '../schemas/trip.schema';
 
 @Injectable()
@@ -8,6 +16,8 @@ export class TripsService {
   constructor(
     @InjectModel(Trip.name) private tripModel: Model<TripDocument>,
     @InjectModel('Hotel') private hotelModel: Model<any>,
+    @InjectModel(Notification.name)
+    private notificationModel: Model<NotificationDocument>,
   ) {}
 
   async create(tripData: any, userId: string) {
@@ -161,5 +171,83 @@ export class TripsService {
     trip.itinerary = updatedItinerary;
     trip.markModified('itinerary');
     return await trip.save();
+  }
+
+  async shareTrip(tripId: string, friendEmail: string, ownerId: string) {
+    const trip = await this.tripModel
+      .findOne({ _id: tripId, owner: ownerId } as any)
+      .exec();
+
+    if (!trip) {
+      throw new NotFoundException('Trip not found or you are not the owner');
+    }
+
+    const friend = await this.hotelModel.db
+      .model('User')
+      .findOne({ email: friendEmail })
+      .exec();
+
+    if (!friend) {
+      throw new BadRequestException('User with this email does not exist.');
+    }
+
+    if (trip.collaborators.includes(friend._id)) {
+      throw new BadRequestException('This user is already a collaborator.');
+    }
+
+    const existingInvite = await this.notificationModel
+      .findOne({
+        recipient: friend._id,
+        type: 'invite',
+        'metadata.tripId': tripId,
+        isRead: false,
+      } as any)
+      .exec();
+
+    if (existingInvite) {
+      throw new BadRequestException(
+        'An active invitation has already been sent to this user.',
+      );
+    }
+
+    await this.notificationModel.create({
+      recipient: friend._id,
+      title: 'Trip Invitation ✈️',
+      message: `You have been invited to join the trip: "${trip.title}"`,
+      type: 'invite',
+      metadata: {
+        tripId: trip._id,
+        senderId: ownerId,
+      },
+    });
+
+    return { success: true, message: 'Invitation sent to user notifications!' };
+  }
+
+  async acceptInvitation(tripId: string, userId: string) {
+    const trip = await this.tripModel.findById(tripId).exec();
+    if (!trip) {
+      throw new NotFoundException('Trip not found');
+    }
+
+    if (trip.collaborators.includes(userId as any)) {
+      throw new BadRequestException('You are already a collaborator.');
+    }
+
+    trip.collaborators.push(userId as any);
+    await trip.save();
+
+    await this.notificationModel
+      .updateMany(
+        {
+          recipient: new Types.ObjectId(userId),
+          type: 'invite',
+          'metadata.tripId': tripId,
+        } as any,
+        { isRead: true },
+      )
+      .exec();
+
+    return { success: true, message: 'You successfully joined the trip!' };
   }
 }

@@ -85,4 +85,20 @@ export class TripsController {
     const userId = req.user.sub || req.user.id;
     return this.tripsService.updateItinerary(tripId, itinerary, userId);
   }
+
+  @Post(':id/share')
+  async shareTrip(
+    @Param('id') tripId: string,
+    @Body('email') email: string,
+    @Req() req: any,
+  ) {
+    const userId = req.user.sub || req.user.id;
+    return this.tripsService.shareTrip(tripId, email, userId);
+  }
+
+  @Patch(':id/accept')
+  async acceptInvitation(@Param('id') tripId: string, @Req() req: any) {
+    const userId = req.user.sub || req.user.id;
+    return this.tripsService.acceptInvitation(tripId, userId);
+  }
 }
