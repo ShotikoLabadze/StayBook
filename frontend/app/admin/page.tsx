@@ -35,6 +35,28 @@ export default function AdminDashboard() {
   const [triggerCreateHotel, setTriggerCreateHotel] = useState(0);
 
   useEffect(() => {
+    const navbar = document.querySelector("nav");
+    const sidebar = document.querySelector("aside");
+    const mainArea = document.querySelector("main");
+
+    if (navbar) navbar.style.display = "none";
+    if (sidebar) sidebar.style.display = "none";
+    if (mainArea) {
+      mainArea.style.height = "100vh";
+      mainArea.style.width = "100vw";
+    }
+
+    return () => {
+      if (navbar) navbar.style.display = "";
+      if (sidebar) sidebar.style.display = "";
+      if (mainArea) {
+        mainArea.style.height = "";
+        mainArea.style.width = "";
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
 
     if (user.role !== "admin") {
