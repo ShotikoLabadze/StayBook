@@ -8,8 +8,10 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [email, setEmail] = useState("johndoe@staybook.com");
+  const [password, setPassword] = useState("password123");
+
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,7 +96,8 @@ export default function LoginPage() {
               Welcome back
             </h2>
             <p className="text-sm text-text-muted">
-              Enter your details to access your dashboard
+              Enter your details to access your dashboard (Demo account
+              pre-filled)
             </p>
           </div>
 
@@ -148,7 +151,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg rounded-xl text-sm font-semibold tracking-wide shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
+              className="w-full py-3.5 bg-primary hover:bg-primary/95 dark:bg-secondary dark:hover:bg-secondary/90 text-white dark:text-neutral-bg rounded-xl text-sm font-semibold tracking-wide shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer border-none"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin text-secondary dark:text-neutral-bg" />
