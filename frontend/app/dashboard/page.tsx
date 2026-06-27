@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { DollarSign, Leaf, Plane } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import AnalyticsWidget, { AnalyticItem } from "./components/AnalyticsWidget";
 import BudgetOverview from "./components/BudgetOverview";
@@ -117,9 +118,13 @@ export default function DashboardPage() {
             <h2 className="font-headline text-sm font-bold text-primary tracking-tight">
               Upcoming Trips
             </h2>
-            <button className="text-xs font-semibold text-secondary hover:underline cursor-pointer">
+
+            <Link
+              href="/planner?tab=trips"
+              className="text-xs font-semibold text-secondary hover:underline cursor-pointer decoration-none"
+            >
               View all
-            </button>
+            </Link>
           </div>
 
           {loading ? (
@@ -157,9 +162,7 @@ export default function DashboardPage() {
                     id={trip._id}
                     title={trip.title || "Untitled Trip"}
                     dates={dateString}
-                    progress={
-                      trip.title?.toLowerCase().includes("amalfi") ? 75 : 35
-                    }
+                    itinerary={trip.itinerary || []}
                     daysLeft={daysLeft > 0 ? daysLeft : 0}
                     image={imageFallback}
                   />

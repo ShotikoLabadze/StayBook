@@ -1,24 +1,33 @@
 "use client";
 
+import { TripItineraryDay } from "@/services/tripService";
 import Link from "next/link";
 
 interface TripCardProps {
   id: string;
   title: string;
   dates: string;
-  progress: number;
   daysLeft: number;
   image: string;
+  itinerary: TripItineraryDay[];
 }
 
 export default function TripCard({
   id,
   title,
   dates,
-  progress,
   daysLeft,
   image,
+  itinerary = [],
 }: TripCardProps) {
+  const totalDays = itinerary.length;
+  const plannedDays = itinerary.filter(
+    (day) => day.activities && day.activities.length > 0,
+  ).length;
+
+  const dynamicProgress =
+    totalDays > 0 ? Math.round((plannedDays / totalDays) * 100) : 0;
+
   return (
     <Link
       href={`/planner/${id}`}
@@ -44,12 +53,12 @@ export default function TripCard({
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px] font-semibold text-text-muted">
             <span>Planning Progress</span>
-            <span className="text-primary">{progress}%</span>
+            <span className="text-primary">{dynamicProgress}%</span>
           </div>
           <div className="w-full h-1.5 bg-neutral-bg rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${dynamicProgress}%` }}
             />
           </div>
         </div>

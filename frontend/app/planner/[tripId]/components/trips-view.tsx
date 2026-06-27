@@ -43,31 +43,46 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {allTrips.map((trip) => (
-          <div
-            key={trip._id}
-            onClick={() => onTripSelect(trip._id)}
-            className="p-5 bg-card-bg border border-border-subtle rounded-2xl shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-between group cursor-pointer"
-          >
-            <div className="space-y-1.5 max-w-[80%]">
-              <h3 className="text-sm font-bold text-primary transition-colors truncate">
-                {trip.title}
-              </h3>
-              <div className="flex items-center gap-3 text-[11px] text-text-muted">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />{" "}
-                  {trip.destination || "Luxury Sanctuary"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> {trip.itinerary?.length || 0}{" "}
-                  Days
-                </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl w-full mx-auto">
+        {allTrips.map((trip) => {
+          const imageFallback = trip.title?.toLowerCase().includes("amalfi")
+            ? "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=600&auto=format&fit=crop"
+            : "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop";
+
+          return (
+            <div
+              key={trip._id}
+              onClick={() => onTripSelect(trip._id)}
+              className="p-5 bg-card-bg border border-border-subtle rounded-2xl shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center gap-5 group cursor-pointer w-full max-w-lg mx-auto"
+            >
+              <div className="w-24 h-24 rounded-xl overflow-hidden bg-neutral-bg shrink-0 border border-border-subtle shadow-2xs">
+                <img
+                  src={trip.image || imageFallback}
+                  alt={trip.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
+
+              <div className="space-y-2 min-w-0 flex-1 py-1">
+                <h3 className="text-sm font-bold text-primary transition-colors group-hover:text-secondary line-clamp-2 leading-snug">
+                  {trip.title}
+                </h3>
+                <div className="flex flex-col gap-1.5 text-[11px] text-text-muted">
+                  <span className="flex items-center gap-1.5 truncate">
+                    <MapPin className="w-3.5 h-3.5 text-secondary shrink-0" />
+                    {trip.destination || "Luxury Sanctuary"}
+                  </span>
+                  <span className="flex items-center gap-1.5 shrink-0 font-medium">
+                    <Calendar className="w-3.5 h-3.5 text-text-muted shrink-0" />
+                    {trip.itinerary?.length || 0} Days
+                  </span>
+                </div>
+              </div>
+
+              <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-primary dark:group-hover:text-secondary group-hover:translate-x-1 transition-all shrink-0 ml-2" />
             </div>
-            <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-primary dark:group-hover:text-secondary group-hover:translate-x-1 transition-all" />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
