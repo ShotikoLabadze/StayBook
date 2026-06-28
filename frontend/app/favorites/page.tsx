@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { userService } from "@/services/userService";
 import { HeartCrack, Loader2 } from "lucide-react";
@@ -125,6 +126,7 @@ export default function FavoritesPage() {
           })}
         </div>
       )}
+      <Footer variant="dashboard" />
     </div>
   );
 }

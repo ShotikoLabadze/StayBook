@@ -1,26 +1,17 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { DollarSign, Leaf, Plane } from "lucide-react";
+import { TripData, tripService } from "@/services/tripService";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import AnalyticsWidget, { AnalyticItem } from "./components/AnalyticsWidget";
-import BudgetOverview from "./components/BudgetOverview";
+import { useDashboardMetrics } from "./hooks/useDashboardMetrics";
 
+import Footer from "@/components/Footer";
+import AnalyticsWidget from "./components/AnalyticsWidget";
+import BudgetOverview from "./components/BudgetOverview";
 import RecentActivity from "./components/RecentActivity";
 import TripCard from "./components/TripCard";
 import WelcomeBanner from "./components/WelcomeBanner";
-
-import { TripData, tripService } from "@/services/tripService";
-
-const categoryColors: Record<string, string> = {
-  flight: "bg-primary",
-  hotel: "bg-secondary",
-  food: "bg-rose-400",
-  activity: "bg-emerald-400",
-  transport: "bg-slate-400",
-};
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -28,85 +19,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        setLoading(true);
-        const data = await tripService.getAll();
-        setTrips(data);
-      } catch (err) {
-        console.error("Failed to load user trips:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (user) {
-      fetchTrips();
+      tripService
+        .getAll()
+        .then((data) => setTrips(data))
+        .catch((err) => console.error("Failed to load user trips:", err))
+        .finally(() => setLoading(false));
     }
   }, [user]);
 
-  let totalSpent = 0;
-  let totalLimit = 0;
-  const budgetMap: Record<string, number> = {};
-
-  trips.forEach((trip) => {
-    totalLimit += trip.budget?.totalLimit || 0;
-
-    trip.itinerary?.forEach((day) => {
-      day.activities?.forEach((act) => {
-        const cost = act.cost || 0;
-        totalSpent += cost;
-
-        const catKey = act.category || "activity";
-        budgetMap[catKey] = (budgetMap[catKey] || 0) + cost;
-      });
-    });
-  });
-
-  const dynamicBudgetData = Object.keys(budgetMap).map((key) => ({
-    cat: key.charAt(0).toUpperCase() + key.slice(1),
-    amt: `$${budgetMap[key].toLocaleString()}`,
-    color: categoryColors[key] || "bg-slate-300",
-  }));
-
-  const analyticsData: AnalyticItem[] = [
-    {
-      label: "Total Spent",
-      val: `$${totalSpent.toLocaleString()}`,
-      icon: DollarSign,
-      bg: "bg-blue-500/10 text-blue-500",
-    },
-    {
-      label: "Miles Flown",
-      val:
-        trips.length > 0
-          ? `${(trips.length * 3420).toLocaleString()} km`
-          : "0 km",
-      icon: Plane,
-      bg: "bg-cyan-500/10 text-cyan-500",
-    },
-    {
-      label: "Carbon Footprint",
-      val:
-        trips.length > 0 ? `${(trips.length * 0.8).toFixed(1)} tCO2` : "0 tCO2",
-      icon: Leaf,
-      bg: "bg-emerald-500/10 text-emerald-500",
-    },
-  ];
-
-  const dynamicActivities = trips
-    .flatMap((trip) =>
-      (trip.itinerary || []).flatMap((day) =>
-        (day.activities || []).map((act) => ({
-          id: act.id,
-          title: `${user?.name || "Member"} registered an action`,
-          desc: `${act.title} - ${trip.title || "Trip Planning"}`,
-          time: "Synced",
-          category: act.category,
-        })),
-      ),
-    )
-    .slice(0, 5);
+  const metrics = useDashboardMetrics(trips, user);
 
   return (
     <div className="p-10 space-y-10 max-w-7xl w-full mx-auto flex-1">
@@ -118,7 +40,6 @@ export default function DashboardPage() {
             <h2 className="font-headline text-sm font-bold text-primary tracking-tight">
               Upcoming Trips
             </h2>
-
             <Link
               href="/planner?tab=trips"
               className="text-xs font-semibold text-secondary hover:underline cursor-pointer decoration-none"
@@ -144,12 +65,11 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {trips.slice(0, 2).map((trip) => {
                 const start = new Date(trip.startDate);
-                const today = new Date();
-                const diffTime = start.getTime() - today.getTime();
-                const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                const dateString = `${new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(trip.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
-
+                const daysLeft = Math.ceil(
+                  (start.getTime() - new Date().getTime()) /
+                    (1000 * 60 * 60 * 24),
+                );
+                const dateString = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(trip.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
                 const imageFallback = trip.title
                   ?.toLowerCase()
                   .includes("amalfi")
@@ -176,7 +96,7 @@ export default function DashboardPage() {
           <h2 className="font-headline text-sm font-bold text-primary tracking-tight">
             Analytics
           </h2>
-          <AnalyticsWidget items={analyticsData} />
+          <AnalyticsWidget items={metrics.analyticsData} />
         </div>
       </div>
 
@@ -184,16 +104,15 @@ export default function DashboardPage() {
         <div className="lg:col-span-6">
           <BudgetOverview
             tripId={trips[0]?._id || ""}
-            data={dynamicBudgetData}
-            totalLimit={totalLimit}
-            totalSpent={totalSpent}
+            data={metrics.dynamicBudgetData}
+            totalLimit={metrics.totalLimit}
+            totalSpent={metrics.totalSpent}
           />
         </div>
         <div className="lg:col-span-6">
-          <RecentActivity activities={dynamicActivities} />
+          <RecentActivity activities={metrics.dynamicActivities} />
         </div>
       </div>
-
       <Footer variant="dashboard" />
     </div>
   );
