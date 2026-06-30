@@ -45,9 +45,27 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl w-full mx-auto">
         {allTrips.map((trip) => {
-          const imageFallback = trip.title?.toLowerCase().includes("amalfi")
-            ? "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=600&auto=format&fit=crop"
-            : "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop";
+          let hotelImage: string | undefined;
+          trip.itinerary?.forEach((day: any) => {
+            day.activities?.forEach((activity: any) => {
+              if (activity.category === "hotel" && activity.image) {
+                hotelImage = activity.image;
+              }
+            });
+          });
+
+          const searchableText =
+            `${trip.title || ""} ${trip.destination || ""}`.toLowerCase();
+
+          const imageFallback =
+            hotelImage ||
+            (searchableText.includes("paris")
+              ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600&auto=format&fit=crop"
+              : searchableText.includes("kyoto")
+                ? "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop"
+                : searchableText.includes("amalfi")
+                  ? "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=600&auto=format&fit=crop"
+                  : "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=600&auto=format&fit=crop");
 
           return (
             <div
@@ -57,7 +75,7 @@ export function TripsView({ onTripSelect }: TripsViewProps) {
             >
               <div className="w-24 h-24 rounded-xl overflow-hidden bg-neutral-bg shrink-0 border border-border-subtle shadow-2xs">
                 <img
-                  src={trip.image || imageFallback}
+                  src={imageFallback}
                   alt={trip.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

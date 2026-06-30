@@ -70,11 +70,28 @@ export default function DashboardPage() {
                     (1000 * 60 * 60 * 24),
                 );
                 const dateString = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(trip.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
-                const imageFallback = trip.title
-                  ?.toLowerCase()
-                  .includes("amalfi")
-                  ? "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=600&auto=format&fit=crop"
-                  : "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop";
+
+                let hotelImage: string | undefined;
+                trip.itinerary?.forEach((day) => {
+                  day.activities?.forEach((activity) => {
+                    if (activity.category === "hotel" && activity.image) {
+                      hotelImage = activity.image;
+                    }
+                  });
+                });
+
+                const searchableText =
+                  `${trip.title || ""} ${trip.destination || ""}`.toLowerCase();
+
+                const imageFallback =
+                  hotelImage ||
+                  (searchableText.includes("paris")
+                    ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600&auto=format&fit=crop"
+                    : searchableText.includes("kyoto")
+                      ? "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop"
+                      : searchableText.includes("amalfi")
+                        ? "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=600&auto=format&fit=crop"
+                        : "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=600&auto=format&fit=crop");
 
                 return (
                   <TripCard
