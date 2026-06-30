@@ -6,26 +6,23 @@ import { motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
-  Camera,
   CheckCircle2,
   Loader2,
   LogOut,
-  Shield,
-  User,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import AvatarUpload from "./components/AvatarUpload";
+import IdentityForm from "./components/IdentityForm";
+import SecurityForm from "./components/SecurityForm";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.4,
-      when: "beforeChildren",
-      staggerChildren: 0.1,
-    },
+    transition: { duration: 0.4, when: "beforeChildren", staggerChildren: 0.1 },
   },
 };
 
@@ -36,7 +33,6 @@ const itemVariants = {
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -82,31 +78,6 @@ export default function ProfilePage() {
       );
     }
   }, [user]);
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const maxSize = 1 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setMessage({
-        type: "error",
-        text: "File is too large! Maximum allowed size is 1MB.",
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setAvatar(reader.result as string);
-      setMessage(null);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,129 +162,27 @@ export default function ProfilePage() {
         )}
 
         <form onSubmit={handleSave} className="space-y-6">
-          <motion.div
+          <AvatarUpload
+            avatar={avatar}
+            onAvatarChange={setAvatar}
+            onError={(errText) => setMessage({ type: "error", text: errText })}
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs flex items-center space-x-6"
-          >
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
+          />
 
-            <div
-              onClick={handleAvatarClick}
-              className="relative group cursor-pointer shrink-0"
-            >
-              <img
-                src={
-                  avatar ||
-                  user?.avatar ||
-                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
-                }
-                alt="User Avatar"
-                className="w-20 h-20 rounded-full object-cover ring-4 ring-secondary/20 transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-slate-900/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Camera className="w-5 h-5 text-white" />
-              </div>
-            </div>
-
-            <div className="text-left">
-              <button
-                type="button"
-                onClick={handleAvatarClick}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-medium rounded-xl transition duration-200 active:scale-95 cursor-pointer border-none"
-              >
-                Change avatar
-              </button>
-              <p className="text-xs text-text-muted mt-1">PNG, JPG up to 1MB</p>
-            </div>
-          </motion.div>
-
-          <motion.div
+          <IdentityForm
+            name={name}
+            setName={setName}
+            email={email}
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs space-y-4"
-          >
-            <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
-              <User className="w-4 h-4 text-secondary" />
-              <h3 className="text-base font-bold font-headline text-primary">
-                Identity
-              </h3>
-            </div>
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-              <div>
-                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-text-muted opacity-80 uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg/40 text-text-muted text-sm cursor-not-allowed opacity-60"
-                />
-                <p className="text-xs text-text-muted mt-1">
-                  Email cannot be modified.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
+          <SecurityForm
+            currentPassword={currentPassword}
+            setCurrentPassword={setCurrentPassword}
+            newPassword={newPassword}
+            setNewPassword={setNewPassword}
             variants={itemVariants}
-            className="bg-card-bg p-6 rounded-2xl border border-border-subtle shadow-xs space-y-4"
-          >
-            <div className="flex items-center gap-2 pb-2 border-b border-border-subtle">
-              <Shield className="w-4 h-4 text-tertiary" />
-              <h3 className="text-base font-bold font-headline text-primary">
-                Security
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-              <div>
-                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-neutral-bg focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-transparent transition"
-                />
-              </div>
-            </div>
-          </motion.div>
+          />
 
           <motion.div
             variants={itemVariants}
