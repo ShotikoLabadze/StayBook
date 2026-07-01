@@ -34,7 +34,6 @@ export class NotificationsService {
     this.notifGateway.sendNotificationToUser(recipientId, notif);
     return notif;
   }
-
   async getUserNotifications(userId: string) {
     return this.notifModel
       .find({ recipient: new Types.ObjectId(userId) } as any)

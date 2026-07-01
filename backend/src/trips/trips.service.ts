@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   Notification,
   NotificationDocument,
@@ -18,6 +19,7 @@ export class TripsService {
     @InjectModel('Hotel') private hotelModel: Model<any>,
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(tripData: any, userId: string) {
@@ -210,18 +212,24 @@ export class TripsService {
       );
     }
 
-    await this.notificationModel.create({
-      recipient: friend._id,
-      title: 'Trip Invitation ✈️',
-      message: `You have been invited to join the trip: "${trip.title}"`,
-      type: 'invite',
-      metadata: {
-        tripId: trip._id,
-        senderId: ownerId,
-      },
-    });
-
-    return { success: true, message: 'Invitation sent to user notifications!' };
+    try {
+      await this.notificationsService.createAndSend(
+        friend._id.toString(),
+        'Trip Invitation ✈️',
+        `You have been invited to join the trip: "${trip.title}"`,
+        'invite',
+        {
+          tripId: trip._id,
+          senderId: ownerId,
+        },
+      );
+      return {
+        success: true,
+        message: 'Invitation sent to user notifications!',
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async acceptInvitation(tripId: string, userId: string) {

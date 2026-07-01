@@ -34,7 +34,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       const unreadCount = notifications.filter((n: any) => !n.isRead).length;
       set({ notifications, unreadCount });
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      console.error(error);
     }
   },
 
@@ -43,9 +43,16 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
     const socketUrl =
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
-    const socket = io(socketUrl);
 
-    socket.emit("registerUser", userId);
+    const socket = io(socketUrl, {
+      path: "/socket.io",
+      transports: ["websocket"],
+      autoConnect: true,
+    });
+
+    socket.on("connect", () => {
+      socket.emit("registerUser", userId);
+    });
 
     socket.on("newNotification", (notification: Notification) => {
       toast.info(`${notification.title}: ${notification.message}`, {
@@ -56,6 +63,10 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         notifications: [notification, ...state.notifications],
         unreadCount: state.unreadCount + 1,
       }));
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error(error.message);
     });
 
     set({ socket });
@@ -72,6 +83,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   markAsRead: async (id: string) => {
     try {
       await api.patch(`/notifications/${id}/read`);
+
       set((state) => ({
         notifications: state.notifications.map((n) =>
           n._id === id ? { ...n, isRead: true } : n,
@@ -79,7 +91,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         unreadCount: Math.max(0, state.unreadCount - 1),
       }));
     } catch (error) {
-      console.error("Failed to mark notification as read:", error);
+      console.error(error);
     }
   },
 }));

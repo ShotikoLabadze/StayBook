@@ -14,5 +14,6 @@ import { DestinationsService } from './destinations.service';
   ],
   controllers: [DestinationsController],
   providers: [DestinationsService],
+  exports: [MongooseModule],
 })
 export class DestinationsModule {}

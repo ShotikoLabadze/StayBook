@@ -9,10 +9,11 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'https://stay-book-gpv2.vercel.app'],
-    methods: ['GET', 'POST'],
+    origin: 'https://stay-book-gpv2.vercel.app',
     credentials: true,
+    methods: ['GET', 'POST'],
   },
+  transports: ['websocket'],
 })
 export class NotificationsGateway {
   @WebSocketServer()
@@ -24,10 +25,15 @@ export class NotificationsGateway {
     @MessageBody() userId: string,
   ) {
     client.join(userId);
-    console.log(`Socket: User ${userId} connected to personal channel.`);
   }
 
   sendNotificationToUser(userId: string, notification: any) {
-    this.server.to(userId).emit('newNotification', notification);
+    if (!this.server) return;
+
+    try {
+      this.server.to(userId).emit('newNotification', notification);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
