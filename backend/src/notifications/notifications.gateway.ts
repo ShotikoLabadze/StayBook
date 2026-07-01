@@ -7,7 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  cors: {
+    origin: ['http://localhost:3000', 'https://stay-book-gpv2.vercel.app'],
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+})
 export class NotificationsGateway {
   @WebSocketServer()
   server!: Server;

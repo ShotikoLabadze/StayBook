@@ -10,8 +10,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: '*',
+    origin: ['http://localhost:3000', 'https://stay-book-gpv2.vercel.app'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
