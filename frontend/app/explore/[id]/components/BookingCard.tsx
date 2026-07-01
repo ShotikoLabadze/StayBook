@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
 import { Hotel } from "@/services/destinationService";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { CalendarModal } from "./CalendarModal";
 
 interface BookingCardProps {
@@ -21,6 +23,8 @@ interface BookingCardProps {
 export default function BookingCard({ hotel }: BookingCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   const [guests, setGuests] = useState("1");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -28,6 +32,8 @@ export default function BookingCard({ hotel }: BookingCardProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [rangeStart, setRangeStart] = useState<Date | null>(new Date());
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
+
+  const hotelId = String(hotel._id || hotel.id);
 
   const formatDisplayDate = (date: Date | null) => {
     if (!date) return "...";
@@ -40,6 +46,13 @@ export default function BookingCard({ hotel }: BookingCardProps) {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      toast.error(`Please log in to book ${hotel.name || "this sanctuary"}.`);
+      router.push(`/login?redirect=/explore/${hotelId}`);
+      return;
+    }
+
     if (!rangeStart || !rangeEnd) {
       setErrorMessage("Please select both Check-In and Check-Out dates.");
       return;
@@ -61,7 +74,7 @@ export default function BookingCard({ hotel }: BookingCardProps) {
         checkOut: rangeEnd.toISOString(),
         guests: Number(guests),
         totalPrice: hotel.pricePerNight * nightsCount,
-        hotelId: String(hotel._id || hotel.id),
+        hotelId: hotelId,
         latitude: hotel.coordinates?.lat,
         longitude: hotel.coordinates?.lng,
         budget: {
@@ -71,6 +84,9 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       });
 
       if (response.data?._id) {
+        toast.success(
+          "Sanctuary booked successfully! Redirecting to workspace... ✨",
+        );
         await queryClient.invalidateQueries({ queryKey: ["trips"] });
         router.push("/planner?tab=trips");
       }
@@ -80,6 +96,9 @@ export default function BookingCard({ hotel }: BookingCardProps) {
       setIsSubmitting(false);
     }
   };
+
+  const isButtonDisabled =
+    isSubmitting || (!!user && (!rangeStart || !rangeEnd));
 
   return (
     <div className="bg-card-bg border border-border-subtle rounded-3xl p-6 shadow-2xs space-y-6 text-left relative">
@@ -145,7 +164,7 @@ export default function BookingCard({ hotel }: BookingCardProps) {
 
         <button
           type="submit"
-          disabled={isSubmitting || !rangeStart || !rangeEnd}
+          disabled={isButtonDisabled}
           className="w-full py-3.5 bg-secondary hover:bg-secondary/90 text-primary dark:text-neutral-bg font-bold rounded-xl transition-all shadow-sm tracking-wider uppercase cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] border-none"
         >
           {isSubmitting ? (

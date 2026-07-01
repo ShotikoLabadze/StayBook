@@ -54,7 +54,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    if (userData?.role === "admin") {
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectUrl = searchParams.get("redirect");
+
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else if (userData?.role === "admin") {
       router.push("/admin");
     } else {
       router.push("/dashboard");
