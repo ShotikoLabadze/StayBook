@@ -7,8 +7,6 @@ import {
   GripVertical,
   Hotel,
   MapPin,
-  MessageSquare,
-  Paperclip,
   Plane,
   Trash2,
 } from "lucide-react";
@@ -134,17 +132,6 @@ export function PlanItem({ item, dayIndex, isClone, onDelete }: PlanItemProps) {
               📍 {item.location.name}
             </p>
           )}
-        </div>
-
-        <div className="flex items-center gap-2.5 pt-0.5 text-text-muted text-[9px] font-bold">
-          <div className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-            <MessageSquare className="h-2.5 w-2.5 opacity-70" />
-            <span>0</span>
-          </div>
-          <div className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-            <Paperclip className="h-2.5 w-2.5 opacity-70" />
-            <span>0</span>
-          </div>
         </div>
       </div>
     </div>
