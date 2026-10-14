@@ -27,13 +27,8 @@ export default function HotelMap({ hotel }: HotelMapProps) {
 
   const tileUrl =
     mounted && theme === "dark"
-      ? "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-
-  const tileAttribution =
-    mounted && theme === "dark"
-      ? '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
 
   const customIcon = L.divIcon({
     className: "hotel-details-marker",
@@ -67,7 +62,10 @@ export default function HotelMap({ hotel }: HotelMapProps) {
           className="w-full h-full"
           scrollWheelZoom={false}
         >
-          <TileLayer attribution={tileAttribution} url={tileUrl} />
+          <TileLayer
+            attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url={tileUrl}
+          />
           <Marker position={position} icon={customIcon}>
             <Popup>
               <div className="font-body text-xs font-bold text-slate-900 dark:text-slate-100 p-0.5">
