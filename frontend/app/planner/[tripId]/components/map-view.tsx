@@ -138,8 +138,13 @@ export function MapView({ trips }: MapViewProps) {
 
   const tileUrl =
     theme === "dark"
-      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+      ? "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+  const tileAttribution =
+    theme === "dark"
+      ? '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   return (
     <div className="bg-card-bg border border-border-subtle rounded-3xl p-4 lg:p-6 shadow-xl flex-1 flex flex-col lg:flex-row gap-6 min-h-[550px] w-full transition-colors duration-300">
@@ -227,10 +232,7 @@ export function MapView({ trips }: MapViewProps) {
             style={{ height: "100%", width: "100%" }}
             className="clean-map-container"
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url={tileUrl}
-            />
+            <TileLayer attribution={tileAttribution} url={tileUrl} />
 
             {validLocations.map((act) => (
               <Marker

@@ -19,7 +19,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       { name: 'Hotel', schema: HotelSchema },
       { name: Notification.name, schema: NotificationSchema },
     ]),
-    NotificationsModule,
+    NotificationsModule, 
   ],
   controllers: [TripsController],
   providers: [TripsService],
